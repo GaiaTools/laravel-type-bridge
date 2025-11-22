@@ -23,7 +23,7 @@ class EnumGeneratorTest extends TestCase
         $discoveryConfig = new EnumDiscoveryConfig(
             paths: [__DIR__.'/../Fixtures/Enums'],
             generateBackedEnums: true,
-            excludes: [],
+            excludes: ['TestNoComments'],
         );
 
         $generatorConfig = self::createGeneratorConfig();
@@ -55,7 +55,7 @@ class EnumGeneratorTest extends TestCase
         $discoveryConfig = new EnumDiscoveryConfig(
             paths: [__DIR__.'/../Fixtures/Enums'],
             generateBackedEnums: true,
-            excludes: [],
+            excludes: ['TestNoComments'],
         );
 
         $generatorConfig = static::createGeneratorConfig(
@@ -95,7 +95,7 @@ class EnumGeneratorTest extends TestCase
         $discoveryConfig = new EnumDiscoveryConfig(
             paths: [__DIR__.'/../Fixtures/Enums'],
             generateBackedEnums: true,
-            excludes: [],
+            excludes: ['TestNoComments'],
         );
 
         $generatorConfig = self::createGeneratorConfig();
@@ -117,7 +117,7 @@ class EnumGeneratorTest extends TestCase
         $discoveryConfig = new EnumDiscoveryConfig(
             paths: [__DIR__.'/../Fixtures/Enums'],
             generateBackedEnums: true,
-            excludes: ['TestStatus'],
+            excludes: ['TestStatus', 'TestNoComments'],
         );
 
         $generatorConfig = self::createGeneratorConfig();

@@ -81,6 +81,22 @@ class TranslationTransformerTest extends TestCase
     }
 
     #[Test]
+    public function it_hoists_nested_enums_key_inside_grouped_file(): void
+    {
+        $source = ['locale' => 'en', 'flat' => false];
+
+        $result = $this->transformer->transform($source);
+
+        // The 'mixed.php' file contains a nested 'enums' key; it should be hoisted and 'enums' removed
+        $this->assertArrayHasKey('mixed', $result->data);
+        $this->assertIsArray($result->data['mixed']);
+        $this->assertArrayNotHasKey('enums', $result->data['mixed']);
+        $this->assertArrayHasKey('NestedStatus', $result->data['mixed']);
+        $this->assertArrayHasKey('A', $result->data['mixed']['NestedStatus']);
+        $this->assertSame('a', $result->data['mixed']['NestedStatus']['A']);
+    }
+
+    #[Test]
     public function it_flattens_translations_when_requested(): void
     {
         $source = ['locale' => 'en', 'flat' => true];

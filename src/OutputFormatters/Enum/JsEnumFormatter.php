@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GaiaTools\TypeBridge\OutputFormatters\Enum;
 
 use GaiaTools\TypeBridge\Contracts\OutputFormatter;
+use GaiaTools\TypeBridge\Support\StringQuoter;
 use GaiaTools\TypeBridge\ValueObjects\TransformedEnum;
 
 final class JsEnumFormatter implements OutputFormatter
@@ -22,7 +23,11 @@ final class JsEnumFormatter implements OutputFormatter
             if ($case->docComment) {
                 $lines[] = self::INDENT.$case->docComment;
             }
-            $formattedValue = is_string($case->value) ? "'{$case->value}'" : $case->value;
+            if (is_string($case->value)) {
+                $formattedValue = StringQuoter::quoteJs($case->value);
+            } else {
+                $formattedValue = $case->value;
+            }
             $lines[] = sprintf(self::INDENT.'%s: %s,', $case->name, $formattedValue);
         }
 
