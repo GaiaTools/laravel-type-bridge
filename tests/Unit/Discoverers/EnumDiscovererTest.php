@@ -88,7 +88,7 @@ class EnumDiscovererTest extends TestCase
         $config = new EnumDiscoveryConfig(
             paths: [__DIR__.'/../../Fixtures/Enums'],
             generateBackedEnums: true,
-            excludes: ['TestStatus', 'TestPriority', 'TestRole'],
+            excludes: ['TestStatus', 'TestPriority', 'TestRole', 'TestNoComments'],
         );
 
         $discoverer = new EnumDiscoverer($config);

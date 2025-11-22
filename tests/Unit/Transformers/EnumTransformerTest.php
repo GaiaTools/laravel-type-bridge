@@ -86,10 +86,9 @@ class EnumTransformerTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessageMatches('/missing a doc comment/');
 
-        // TestStatus doesn't have comments but we'll try to force validation
-        // We need a way to test this - maybe create a test enum without comments
-        // For now, we'll skip this specific test or create a fixture
+        $reflection = new \ReflectionEnum(\GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestNoComments::class);
 
-        $this->markTestSkipped('Need fixture enum with requiresComments=true but no comments');
+        // This should throw because requiresComments=true and cases lack doc comments
+        $this->transformer->transform($reflection);
     }
 }
