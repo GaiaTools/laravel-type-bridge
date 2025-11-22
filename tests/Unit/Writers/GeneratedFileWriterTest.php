@@ -8,7 +8,6 @@ use GaiaTools\TypeBridge\Tests\TestCase;
 use GaiaTools\TypeBridge\ValueObjects\GeneratedFile;
 use GaiaTools\TypeBridge\Writers\GeneratedFileWriter;
 use Illuminate\Support\Facades\File;
-use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
 
 class GeneratedFileWriterTest extends TestCase
@@ -18,7 +17,7 @@ class GeneratedFileWriterTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->writer = new GeneratedFileWriter();
+        $this->writer = new GeneratedFileWriter;
     }
 
     #[Test]
