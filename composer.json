@@ -1,0 +1,56 @@
+{
+    "name": "gaiatools/laravel-type-bridge",
+    "description": "Laravel package for generating TypeScript/JavaScript enums and translations from PHP enums",
+    "keywords": ["laravel", "typescript", "javascript", "enums", "translations", "code generation"],
+    "type": "library",
+    "license": "MIT",
+    "support": {
+      "issues": "https://github.com/GaiaTools/laravel-type-bridge/issues",
+      "source": "https://github.com/GaiaTools/laravel-type-bridge"
+    },
+    "authors": [
+        {
+            "name": "Gaia Tools",
+            "email": "support@gaiatools.com"
+        }
+    ],
+    "require": {
+        "php": "^8.2||^8.3||^8.4",
+        "illuminate/console": "^11.0|^12.0",
+        "illuminate/support": "^11.0|^12.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0 || ^11.0 || ^12.0",
+        "orchestra/testbench": "^10.0",
+        "laravel/pint": "^1.25",
+        "phpstan/phpstan": "^2.1",
+        "larastan/larastan": "^3.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "GaiaTools\\TypeBridge\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "GaiaTools\\TypeBridge\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+      "lint": "@php vendor/bin/pint --test",
+      "lint:fix": "@php vendor/bin/pint",
+      "test": "vendor/bin/phpunit",
+      "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
+      "analyze": "phpstan analyse",
+      "phpstan": "php -d memory_limit=1G vendor/bin/phpstan analyse -c phpstan.neon"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "GaiaTools\\TypeBridge\\TypeBridgeServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
