@@ -31,46 +31,90 @@ final class JsObjectSerializer
 
     private static function serializeValue(mixed $value, int $level): string
     {
+        $out = '';
+
         if (is_string($value)) {
-            return StringQuoter::quoteJs($value);
-        }
-        if (is_int($value) || is_float($value)) {
-            return (string) $value;
-        }
-        if (is_bool($value)) {
-            return $value ? 'true' : 'false';
-        }
-        if ($value === null) {
-            return 'null';
-        }
-        if (is_array($value)) {
-            if (self::isAssoc($value)) {
-                /** @var array<string, mixed> $assoc */
-                $assoc = $value;
-
-                return self::serializeObject($assoc, $level);
-            }
-
-            // List array
-            $items = [];
-            foreach ($value as $item) {
-                $items[] = self::serializeValue($item, $level + 1);
-            }
-            if ($items === []) {
-                return '[]';
-            }
-            $indent = str_repeat(self::INDENT, $level);
-            $open = '[';
-            $close = ']';
-            $itemIndent = str_repeat(self::INDENT, $level + 1);
-
-            return $open."\n".
-                $itemIndent.implode(",\n".$itemIndent, $items)."\n".
-                $indent.$close;
+            $out = self::serializeString($value);
+        } elseif (is_int($value) || is_float($value)) {
+            $out = self::serializeNumber($value);
+        } elseif (is_bool($value)) {
+            $out = self::serializeBool($value);
+        } elseif ($value === null) {
+            $out = self::serializeNull();
+        } elseif (is_array($value)) {
+            $out = self::serializeArray($value, $level);
+        } else {
+            $out = self::serializeFallback($value);
         }
 
-        // Fallback to JSON encoding for other types
+        return $out;
+    }
+
+    private static function serializeString(string $value): string
+    {
+        return StringQuoter::quoteJs($value);
+    }
+
+    private static function serializeNumber(int|float $value): string
+    {
+        return (string) $value;
+    }
+
+    private static function serializeBool(bool $value): string
+    {
+        return $value ? 'true' : 'false';
+    }
+
+    private static function serializeNull(): string
+    {
+        return 'null';
+    }
+
+    /**
+     * @param  array<mixed, mixed>  $value
+     */
+    private static function serializeArray(array $value, int $level): string
+    {
+        if (self::isAssoc($value)) {
+            /** @var array<string, mixed> $assoc */
+            $assoc = $value;
+
+            return self::serializeObject($assoc, $level);
+        }
+
+        return self::serializeList($value, $level);
+    }
+
+    /**
+     * @param  array<int, mixed>  $list
+     */
+    private static function serializeList(array $list, int $level): string
+    {
+        if ($list === []) {
+            return '[]';
+        }
+
+        $items = [];
+        foreach ($list as $item) {
+            $items[] = self::serializeValue($item, $level + 1);
+        }
+
+        $indent = self::indent($level);
+        $itemIndent = self::indent($level + 1);
+
+        return "[\n"
+            .$itemIndent.implode(",\n".$itemIndent, $items)."\n"
+            .$indent.']';
+    }
+
+    private static function serializeFallback(mixed $value): string
+    {
         return json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: 'null';
+    }
+
+    private static function indent(int $level): string
+    {
+        return str_repeat(self::INDENT, $level);
     }
 
     /**
