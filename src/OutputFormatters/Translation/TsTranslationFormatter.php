@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GaiaTools\TypeBridge\OutputFormatters\Translation;
 
 use GaiaTools\TypeBridge\Contracts\OutputFormatter;
+use GaiaTools\TypeBridge\Support\JsObjectSerializer;
 use GaiaTools\TypeBridge\ValueObjects\TransformedTranslation;
 
 final class TsTranslationFormatter implements OutputFormatter
@@ -15,20 +16,10 @@ final class TsTranslationFormatter implements OutputFormatter
 
         $locale = $transformed->locale;
 
-        $jsonPretty = json_encode(
-            $transformed->data,
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-        );
-
-        $objectLines = $jsonPretty !== false ? explode("\n", (string) $jsonPretty) : ['{}'];
+        $object = JsObjectSerializer::serializeObject($transformed->data);
 
         $lines = [];
-        $lines[] = 'export const '.$locale.' = '.$objectLines[0];
-        for ($i = 1; $i < count($objectLines); $i++) {
-            $lines[] = $objectLines[$i];
-        }
-        $last = count($lines) - 1;
-        $lines[$last] = rtrim($lines[$last]).' as const;';
+        $lines[] = 'export const '.$locale.' = '.$object.' as const;';
         $lines[] = '';
         $lines[] = 'export type '.$locale.' = typeof '.$locale.';';
 

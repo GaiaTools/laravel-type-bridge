@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GaiaTools\TypeBridge\OutputFormatters\Translation;
 
 use GaiaTools\TypeBridge\Contracts\OutputFormatter;
+use GaiaTools\TypeBridge\Support\JsObjectSerializer;
 use GaiaTools\TypeBridge\ValueObjects\TransformedTranslation;
 
 final class JsTranslationFormatter implements OutputFormatter
@@ -14,15 +15,10 @@ final class JsTranslationFormatter implements OutputFormatter
         assert($transformed instanceof TransformedTranslation);
 
         $locale = $transformed->locale;
-        $jsonPretty = json_encode(
-            $transformed->data,
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-        );
 
-        $lines = [];
-        $lines[] = 'export const '.$locale.' = '.$jsonPretty.';';
+        $object = JsObjectSerializer::serializeObject($transformed->data);
 
-        return implode("\n", $lines);
+        return 'export const '.$locale.' = '.$object.';';
     }
 
     public function getExtension(): string
