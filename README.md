@@ -44,34 +44,45 @@ The configuration file `config/type-bridge.php` provides the following options (
 
 ```php
 return [
-    // Global output format for enums: 'ts' or 'js'
+    // Output format for all generated files: 'ts' or 'js'
     'output_format' => env('TYPE_BRIDGE_OUTPUT_FORMAT', 'ts'),
 
-    // Default format for translation files: 'json', 'js', or 'ts'
-    'translations_output_format' => env('TYPE_BRIDGE_TRANSLATIONS_FORMAT', 'ts'),
-
-    // Max line length used to decide if we should insert an ESLint disable for max-len in generated files.
-    // Set to 0 or a negative value to disable this check entirely (no ESLint directive will be inserted).
+    // Max line length for ESLint disable directive
+    // Set to 0 or negative to disable
     'max_line_length' => env('TYPE_BRIDGE_MAX_LINE_LENGTH', 120),
 
-    // Enum discovery configuration
-    'discovery' => [
-        'paths' => [
-            app_path('Enums'),
+    // Enum generation configuration
+    'enums' => [
+        // Output path (relative to resources directory)
+        'output_path' => 'js/enums/generated',
+
+        // Discovery configuration
+        'discovery' => [
+            'paths' => [
+                app_path('Enums'),
+            ],
+            // When true: generates all backed enums
+            // When false: generates ONLY enums with GenerateEnum attribute
+            'generate_backed_enums' => true,
+            // Exclude specific enums (by short name or FQCN)
+            'excludes' => [],
         ],
-        // When true: generates all backed enums
-        // When false: generates ONLY enums with GenerateEnum attribute
-        'generateBackedEnums' => true,
-        // Exclude specific enums (by short name or FQCN)
-        'excludes' => [],
     ],
 
-    // Output paths (relative to resources directory)
-    'paths' => [
-        'enum_output' => 'js/enums/generated',
-        'translations_output' => 'js/locales/generated',
+    // Translation generation configuration
+    'translations' => [
+        // Output path (relative to resources directory)
+        'output_path' => 'js/locales/generated',
+
+        // Target i18n library for syntax transformation
+        // Options: 'i18next' (default, works for react-i18next too), 'vue-i18n', 'laravel'
+        'i18n_library' => env('TYPE_BRIDGE_I18N_LIBRARY', 'i18next'),
+
+        // Custom adapter class (optional - for users who want to provide their own)
+        'custom_adapter' => null, // e.g., \App\TypeBridge\CustomAdapter::class
     ],
 ];
+
 ```
 
 Notes:
