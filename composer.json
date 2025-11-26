@@ -1,6 +1,6 @@
 {
     "name": "gaiatools/laravel-type-bridge",
-    "description": "Laravel package for generating TypeScript/JavaScript enums and translations from PHP enums",
+    "description": "A Laravel package for generating TypeScript/JavaScript enums and frontend translation files from your Laravel app.",
     "keywords": ["laravel", "typescript", "javascript", "enums", "translations", "code generation"],
     "type": "library",
     "license": "MIT",
