@@ -10,6 +10,7 @@ use GaiaTools\TypeBridge\Discoverers\EnumDiscoverer;
 use GaiaTools\TypeBridge\Generators\EnumGenerator;
 use GaiaTools\TypeBridge\OutputFormatters\Enum\JsEnumFormatter;
 use GaiaTools\TypeBridge\OutputFormatters\Enum\TsEnumFormatter;
+use GaiaTools\TypeBridge\Support\EnumFileParser;
 use GaiaTools\TypeBridge\Transformers\EnumTransformer;
 use GaiaTools\TypeBridge\Writers\GeneratedFileWriter;
 use Illuminate\Console\Command;
@@ -169,7 +170,7 @@ class GenerateEnumsCommand extends Command
             return [];
         }
 
-        $parsed = \GaiaTools\TypeBridge\Support\EnumFileParser::parseFile($filePath);
+        $parsed = EnumFileParser::parseFile($filePath);
         if ($parsed !== null && strcasecmp($parsed['name'], $enumName) === 0) {
             /** @var array<string,string>  */
             return $parsed['entries'];
