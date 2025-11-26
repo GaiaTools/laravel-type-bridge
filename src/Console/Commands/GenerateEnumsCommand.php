@@ -57,6 +57,7 @@ class GenerateEnumsCommand extends Command
 
         if ($diffs === []) {
             $this->components->info('✅ Enums are in sync with generated frontend files.');
+
             return self::SUCCESS;
         }
 
@@ -85,9 +86,11 @@ class GenerateEnumsCommand extends Command
             $cases = $transformed->cases
                 ->mapWithKeys(function ($c) {
                     $value = $this->formatValue($c->value);
+
                     return [$c->name => $value];
                 })
                 ->all();
+
             return [$transformed->name => [
                 'path' => $transformed->outputPath,
                 'cases' => $cases,
@@ -227,7 +230,8 @@ class GenerateEnumsCommand extends Command
     {
         $prefix = sprintf('  %s %%s', $sign);
         if ($this->isDecorated() && $color !== null) {
-            $this->line(sprintf("  <fg=%s>%s %s</>", $color, $sign, $text));
+            $this->line(sprintf('  <fg=%s>%s %s</>', $color, $sign, $text));
+
             return;
         }
 

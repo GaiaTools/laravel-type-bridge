@@ -39,7 +39,7 @@ final class EnumFileParser
         // and any other block comments to simplify parsing.
         $contents = preg_replace('#/\*[\s\S]*?\*/#', '', $contents) ?? $contents;
         // Strip line comments
-        $contents = preg_replace('#(^|\n)\s*//.*#', "$1", $contents) ?? $contents;
+        $contents = preg_replace('#(^|\n)\s*//.*#', '$1', $contents) ?? $contents;
 
         // Match: export const Name = { ... } [as const];
         if (! preg_match('#export\s+const\s+(\w+)\s*=\s*\{([\s\S]*?)}\s*(?:as\s+const)?\s*;#m', $contents, $m)) {

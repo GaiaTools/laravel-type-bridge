@@ -235,7 +235,7 @@ TS;
         $path = resource_path('test-output/enums/TestStatus.ts');
         $this->assertFileExists($path);
         $contents = File::get($path);
-        $injected = str_replace("export const TestStatus = {", "export const TestStatus = {\n    LEGACY: 'legacy',", (string) $contents);
+        $injected = str_replace('export const TestStatus = {', "export const TestStatus = {\n    LEGACY: 'legacy',", (string) $contents);
         File::put($path, $injected);
 
         $this->artisan('type-bridge:enums', ['--check' => true, '--format' => 'ts'])

@@ -40,7 +40,7 @@ final class GenerateEnumsCommandPrivateTest extends TestCase
         $refObj = new \ReflectionObject($command);
         $prop = $refObj->getParentClass()->getProperty('output'); // property defined on Illuminate\Console\Command
         $prop->setAccessible(true);
-        $prop->setValue($command, new class() {});
+        $prop->setValue($command, new class {});
 
         $isDecorated = new \ReflectionMethod($command, 'isDecorated');
         $isDecorated->setAccessible(true);

@@ -66,7 +66,7 @@ JS;
     #[Test]
     public function it_returns_null_when_export_block_not_found(): void
     {
-        $content = "export default {}"; // does not match expected pattern
+        $content = 'export default {}'; // does not match expected pattern
         $this->assertNull(EnumFileParser::parseString($content));
     }
 
@@ -97,7 +97,7 @@ JS;
 
         // Create a real temporary file under resources to ensure cleanup with test sandbox
         $dir = resource_path('test-output/tmp');
-        if (!File::exists($dir)) {
+        if (! File::exists($dir)) {
             File::makeDirectory($dir, 0755, true);
         }
         $path = $dir.'/TmpEnum.ts';
@@ -129,7 +129,7 @@ TS;
     public function parse_file_returns_null_for_unreadable_file(): void
     {
         $dir = resource_path('test-output/unreadable');
-        if (!File::exists($dir)) {
+        if (! File::exists($dir)) {
             File::makeDirectory($dir, 0755, true);
         }
         $path = $dir.'/Unreadable.ts';
@@ -152,5 +152,4 @@ TS;
             }
         }
     }
-
 }
