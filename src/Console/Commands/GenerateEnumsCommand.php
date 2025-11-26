@@ -154,12 +154,21 @@ class GenerateEnumsCommand extends Command
         $this->components->error('❌ Enums differ from generated frontend files:');
         foreach ($diffs as $name => $d) {
             $this->line('');
-            $this->components->warn(sprintf('%s (%s)', $name, $d['file']));
+            $this->line(sprintf('%s (%s)', $name, $d['file']));
+            $decorated = method_exists($this->output, 'isDecorated') ? $this->output->isDecorated() : false;
             foreach ($d['added'] as $a) {
-                $this->line(sprintf('  + %s', $a));
+                if ($decorated) {
+                    $this->line(sprintf('  <fg=green>+ %s</>', $a));
+                } else {
+                    $this->line(sprintf('  + %s', $a));
+                }
             }
             foreach ($d['removed'] as $r) {
-                $this->line(sprintf('  - %s', $r));
+                if ($decorated) {
+                    $this->line(sprintf('  <fg=red>- %s</>', $r));
+                } else {
+                    $this->line(sprintf('  - %s', $r));
+                }
             }
         }
 
