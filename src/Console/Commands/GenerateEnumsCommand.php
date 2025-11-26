@@ -25,7 +25,10 @@ class GenerateEnumsCommand extends Command
         $enumConfig = EnumDiscoveryConfig::fromConfig();
         $generatorConfig = GeneratorConfig::fromConfig();
 
-        $format = $this->option('format') ?? $generatorConfig->outputFormat;
+        $optFormat = $this->option('format');
+        $format = is_string($optFormat) && $optFormat !== ''
+            ? $optFormat
+            : (string) $generatorConfig->outputFormat;
 
         $discoverer = new EnumDiscoverer($enumConfig);
         $transformer = new EnumTransformer($generatorConfig);
@@ -78,27 +81,26 @@ class GenerateEnumsCommand extends Command
      */
     private function buildBackendState(EnumDiscoverer $discoverer, EnumTransformer $transformer): array
     {
-        $discovered = $discoverer->discover();
+        $result = [];
 
-        $backend = $discovered->mapWithKeys(function ($reflection) use ($transformer) {
+        foreach ($discoverer->discover() as $reflection) {
             $transformed = $transformer->transform($reflection);
+
             // Build associative map of case => formatted value as emitted in generated files
-            $cases = $transformed->cases
-                ->mapWithKeys(function ($c) {
-                    $value = $this->formatValue($c->value);
+            $cases = [];
+            foreach ($transformed->cases as $c) {
+                $cases[$c->name] = $this->formatValue($c->value);
+            }
 
-                    return [$c->name => $value];
-                })
-                ->all();
-
-            return [$transformed->name => [
+            /** @var array<string,string> $cases */
+            $result[$transformed->name] = [
                 'path' => $transformed->outputPath,
                 'cases' => $cases,
-            ]];
-        });
+            ];
+        }
 
-        // Convert Illuminate Collection to plain array for easier downstream handling
-        return $backend->toArray();
+        /** @var array<string,array{path:string,cases:array<string,string>}> $result */
+        return $result;
     }
 
     /**
@@ -115,28 +117,27 @@ class GenerateEnumsCommand extends Command
             $filePath = rtrim($info['path'], '/').'/'.$enumName.'.'.$extension;
             $frontendEntries = $this->loadFrontendCases($filePath, (string) $enumName);
 
-            // $info['cases'] and $frontendEntries are associative: key => valueString
-            $backendMap = collect($info['cases']);
-            $frontendMap = collect($frontendEntries);
+            /** @var array<string,string> $backendMap */
+            $backendMap = $info['cases'];
 
-            $backendKeys = $backendMap->keys();
-            $frontendKeys = $frontendMap->keys();
+            $backendKeys = array_keys($backendMap);
+            $frontendKeys = array_keys($frontendEntries);
 
             $added = [];
             $removed = [];
 
             // New keys
-            foreach ($backendKeys->diff($frontendKeys) as $k) {
-                $added[] = $k.': '.$backendMap->get($k);
+            foreach (array_diff($backendKeys, $frontendKeys) as $k) {
+                $added[] = $k.': '.$backendMap[$k];
             }
             // Removed keys
-            foreach ($frontendKeys->diff($backendKeys) as $k) {
-                $removed[] = $k.': '.$frontendMap->get($k);
+            foreach (array_diff($frontendKeys, $backendKeys) as $k) {
+                $removed[] = $k.': '.$frontendEntries[$k];
             }
             // Changed values for existing keys
-            foreach ($backendKeys->intersect($frontendKeys) as $k) {
-                $bVal = (string) $backendMap->get($k);
-                $fVal = (string) $frontendMap->get($k);
+            foreach (array_intersect($backendKeys, $frontendKeys) as $k) {
+                $bVal = $backendMap[$k];
+                $fVal = $frontendEntries[$k];
                 if ($bVal !== $fVal) {
                     // Treat as addition of new value and removal of old value
                     $added[] = $k.': '.$bVal;
@@ -170,8 +171,8 @@ class GenerateEnumsCommand extends Command
 
         $parsed = \GaiaTools\TypeBridge\Support\EnumFileParser::parseFile($filePath);
         if ($parsed !== null && strcasecmp($parsed['name'], $enumName) === 0) {
-            // Return associative map of key => value string for comparison
-            return isset($parsed['entries']) && is_array($parsed['entries']) ? $parsed['entries'] : [];
+            /** @var array<string,string>  */
+            return $parsed['entries'];
         }
 
         return [];
@@ -243,10 +244,14 @@ class GenerateEnumsCommand extends Command
      */
     private function isDecorated(): bool
     {
-        return method_exists($this->output, 'isDecorated') ? (bool) $this->output->isDecorated() : false;
+        /** @var mixed $out */
+        $out = $this->output;
+
+        /** @phpstan-ignore-next-line method_exists on OutputStyle is always true per phpdoc */
+        return is_object($out) && method_exists($out, 'isDecorated') ? (bool) $out->isDecorated() : false;
     }
 
-    private function formatValue(mixed $value): string
+    private function formatValue(string|int $value): string
     {
         if (is_string($value)) {
             return \GaiaTools\TypeBridge\Support\StringQuoter::quoteJs($value);

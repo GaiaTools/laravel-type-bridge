@@ -10,9 +10,7 @@ final class EnumFileParser
      * Parse a generated enum file (TS or JS) produced by this package and extract
      * the enum name and case keys and values.
      *
-     * Returns an array with shape:
-     *   [ 'name' => string, 'cases' => string[], 'entries' => array<string,string> ]
-     * or null on failure.
+     * @return array{name:string,cases:array<int,string>,entries:array<string,string>}|null
      */
     public static function parseFile(string $path): ?array
     {
