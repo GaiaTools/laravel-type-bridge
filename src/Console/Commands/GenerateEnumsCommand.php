@@ -71,9 +71,9 @@ class GenerateEnumsCommand extends Command
     }
 
     /**
-     * Build the current backend snapshot of enums: [ name => { path, cases[] } ]
+     * Build the current backend snapshot of enums: [ name => { path, cases{key=>value} } ]
      *
-     * @return array<string,array{path:string,cases:array<int,string>}>
+     * @return array<string,array{path:string,cases:array<string,string>}>
      */
     private function buildBackendState(EnumDiscoverer $discoverer, EnumTransformer $transformer): array
     {
@@ -81,10 +81,16 @@ class GenerateEnumsCommand extends Command
 
         $backend = $discovered->mapWithKeys(function ($reflection) use ($transformer) {
             $transformed = $transformer->transform($reflection);
-            $caseNames = $transformed->cases->map(fn ($c) => $c->name)->values()->all();
+            // Build associative map of case => formatted value as emitted in generated files
+            $cases = $transformed->cases
+                ->mapWithKeys(function ($c) {
+                    $value = $this->formatValue($c->value);
+                    return [$c->name => $value];
+                })
+                ->all();
             return [$transformed->name => [
                 'path' => $transformed->outputPath,
-                'cases' => $caseNames,
+                'cases' => $cases,
             ]];
         });
 
@@ -93,9 +99,9 @@ class GenerateEnumsCommand extends Command
     }
 
     /**
-     * Compute added/removed case diffs for each enum.
+     * Compute added/removed diffs for each enum based on keys and values.
      *
-     * @param  array<string,array{path:string,cases:array<int,string>}>  $backend
+     * @param  array<string,array{path:string,cases:array<string,string>}>  $backend
      * @return array<string,array{file:string,added:array<int,string>,removed:array<int,string>}>
      */
     private function computeDiffs(array $backend, string $extension): array
@@ -104,13 +110,36 @@ class GenerateEnumsCommand extends Command
 
         foreach ($backend as $enumName => $info) {
             $filePath = rtrim($info['path'], '/').'/'.$enumName.'.'.$extension;
-            $frontendCases = $this->loadFrontendCases($filePath, (string) $enumName);
+            $frontendEntries = $this->loadFrontendCases($filePath, (string) $enumName);
 
-            $backendSet = collect($info['cases']);
-            $frontendSet = collect($frontendCases);
+            // $info['cases'] and $frontendEntries are associative: key => valueString
+            $backendMap = collect($info['cases']);
+            $frontendMap = collect($frontendEntries);
 
-            $added = $backendSet->diff($frontendSet)->values()->all();
-            $removed = $frontendSet->diff($backendSet)->values()->all();
+            $backendKeys = $backendMap->keys();
+            $frontendKeys = $frontendMap->keys();
+
+            $added = [];
+            $removed = [];
+
+            // New keys
+            foreach ($backendKeys->diff($frontendKeys) as $k) {
+                $added[] = $k.': '.$backendMap->get($k);
+            }
+            // Removed keys
+            foreach ($frontendKeys->diff($backendKeys) as $k) {
+                $removed[] = $k.': '.$frontendMap->get($k);
+            }
+            // Changed values for existing keys
+            foreach ($backendKeys->intersect($frontendKeys) as $k) {
+                $bVal = (string) $backendMap->get($k);
+                $fVal = (string) $frontendMap->get($k);
+                if ($bVal !== $fVal) {
+                    // Treat as addition of new value and removal of old value
+                    $added[] = $k.': '.$bVal;
+                    $removed[] = $k.': '.$fVal;
+                }
+            }
 
             if ($added !== [] || $removed !== []) {
                 $diffs[$enumName] = [
@@ -125,10 +154,10 @@ class GenerateEnumsCommand extends Command
     }
 
     /**
-     * Load and parse the previously generated enum file, returning its case keys.
+     * Load and parse the previously generated enum file, returning its case=>value map.
      * Returns an empty array when the file doesn't exist or doesn't match the enum name.
      *
-     * @return array<int,string>
+     * @return array<string,string>
      */
     private function loadFrontendCases(string $filePath, string $enumName): array
     {
@@ -138,7 +167,8 @@ class GenerateEnumsCommand extends Command
 
         $parsed = \GaiaTools\TypeBridge\Support\EnumFileParser::parseFile($filePath);
         if ($parsed !== null && strcasecmp($parsed['name'], $enumName) === 0) {
-            return $parsed['cases'];
+            // Return associative map of key => value string for comparison
+            return isset($parsed['entries']) && is_array($parsed['entries']) ? $parsed['entries'] : [];
         }
 
         return [];
@@ -152,27 +182,72 @@ class GenerateEnumsCommand extends Command
     private function reportDiffs(array $diffs, string $format): void
     {
         $this->components->error('❌ Enums differ from generated frontend files:');
+
         foreach ($diffs as $name => $d) {
             $this->line('');
+            // Keep header line unstyled for predictable CI/test output
             $this->line(sprintf('%s (%s)', $name, $d['file']));
-            $decorated = method_exists($this->output, 'isDecorated') ? $this->output->isDecorated() : false;
-            foreach ($d['added'] as $a) {
-                if ($decorated) {
-                    $this->line(sprintf('  <fg=green>+ %s</>', $a));
-                } else {
-                    $this->line(sprintf('  + %s', $a));
-                }
-            }
-            foreach ($d['removed'] as $r) {
-                if ($decorated) {
-                    $this->line(sprintf('  <fg=red>- %s</>', $r));
-                } else {
-                    $this->line(sprintf('  - %s', $r));
-                }
-            }
+
+            $this->reportAddedLines($d['added']);
+            $this->reportRemovedLines($d['removed']);
         }
 
         $this->line('');
         $this->components->info('Run `php artisan type-bridge:enums'.($format ? ' --format='.$format : '').'` to regenerate.');
+    }
+
+    /**
+     * Print all added lines (green + ... when decorated; plain otherwise).
+     *
+     * @param  array<int,string>  $lines
+     */
+    private function reportAddedLines(array $lines): void
+    {
+        foreach ($lines as $text) {
+            $this->writeDiffLine('+', $text, 'green');
+        }
+    }
+
+    /**
+     * Print all removed lines (red - ... when decorated; plain otherwise).
+     *
+     * @param  array<int,string>  $lines
+     */
+    private function reportRemovedLines(array $lines): void
+    {
+        foreach ($lines as $text) {
+            $this->writeDiffLine('-', $text, 'red');
+        }
+    }
+
+    /**
+     * Shared line writer for diffs with optional color based on console decoration.
+     */
+    private function writeDiffLine(string $sign, string $text, ?string $color = null): void
+    {
+        $prefix = sprintf('  %s %%s', $sign);
+        if ($this->isDecorated() && $color !== null) {
+            $this->line(sprintf("  <fg=%s>%s %s</>", $color, $sign, $text));
+            return;
+        }
+
+        $this->line(sprintf($prefix, $text));
+    }
+
+    /**
+     * Determine whether console output supports decoration (colors/styles).
+     */
+    private function isDecorated(): bool
+    {
+        return method_exists($this->output, 'isDecorated') ? (bool) $this->output->isDecorated() : false;
+    }
+
+    private function formatValue(mixed $value): string
+    {
+        if (is_string($value)) {
+            return \GaiaTools\TypeBridge\Support\StringQuoter::quoteJs($value);
+        }
+
+        return (string) $value;
     }
 }
