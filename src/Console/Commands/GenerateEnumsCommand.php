@@ -172,7 +172,7 @@ class GenerateEnumsCommand extends Command
 
         $parsed = EnumFileParser::parseFile($filePath);
         if ($parsed !== null && strcasecmp($parsed['name'], $enumName) === 0) {
-            /** @var array<string,string>  */
+            /** @var array<string,string> */
             return $parsed['entries'];
         }
 
