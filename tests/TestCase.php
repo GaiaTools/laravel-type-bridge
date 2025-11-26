@@ -48,15 +48,21 @@ abstract class TestCase extends Orchestra
         $app['config']->set('type-bridge.output_format', 'ts');
         $app['config']->set('type-bridge.translations_output_format', 'ts');
 
-        $app['config']->set('type-bridge.discovery.paths', [
+        // Align test config keys with production config readers
+        // Enum discovery
+        $app['config']->set('type-bridge.enums.discovery.paths', [
             __DIR__.'/Fixtures/Enums',
         ]);
-        $app['config']->set('type-bridge.discovery.namespace', 'GaiaTools\\TypeBridge\\Tests\\Fixtures\\Enums');
-        $app['config']->set('type-bridge.discovery.generateBackedEnums', true);
-        $app['config']->set('type-bridge.discovery.excludes', []);
+        // Exclude TestNoComments: this fixture intentionally lacks doc comments to
+        // validate comment requirements elsewhere. The --check flow and most
+        // generator tests should ignore it to avoid RuntimeException during
+        // transformation.
+        $app['config']->set('type-bridge.enums.discovery.excludes', ['TestNoComments']);
+        $app['config']->set('type-bridge.enums.discovery.generate_backed_enums', true);
 
-        $app['config']->set('type-bridge.paths.enum_output', 'test-output/enums');
-        $app['config']->set('type-bridge.paths.translations_output', 'test-output/translations');
+        // Output paths used by GeneratorConfig::fromConfig()
+        $app['config']->set('type-bridge.enums.output_path', 'test-output/enums');
+        $app['config']->set('type-bridge.translations.output_path', 'test-output/translations');
     }
 
     /**
