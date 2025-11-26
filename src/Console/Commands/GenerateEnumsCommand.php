@@ -16,7 +16,7 @@ use Illuminate\Console\Command;
 
 class GenerateEnumsCommand extends Command
 {
-    protected $signature = 'type-bridge:enums {--format=}';
+    protected $signature = 'type-bridge:enums {--format=} {--check}';
 
     protected $description = 'Generate frontend enum files from PHP enums';
 
@@ -34,6 +34,10 @@ class GenerateEnumsCommand extends Command
 
         $generator = new EnumGenerator($discoverer, $transformer, $formatter, $writer);
 
+        if ($this->option('check')) {
+            return $this->checkEnums($discoverer, $transformer, $format);
+        }
+
         $this->components->info('Generating enums...');
 
         $files = $generator->generate();
@@ -41,5 +45,125 @@ class GenerateEnumsCommand extends Command
         $this->components->info(sprintf('Generated %d enum file(s)', $files->count()));
 
         return self::SUCCESS;
+    }
+
+    private function checkEnums(EnumDiscoverer $discoverer, EnumTransformer $transformer, string $format): int
+    {
+        $this->components->info('Checking enums against previously generated frontend files...');
+
+        $extension = $this->resolveExtension($format);
+        $backend = $this->buildBackendState($discoverer, $transformer);
+        $diffs = $this->computeDiffs($backend, $extension);
+
+        if ($diffs === []) {
+            $this->components->info('✅ Enums are in sync with generated frontend files.');
+            return self::SUCCESS;
+        }
+
+        $this->reportDiffs($diffs, $format);
+
+        return self::FAILURE;
+    }
+
+    private function resolveExtension(string $format): string
+    {
+        return $format === 'js' ? 'js' : 'ts';
+    }
+
+    /**
+     * Build the current backend snapshot of enums: [ name => { path, cases[] } ]
+     *
+     * @return array<string,array{path:string,cases:array<int,string>}>
+     */
+    private function buildBackendState(EnumDiscoverer $discoverer, EnumTransformer $transformer): array
+    {
+        $discovered = $discoverer->discover();
+
+        $backend = $discovered->mapWithKeys(function ($reflection) use ($transformer) {
+            $transformed = $transformer->transform($reflection);
+            $caseNames = $transformed->cases->map(fn ($c) => $c->name)->values()->all();
+            return [$transformed->name => [
+                'path' => $transformed->outputPath,
+                'cases' => $caseNames,
+            ]];
+        });
+
+        // Convert Illuminate Collection to plain array for easier downstream handling
+        return $backend->toArray();
+    }
+
+    /**
+     * Compute added/removed case diffs for each enum.
+     *
+     * @param  array<string,array{path:string,cases:array<int,string>}>  $backend
+     * @return array<string,array{file:string,added:array<int,string>,removed:array<int,string>}>
+     */
+    private function computeDiffs(array $backend, string $extension): array
+    {
+        $diffs = [];
+
+        foreach ($backend as $enumName => $info) {
+            $filePath = rtrim($info['path'], '/').'/'.$enumName.'.'.$extension;
+            $frontendCases = $this->loadFrontendCases($filePath, (string) $enumName);
+
+            $backendSet = collect($info['cases']);
+            $frontendSet = collect($frontendCases);
+
+            $added = $backendSet->diff($frontendSet)->values()->all();
+            $removed = $frontendSet->diff($backendSet)->values()->all();
+
+            if ($added !== [] || $removed !== []) {
+                $diffs[$enumName] = [
+                    'file' => $filePath,
+                    'added' => $added,
+                    'removed' => $removed,
+                ];
+            }
+        }
+
+        return $diffs;
+    }
+
+    /**
+     * Load and parse the previously generated enum file, returning its case keys.
+     * Returns an empty array when the file doesn't exist or doesn't match the enum name.
+     *
+     * @return array<int,string>
+     */
+    private function loadFrontendCases(string $filePath, string $enumName): array
+    {
+        if (! is_file($filePath)) {
+            return [];
+        }
+
+        $parsed = \GaiaTools\TypeBridge\Support\EnumFileParser::parseFile($filePath);
+        if ($parsed !== null && strcasecmp($parsed['name'], $enumName) === 0) {
+            return $parsed['cases'];
+        }
+
+        return [];
+    }
+
+    /**
+     * Print diffs and the hint to regenerate.
+     *
+     * @param  array<string,array{file:string,added:array<int,string>,removed:array<int,string>}>  $diffs
+     */
+    private function reportDiffs(array $diffs, string $format): void
+    {
+        $this->components->error('❌ Enums differ from generated frontend files:');
+        foreach ($diffs as $name => $d) {
+            $this->line('');
+            $this->components->warn(sprintf('%s (%s)', $name, $d['file']));
+            foreach ($d['added'] as $a) {
+                $this->line(sprintf('  + %s', $a));
+            }
+            foreach ($d['removed'] as $r) {
+                $this->line(sprintf('  - %s', $r));
+            }
+        }
+
+        $this->line('');
+        $this->components->info('Run `php artisan type-bridge:enums'.($format ? ' --format='.$format : '').'` to regenerate.');
     }
 }
