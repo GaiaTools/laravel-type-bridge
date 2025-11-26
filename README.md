@@ -138,6 +138,66 @@ To generate JavaScript instead of TypeScript:
 php artisan type-bridge:enums --format=js
 ```
 
+### Check mode (CI drift detection)
+
+Validate that your previously generated frontend enum files are still in sync with the current PHP enums without writing any files. This is ideal for CI to detect drift.
+
+Run:
+
+```bash
+php artisan type-bridge:enums --check [--format=ts|js]
+```
+
+Behavior:
+
+- Discovers current PHP enums and computes the expected frontend entries.
+- Loads the previously generated frontend files from your configured output path.
+- Compares both keys and values.
+  - New case → reported as added: `+ KEY: VALUE`
+  - Removed case → reported as removed: `- KEY: VALUE`
+  - Changed value → reported as both add and remove: `+ KEY: NEW_VALUE` and `- KEY: OLD_VALUE`
+- Exit codes:
+  - 0 when everything is in sync
+  - 1 when any difference is detected (suitable for failing CI)
+
+Notes:
+
+- `--format` controls which frontend files to compare against by extension (`ts` or `js`). If omitted, the command uses your configured `type-bridge.output_format`.
+- Output lines are plain text by default for stable logs. In decorated terminals (e.g., running with `--ansi`), added lines render in green and removed lines in red. The enum header line intentionally remains unstyled.
+
+Examples
+
+In sync:
+
+```text
+Checking enums against previously generated frontend files...
+✅ Enums are in sync with generated frontend files.
+```
+
+Differences found:
+
+```text
+❌ Enums differ from generated frontend files:
+
+OrderStatus (resources/js/enums/generated/OrderStatus.ts)
+  + SHIPPED: 'shipped'
+  - CANCELLED: 'cancelled'
+
+Run `php artisan type-bridge:enums --format=ts` to regenerate.
+```
+
+Value change:
+
+```text
+❌ Enums differ from generated frontend files:
+
+Status (resources/js/enums/generated/Status.ts)
+  + PENDING: 'awaiting'
+  - PENDING: 'pending'
+
+Run `php artisan type-bridge:enums --format=ts` to regenerate.
+```
+
 Output (`resources/js/enums/generated/Status.js`):
 
 ```js
