@@ -187,4 +187,47 @@ class TsEnumFormatterTest extends TestCase
         // In TS string, backslashes must be escaped
         $this->assertStringContainsString("WIN: 'C:\\\\Temp',", $result);
     }
+
+    #[Test]
+    public function it_includes_trailing_comma_when_config_is_true(): void
+    {
+        config(['type-bridge.trailing_commas' => true]);
+
+        $transformed = new TransformedEnum(
+            name: 'Status',
+            cases: collect([
+                new EnumCase('ACTIVE', 'active'),
+                new EnumCase('INACTIVE', 'inactive'),
+            ]),
+            namespace: 'App\\Enums',
+            outputPath: resource_path('test-output/enums'),
+        );
+
+        $result = $this->formatter->format($transformed);
+
+        $this->assertStringContainsString("ACTIVE: 'active',", $result);
+        $this->assertStringContainsString("INACTIVE: 'inactive',", $result);
+    }
+
+    #[Test]
+    public function it_excludes_trailing_comma_when_config_is_false(): void
+    {
+        config(['type-bridge.trailing_commas' => false]);
+
+        $transformed = new TransformedEnum(
+            name: 'Status',
+            cases: collect([
+                new EnumCase('ACTIVE', 'active'),
+                new EnumCase('INACTIVE', 'inactive'),
+            ]),
+            namespace: 'App\\Enums',
+            outputPath: resource_path('test-output/enums'),
+        );
+
+        $result = $this->formatter->format($transformed);
+
+        $this->assertStringContainsString("ACTIVE: 'active',", $result);
+        $this->assertStringContainsString("INACTIVE: 'inactive'", $result);
+        $this->assertStringNotContainsString("INACTIVE: 'inactive',", $result);
+    }
 }

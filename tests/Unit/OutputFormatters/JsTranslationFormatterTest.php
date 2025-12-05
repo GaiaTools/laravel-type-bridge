@@ -70,4 +70,51 @@ class JsTranslationFormatterTest extends TestCase
         // Backslashes must be doubled in JS string (two backslashes in output)
         $this->assertStringContainsString("\"PATH\": 'C:\\\\Temp'", $result);
     }
+
+    #[Test]
+    public function it_includes_trailing_commas_when_config_is_true(): void
+    {
+        config(['type-bridge.trailing_commas' => true]);
+
+        $transformed = new TransformedTranslation(
+            locale: 'en',
+            data: [
+                'messages' => [
+                    'hello' => 'world',
+                    'goodbye' => 'farewell',
+                ],
+            ],
+            isFlat: false,
+            outputPath: resource_path('test-output/i18n'),
+        );
+
+        $result = $this->formatter->format($transformed);
+
+        $this->assertStringContainsString("\"hello\": 'world',", $result);
+        $this->assertStringContainsString("\"goodbye\": 'farewell',", $result);
+    }
+
+    #[Test]
+    public function it_excludes_trailing_commas_when_config_is_false(): void
+    {
+        config(['type-bridge.trailing_commas' => false]);
+
+        $transformed = new TransformedTranslation(
+            locale: 'en',
+            data: [
+                'messages' => [
+                    'hello' => 'world',
+                    'goodbye' => 'farewell',
+                ],
+            ],
+            isFlat: false,
+            outputPath: resource_path('test-output/i18n'),
+        );
+
+        $result = $this->formatter->format($transformed);
+
+        $this->assertStringContainsString("\"hello\": 'world',", $result);
+        $this->assertStringContainsString("\"goodbye\": 'farewell'", $result);
+        $this->assertStringNotContainsString("\"goodbye\": 'farewell',", $result);
+    }
 }
