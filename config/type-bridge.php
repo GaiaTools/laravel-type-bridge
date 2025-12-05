@@ -10,6 +10,9 @@ return [
     // Set to 0 or negative to disable
     'max_line_length' => env('TYPE_BRIDGE_MAX_LINE_LENGTH', 120),
 
+    // Whether to include trailing commas in generated objects and arrays
+    'trailing_commas' => env('TYPE_BRIDGE_TRAILING_COMMAS', true),
+
     // Enum generation configuration
     'enums' => [
         // Output path (relative to resources directory)
