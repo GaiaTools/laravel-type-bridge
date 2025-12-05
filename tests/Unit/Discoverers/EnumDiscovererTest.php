@@ -7,6 +7,7 @@ namespace GaiaTools\TypeBridge\Tests\Unit\Discoverers;
 use GaiaTools\TypeBridge\Config\EnumDiscoveryConfig;
 use GaiaTools\TypeBridge\Discoverers\EnumDiscoverer;
 use GaiaTools\TypeBridge\Tests\TestCase;
+use Illuminate\Support\Facades\File;
 use PHPUnit\Framework\Attributes\Test;
 use ReflectionEnum;
 
@@ -95,5 +96,45 @@ class EnumDiscovererTest extends TestCase
         $discovered = $discoverer->discover();
 
         $this->assertCount(0, $discovered);
+    }
+
+    #[Test]
+    public function it_ignores_enum_declarations_that_are_not_autoloadable(): void
+    {
+        // Create a directory with a PHP file containing an enum that won't be autoloadable
+        $testDir = resource_path('test-output/non-autoloadable-enums');
+        File::makeDirectory($testDir, 0755, true);
+
+        try {
+            // Create a file with an enum in a namespace that doesn't match autoload rules
+            $enumFile = $testDir.'/FakeEnum.php';
+            File::put($enumFile, <<<'PHP'
+                <?php
+                namespace Some\Random\Namespace\That\Does\Not\Exist;
+                
+                enum NonAutoloadableEnum: string
+                {
+                    case FOO = 'foo';
+                    case BAR = 'bar';
+                }
+                PHP);
+
+            $config = new EnumDiscoveryConfig(
+                paths: [$testDir],
+                generateBackedEnums: true,
+                excludes: [],
+            );
+
+            $discoverer = new EnumDiscoverer($config);
+            $discovered = $discoverer->discover();
+
+            // The enum should be ignored because it's not autoloadable (enum_exists returns false)
+            $this->assertCount(0, $discovered);
+        } finally {
+            // Cleanup
+            if (File::exists($testDir)) {
+                File::deleteDirectory($testDir);
+            }
+        }
     }
 }
