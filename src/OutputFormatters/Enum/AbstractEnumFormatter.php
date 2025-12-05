@@ -43,7 +43,7 @@ abstract class AbstractEnumFormatter implements OutputFormatter
     }
 
     /**
-     * @param string[] $lines
+     * @param  string[]  $lines
      */
     abstract protected function addClosingLines(array &$lines, string $enumName): void;
 }

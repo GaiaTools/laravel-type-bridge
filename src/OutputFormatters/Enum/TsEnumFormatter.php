@@ -7,7 +7,7 @@ namespace GaiaTools\TypeBridge\OutputFormatters\Enum;
 final class TsEnumFormatter extends AbstractEnumFormatter
 {
     /**
-     * @param string[] $lines
+     * @param  string[]  $lines
      */
     protected function addClosingLines(array &$lines, string $enumName): void
     {
