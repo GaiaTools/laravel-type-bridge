@@ -731,7 +731,7 @@ TS;
     }
 
     #[Test]
-    public function it_covers_extractValueFromString_empty_return(): void
+    public function it_covers_extract_value_from_string_empty_return(): void
     {
         // Test case where extractValueFromString might return empty
         // This happens when value part has only whitespace or special chars
@@ -824,7 +824,7 @@ TS;
     }
 
     #[Test]
-    public function it_covers_property_key_extraction_with_getValue(): void
+    public function it_covers_property_key_extraction_with_get_value(): void
     {
         // Test property keys that use getValue() path instead of getName()
         // String literal keys exercise this path
@@ -1004,7 +1004,8 @@ TS;
         $method->setAccessible(true);
 
         // Mock a node where getName() returns non-string
-        $nodeMock = new class {
+        $nodeMock = new class
+        {
             public function getName()
             {
                 return 123; // non-string
@@ -1015,7 +1016,8 @@ TS;
         $this->assertSame('', $result);
 
         // Mock a node where getValue() returns non-string
-        $nodeMock2 = new class {
+        $nodeMock2 = new class
+        {
             public function getValue()
             {
                 return 456; // non-string, should call convertToString
@@ -1026,8 +1028,7 @@ TS;
         $this->assertSame('456', $result2);
 
         // Mock a node with no getName or getValue methods
-        $nodeMock3 = new class {
-        };
+        $nodeMock3 = new class {};
 
         $result3 = $method->invoke(null, $nodeMock3);
         $this->assertSame('', $result3);
@@ -1042,8 +1043,7 @@ TS;
         $method->setAccessible(true);
 
         // Mock a Property with a key node that has no getName or getValue
-        $keyNodeMock = new class {
-        };
+        $keyNodeMock = new class {};
 
         $propertyMock = $this->createMock(\Peast\Syntax\Node\Property::class);
         $propertyMock->method('getKey')->willReturn($keyNodeMock);
@@ -1075,7 +1075,7 @@ TS;
         $result = $method->invoke(null, ['array']);
         $this->assertSame('', $result);
 
-        $result = $method->invoke(null, new \stdClass());
+        $result = $method->invoke(null, new \stdClass);
         $this->assertSame('', $result);
     }
 
@@ -1090,13 +1090,13 @@ TS;
 
         // Mock a VariableDeclarator with ObjectExpression init but non-Identifier id
         $declaratorMock = $this->createMock(\Peast\Syntax\Node\VariableDeclarator::class);
-        
+
         $objectExpressionMock = $this->createMock(\Peast\Syntax\Node\ObjectExpression::class);
         $objectExpressionMock->method('getProperties')->willReturn([]);
-        
+
         // Mock id that is NOT an Identifier (e.g., ArrayPattern for destructuring)
         $nonIdentifierMock = new class {};
-        
+
         $declaratorMock->method('getInit')->willReturn($objectExpressionMock);
         $declaratorMock->method('getId')->willReturn($nonIdentifierMock);
 
@@ -1115,11 +1115,11 @@ TS;
 
         // Create a mock ObjectExpression with a property that has no valid key
         $propertyMock = $this->createMock(\Peast\Syntax\Node\Property::class);
-        
+
         // Mock key node with no getName or getValue methods
         $keyNodeMock = new class {};
         $propertyMock->method('getKey')->willReturn($keyNodeMock);
-        
+
         // Mock value
         $valueMock = $this->createMock(\Peast\Syntax\Node\Literal::class);
         $valueMock->method('getRaw')->willReturn("'test'");
@@ -1129,7 +1129,7 @@ TS;
         $objectExpressionMock->method('getProperties')->willReturn([$propertyMock]);
 
         $result = $method->invoke(null, $objectExpressionMock);
-        
+
         // Should return empty arrays since the property key was null and skipped
         $this->assertSame(['cases' => [], 'entries' => []], $result);
     }
@@ -1147,13 +1147,13 @@ TS;
         $body = '   ';  // Only whitespace, no keys
 
         $result = $method->invoke(null, $body);
-        
+
         $this->assertSame(['cases' => [], 'entries' => []], $result);
 
         // Another case: special characters but no valid identifier pattern
         $body2 = '123: "invalid", $: "nope"';  // Keys don't match [A-Za-z_]\w* pattern
         $result2 = $method->invoke(null, $body2);
-        
+
         $this->assertSame(['cases' => [], 'entries' => []], $result2);
     }
 }

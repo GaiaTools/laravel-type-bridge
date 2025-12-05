@@ -100,7 +100,7 @@ final class EnumFileParser
     }
 
     /**
-     * @param iterable<VariableDeclarator> $declarators
+     * @param  iterable<VariableDeclarator>  $declarators
      * @return array{name:string,cases:array<int,string>,entries:array<string,string>}|null
      */
     private static function parseDeclarators(iterable $declarators): ?array
@@ -302,7 +302,7 @@ final class EnumFileParser
 
         $value = $node->getValue();
         if (is_string($value)) {
-            return "'" . addslashes($value) . "'";
+            return "'".addslashes($value)."'";
         }
 
         return self::convertToString($value);
@@ -312,11 +312,13 @@ final class EnumFileParser
     {
         if (method_exists($node, 'getName')) {
             $name = $node->getName();
+
             return is_string($name) ? $name : '';
         }
 
         if (method_exists($node, 'getValue')) {
             $value = $node->getValue();
+
             return is_string($value) ? $value : self::convertToString($value);
         }
 
@@ -326,7 +328,7 @@ final class EnumFileParser
     /**
      * Safely convert a value to string.
      *
-     * @param mixed $value
+     * @param  mixed  $value
      */
     private static function convertToString($value): string
     {
