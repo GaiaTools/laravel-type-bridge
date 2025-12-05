@@ -16,10 +16,15 @@ final class JsEnumFormatter implements OutputFormatter
     {
         assert($transformed instanceof TransformedEnum);
 
+        $trailingComma = config('type-bridge.trailing_commas', true);
+
         $lines = [];
         $lines[] = sprintf('export const %s = {', $transformed->name);
 
-        foreach ($transformed->cases as $case) {
+        $cases = $transformed->cases;
+        $lastIndex = count($cases) - 1;
+
+        foreach ($cases as $i => $case) {
             if ($case->docComment) {
                 $lines[] = self::INDENT.$case->docComment;
             }
@@ -28,7 +33,8 @@ final class JsEnumFormatter implements OutputFormatter
             } else {
                 $formattedValue = $case->value;
             }
-            $lines[] = sprintf(self::INDENT.'%s: %s,', $case->name, $formattedValue);
+            $comma = ($i === $lastIndex && ! $trailingComma) ? '' : ',';
+            $lines[] = sprintf(self::INDENT.'%s: %s%s', $case->name, $formattedValue, $comma);
         }
 
         $lines[] = '};';

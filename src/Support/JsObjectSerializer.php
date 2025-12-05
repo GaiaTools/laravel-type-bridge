@@ -11,7 +11,7 @@ final class JsObjectSerializer
     /**
      * @param  array<string, mixed>  $data
      */
-    public static function serializeObject(array $data, int $level = 0): string
+    public static function serializeObject(array $data, int $level = 0, bool $trailingComma = false): string
     {
         $indent = str_repeat(self::INDENT, $level);
         $lines = ['{'];
@@ -19,8 +19,8 @@ final class JsObjectSerializer
         $i = 0;
         foreach ($data as $key => $value) {
             $keyEncoded = json_encode($key, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-            $valueSerialized = self::serializeValue($value, $level + 1);
-            $comma = $i === $lastIndex ? '' : ',';
+            $valueSerialized = self::serializeValue($value, $level + 1, $trailingComma);
+            $comma = ($i === $lastIndex && ! $trailingComma) ? '' : ',';
             $lines[] = str_repeat(self::INDENT, $level + 1).$keyEncoded.': '.$valueSerialized.$comma;
             $i++;
         }
@@ -29,7 +29,7 @@ final class JsObjectSerializer
         return implode("\n", $lines);
     }
 
-    private static function serializeValue(mixed $value, int $level): string
+    private static function serializeValue(mixed $value, int $level, bool $trailingComma = false): string
     {
         $out = '';
 
@@ -42,7 +42,7 @@ final class JsObjectSerializer
         } elseif ($value === null) {
             $out = self::serializeNull();
         } elseif (is_array($value)) {
-            $out = self::serializeArray($value, $level);
+            $out = self::serializeArray($value, $level, $trailingComma);
         } else {
             $out = self::serializeFallback($value);
         }
@@ -73,22 +73,22 @@ final class JsObjectSerializer
     /**
      * @param  array<mixed, mixed>  $value
      */
-    private static function serializeArray(array $value, int $level): string
+    private static function serializeArray(array $value, int $level, bool $trailingComma = false): string
     {
         if (self::isAssoc($value)) {
             /** @var array<string, mixed> $assoc */
             $assoc = $value;
 
-            return self::serializeObject($assoc, $level);
+            return self::serializeObject($assoc, $level, $trailingComma);
         }
 
-        return self::serializeList($value, $level);
+        return self::serializeList($value, $level, $trailingComma);
     }
 
     /**
      * @param  array<int, mixed>  $list
      */
-    private static function serializeList(array $list, int $level): string
+    private static function serializeList(array $list, int $level, bool $trailingComma = false): string
     {
         if ($list === []) {
             return '[]';
@@ -96,14 +96,16 @@ final class JsObjectSerializer
 
         $items = [];
         foreach ($list as $item) {
-            $items[] = self::serializeValue($item, $level + 1);
+            $items[] = self::serializeValue($item, $level + 1, $trailingComma);
         }
 
         $indent = self::indent($level);
         $itemIndent = self::indent($level + 1);
 
+        $trailing = $trailingComma ? ',' : '';
+
         return "[\n"
-            .$itemIndent.implode(",\n".$itemIndent, $items)."\n"
+            .$itemIndent.implode(",\n".$itemIndent, $items).$trailing."\n"
             .$indent.']';
     }
 
