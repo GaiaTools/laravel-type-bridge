@@ -42,5 +42,8 @@ abstract class AbstractEnumFormatter implements OutputFormatter
         return implode("\n", $lines);
     }
 
+    /**
+     * @param string[] $lines
+     */
     abstract protected function addClosingLines(array &$lines, string $enumName): void;
 }
