@@ -15,7 +15,7 @@ final class JsTranslationFormatter implements OutputFormatter
         assert($transformed instanceof TransformedTranslation);
 
         $locale = $transformed->locale;
-        $trailingComma = config('type-bridge.trailing_commas', true);
+        $trailingComma = config()->boolean('type-bridge.trailing_commas', true);
 
         $object = JsObjectSerializer::serializeObject($transformed->data, 0, $trailingComma);
 
