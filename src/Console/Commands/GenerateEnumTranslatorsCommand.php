@@ -12,6 +12,7 @@ use GaiaTools\TypeBridge\Discoverers\EnumTranslatorDiscoverer;
 use GaiaTools\TypeBridge\Generators\EnumTranslatorGenerator;
 use GaiaTools\TypeBridge\OutputFormatters\EnumTranslator\JsEnumTranslatorFormatter;
 use GaiaTools\TypeBridge\OutputFormatters\EnumTranslator\TsEnumTranslatorFormatter;
+use GaiaTools\TypeBridge\Support\EnumTokenParser;
 use GaiaTools\TypeBridge\Transformers\EnumTranslatorTransformer;
 use GaiaTools\TypeBridge\Writers\GeneratedFileWriter;
 use Illuminate\Console\Command;
@@ -40,8 +41,8 @@ class GenerateEnumTranslatorsCommand extends Command
 
         $i18nLibrary = config('type-bridge.i18n.library', 'vue-i18n');
 
-        $discoverer = new EnumTranslatorDiscoverer($translatorConfig);
-        $transformer = new EnumTranslatorTransformer($generatorConfig, $translatorConfig);
+        $discoverer = new EnumTranslatorDiscoverer($translatorConfig, new EnumTokenParser());
+        $transformer = new EnumTranslatorTransformer($translatorConfig);
         $formatter = $format === 'js'
             ? new JsEnumTranslatorFormatter($i18nLibrary)
             : new TsEnumTranslatorFormatter($i18nLibrary);
