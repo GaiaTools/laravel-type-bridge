@@ -1,0 +1,26 @@
+type BackedEnumValue = string | number;
+
+/**
+ * Auto-generates translation key mappings for an enum-like object.
+ *
+ * For an enum-like object such as:
+ *   { VALUE_ONE: 'one', VALUE_TWO: 'two' }
+ * and a prefix "Example",
+ * this produces:
+ *   { one: 'Example.VALUE_ONE', two: 'Example.VALUE_TWO' }
+ */
+export function createEnumTranslationMap<
+    TEnum extends Record<string, BackedEnumValue>,
+    TValue extends TEnum[keyof TEnum] = TEnum[keyof TEnum]
+>(
+    enumObject: TEnum,
+    translationPrefix: string
+): Record<TValue, string> {
+    return (Object.entries(enumObject) as Array<[string, TValue]>).reduce(
+        (accumulator, [key, value]) => {
+            accumulator[value] = `${translationPrefix}.${key}`;
+            return accumulator;
+        },
+        {} as Record<TValue, string>
+    );
+}
