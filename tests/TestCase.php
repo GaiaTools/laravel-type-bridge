@@ -7,6 +7,7 @@ namespace GaiaTools\TypeBridge\Tests;
 use GaiaTools\TypeBridge\Config\GeneratorConfig;
 use GaiaTools\TypeBridge\TypeBridgeServiceProvider;
 use Illuminate\Support\Facades\File;
+use Mockery;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
@@ -25,6 +26,7 @@ abstract class TestCase extends Orchestra
     protected function tearDown(): void
     {
         $this->cleanupTestOutputs();
+        Mockery::close();
 
         parent::tearDown();
     }
