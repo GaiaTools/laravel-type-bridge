@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GaiaTools\TypeBridge\Transformers;
 
 use GaiaTools\TypeBridge\Config\GeneratorConfig;
+use GaiaTools\TypeBridge\Config\TranslationDiscoveryConfig;
 use GaiaTools\TypeBridge\Contracts\Transformer;
 use GaiaTools\TypeBridge\Contracts\TranslationSyntaxAdapter;
 use GaiaTools\TypeBridge\ValueObjects\TransformedTranslation;
@@ -18,6 +19,7 @@ final class TranslationTransformer implements Transformer
     public function __construct(
         private readonly GeneratorConfig $config,
         private readonly TranslationSyntaxAdapter $syntaxAdapter,
+        private readonly ?TranslationDiscoveryConfig $discoveryConfig = null,
     ) {}
 
     /**
@@ -51,41 +53,57 @@ final class TranslationTransformer implements Transformer
      */
     private function readAndMerge(string $locale): array
     {
-        $langDir = base_path('lang'.DIRECTORY_SEPARATOR.$locale);
-        if (! File::isDirectory($langDir)) {
-            throw new InvalidArgumentException(sprintf('Locale directory not found: %s', $langDir));
-        }
+        $roots = ($this->discoveryConfig ?? TranslationDiscoveryConfig::fromConfig())->langPaths;
 
-        /** @var Collection<int, SplFileInfo> $files */
-        $files = collect(File::files($langDir))
-            ->filter(fn (SplFileInfo $file) => str_ends_with($file->getFilename(), '.php'))
-            ->values();
+        // For each configured root, look for the locale directory and merge in order
+        $anyFound = false;
+        $final = [];
 
-        $merged = [];
-        foreach ($files as $file) {
-            $group = pathinfo($file->getFilename(), PATHINFO_FILENAME);
-            $data = require $file->getPathname();
+        foreach ($roots as $root) {
+            $langDir = rtrim($root, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$locale;
+            if (! File::isDirectory($langDir)) {
+                continue;
+            }
+            $anyFound = true;
 
-            if (is_array($data)) {
-                // Hoist nested grouping keys within the file (e.g., "enums")
-                if (isset($data['enums']) && is_array($data['enums'])) {
-                    foreach ($data['enums'] as $key => $value) {
-                        $data[$key] = $value;
+            /** @var Collection<int, SplFileInfo> $files */
+            $files = collect(File::files($langDir))
+                ->filter(fn (SplFileInfo $file) => str_ends_with($file->getFilename(), '.php'))
+                ->values();
+
+            $current = [];
+            foreach ($files as $file) {
+                $group = pathinfo($file->getFilename(), PATHINFO_FILENAME);
+                $data = require $file->getPathname();
+
+                if (is_array($data)) {
+                    // Hoist nested grouping keys within the file (e.g., "enums")
+                    if (isset($data['enums']) && is_array($data['enums'])) {
+                        foreach ($data['enums'] as $key => $value) {
+                            $data[$key] = $value;
+                        }
+                        unset($data['enums']);
                     }
-                    unset($data['enums']);
-                }
 
-                // Special handling: hoist "enums" file contents to root level
-                if ($group === 'enums') {
-                    $merged = array_merge($merged, $data);
-                } else {
-                    // Keep file-based grouping for other files
-                    $merged[$group] = $data;
+                    // Special handling: hoist "enums" file contents to root level
+                    if ($group === 'enums') {
+                        $current = array_merge($current, $data);
+                    } else {
+                        // Keep file-based grouping for other files
+                        $current[$group] = $data;
+                    }
                 }
             }
+
+            // Merge this root into final; later roots override earlier ones
+            $final = array_replace_recursive($final, $current);
         }
 
-        return $merged;
+        if (! $anyFound) {
+            throw new InvalidArgumentException('Locale directory not found for locale: '.$locale);
+        }
+
+        return $final;
     }
 
     /**
