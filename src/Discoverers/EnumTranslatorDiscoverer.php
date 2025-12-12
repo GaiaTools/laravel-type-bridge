@@ -41,7 +41,7 @@ final class EnumTranslatorDiscoverer implements Discoverer
                 ->values();
         });
 
-        /** @var Collection<int, mixed>  */
+        /** @var Collection<int, mixed> */
         return $classes
             ->filter(fn (string $class) => enum_exists($class))
             ->map(fn (string $enumClass) => new ReflectionEnum($enumClass))

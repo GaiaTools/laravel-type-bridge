@@ -15,7 +15,7 @@ final class EnumTranslatorTransformer implements Transformer
     ) {}
 
     /**
-     * @param array{reflection: ReflectionEnum<UnitEnum>, translationKey: string} $source
+     * @param  array{reflection: ReflectionEnum<UnitEnum>, translationKey: string}  $source
      */
     public function transform(mixed $source): TransformedEnumTranslator
     {

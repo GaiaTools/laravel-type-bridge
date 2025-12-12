@@ -22,7 +22,7 @@ class RecursiveFileEnumerator implements FileEnumerator
      * When null, a RecursiveIteratorIterator over RecursiveDirectoryIterator is used.
      */
     /**
-     * @param null|callable(string):Traversable<int, mixed> $iteratorFactory
+     * @param  null|callable(string):Traversable<int, mixed>  $iteratorFactory
      */
     public function __construct(?callable $iteratorFactory = null)
     {
