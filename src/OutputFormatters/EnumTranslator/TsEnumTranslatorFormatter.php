@@ -10,59 +10,59 @@ use GaiaTools\TypeBridge\ValueObjects\TransformedEnumTranslator;
 
 final class TsEnumTranslatorFormatter extends AbstractEnumTranslatorFormatter
 {
-    protected function formatVueI18n(TransformedEnumTranslator $t): string
+    protected function formatVueI18n(TransformedEnumTranslator $transformed): string
     {
         return <<<TS
 import { useTranslator } from '@/composables/useTranslator';
-import { {$t->enumName} } from '{$t->enumImportPath}';
+import { {$transformed->enumName} } from '{$transformed->enumImportPath}';
 import { createEnumTranslationMap } from '@/lib/createEnumTranslationMap';
 
-export function {$t->name}() {
-    const translations = createEnumTranslationMap({$t->enumName}, '{$t->translationKey}');
+export function {$transformed->name}() {
+    const translations = createEnumTranslationMap({$transformed->enumName}, '{$transformed->translationKey}');
     return useTranslator(translations);
 }
 
 TS;
     }
 
-    protected function formatI18next(TransformedEnumTranslator $t): string
+    protected function formatI18next(TransformedEnumTranslator $transformed): string
     {
         return <<<TS
 import { useTranslator } from '@/composables/useTranslator';
-import { {$t->enumName} } from '{$t->enumImportPath}';
+import { {$transformed->enumName} } from '{$transformed->enumImportPath}';
 import { createEnumTranslationMap } from '@/lib/createEnumTranslationMap';
 
-export function {$t->name}() {
-    const translations = createEnumTranslationMap({$t->enumName}, '{$t->translationKey}');
+export function {$transformed->name}() {
+    const translations = createEnumTranslationMap({$transformed->enumName}, '{$transformed->translationKey}');
     return useTranslator(translations);
 }
 
 TS;
     }
 
-    protected function formatLaravel(TransformedEnumTranslator $t): string
+    protected function formatLaravel(TransformedEnumTranslator $transformed): string
     {
         return <<<TS
-import { {$t->enumName} } from '{$t->enumImportPath}';
+import { {$transformed->enumName} } from '{$transformed->enumImportPath}';
 import { createEnumTranslationMap } from '@/lib/createEnumTranslationMap';
 import { createTranslator } from '@/lib/createTranslator';
 
-export const {$t->name} = createTranslator(
-    createEnumTranslationMap({$t->enumName}, '{$t->translationKey}')
+export const {$transformed->name} = createTranslator(
+    createEnumTranslationMap({$transformed->enumName}, '{$transformed->translationKey}')
 );
 
 TS;
     }
 
-    protected function formatVanilla(TransformedEnumTranslator $t): string
+    protected function formatVanilla(TransformedEnumTranslator $transformed): string
     {
         return <<<TS
-import { {$t->enumName} } from '{$t->enumImportPath}';
+import { {$transformed->enumName} } from '{$transformed->enumImportPath}';
 import { createEnumTranslationMap } from '@/lib/createEnumTranslationMap';
 import { createTranslator } from '@/lib/createTranslator';
 
-export const {$t->name} = createTranslator(
-    createEnumTranslationMap({$t->enumName}, '{$t->translationKey}')
+export const {$transformed->name} = createTranslator(
+    createEnumTranslationMap({$transformed->enumName}, '{$transformed->translationKey}')
 );
 
 TS;

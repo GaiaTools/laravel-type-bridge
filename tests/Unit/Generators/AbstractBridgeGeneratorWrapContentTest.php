@@ -30,9 +30,9 @@ class AbstractBridgeGeneratorWrapContentTest extends TestCase
         };
         $transformer = new class implements Transformer
         {
-            public function transform(mixed $item): mixed
+            public function transform(mixed $source): mixed
             {
-                return $item;
+                return $source;
             }
         };
         $writer = new GeneratedFileWriter; // not used during tests
