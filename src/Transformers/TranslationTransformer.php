@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GaiaTools\TypeBridge\Transformers;
 
 use GaiaTools\TypeBridge\Config\GeneratorConfig;
+use GaiaTools\TypeBridge\Config\TranslationDiscoveryConfig;
 use GaiaTools\TypeBridge\Contracts\Transformer;
 use GaiaTools\TypeBridge\Contracts\TranslationSyntaxAdapter;
 use GaiaTools\TypeBridge\ValueObjects\TransformedTranslation;
@@ -18,6 +19,7 @@ final class TranslationTransformer implements Transformer
     public function __construct(
         private readonly GeneratorConfig $config,
         private readonly TranslationSyntaxAdapter $syntaxAdapter,
+        private readonly ?TranslationDiscoveryConfig $discoveryConfig = null,
     ) {}
 
     /**
@@ -51,41 +53,107 @@ final class TranslationTransformer implements Transformer
      */
     private function readAndMerge(string $locale): array
     {
-        $langDir = base_path('lang'.DIRECTORY_SEPARATOR.$locale);
-        if (! File::isDirectory($langDir)) {
-            throw new InvalidArgumentException(sprintf('Locale directory not found: %s', $langDir));
+        $roots = $this->getLangRoots();
+
+        $anyFound = false;
+        $final = [];
+
+        foreach ($roots as $root) {
+            $langDir = $this->buildLocaleDir($root, $locale);
+            if (! File::isDirectory($langDir)) {
+                continue;
+            }
+
+            $anyFound = true;
+            $current = $this->loadLocaleDir($langDir);
+
+            // Merge this root into final; later roots override earlier ones
+            $final = array_replace_recursive($final, $current);
         }
 
+        if (! $anyFound) {
+            throw new InvalidArgumentException('Locale directory not found for locale: '.$locale);
+        }
+
+        return $final;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getLangRoots(): array
+    {
+        $paths = ($this->discoveryConfig ?? TranslationDiscoveryConfig::fromConfig())->langPaths;
+
+        // Ensure result is a proper list<string> (0..n consecutive integer keys)
+        /** @var list<string> */
+        return array_values($paths);
+    }
+
+    private function buildLocaleDir(string $root, string $locale): string
+    {
+        return rtrim($root, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$locale;
+    }
+
+    /**
+     * Load and merge translation arrays from a locale directory.
+     * Special rule: contents of the "enums.php" file are hoisted to the root level.
+     *
+     * @return array<string, mixed>
+     */
+    private function loadLocaleDir(string $langDir): array
+    {
         /** @var Collection<int, SplFileInfo> $files */
         $files = collect(File::files($langDir))
             ->filter(fn (SplFileInfo $file) => str_ends_with($file->getFilename(), '.php'))
             ->values();
 
-        $merged = [];
+        $current = [];
         foreach ($files as $file) {
             $group = pathinfo($file->getFilename(), PATHINFO_FILENAME);
             $data = require $file->getPathname();
 
-            if (is_array($data)) {
-                // Hoist nested grouping keys within the file (e.g., "enums")
-                if (isset($data['enums']) && is_array($data['enums'])) {
-                    foreach ($data['enums'] as $key => $value) {
-                        $data[$key] = $value;
-                    }
-                    unset($data['enums']);
-                }
-
-                // Special handling: hoist "enums" file contents to root level
-                if ($group === 'enums') {
-                    $merged = array_merge($merged, $data);
-                } else {
-                    // Keep file-based grouping for other files
-                    $merged[$group] = $data;
-                }
+            if (! is_array($data)) {
+                continue;
             }
+
+            $data = $this->hoistEnumKey($data);
+
+            if ($group === 'enums') {
+                $current = array_merge($current, $data);
+
+                continue;
+            }
+
+            $current[$group] = $data;
         }
 
-        return $merged;
+        return $current;
+    }
+
+    /**
+     * Hoist nested grouping key "enums" within a file's returned array.
+     *
+     * @param  array<mixed, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function hoistEnumKey(array $data): array
+    {
+        // Normalize keys to strings to satisfy return type expectations
+        $normalized = [];
+        foreach ($data as $key => $value) {
+            $normalized[(string) $key] = $value;
+        }
+        $data = $normalized;
+
+        if (isset($data['enums']) && is_array($data['enums'])) {
+            foreach ($data['enums'] as $key => $value) {
+                $data[$key] = $value;
+            }
+            unset($data['enums']);
+        }
+
+        return $data;
     }
 
     /**
@@ -111,7 +179,15 @@ final class TranslationTransformer implements Transformer
             if (is_array($value)) {
                 $this->flattenRecursive($value, $newKey, $out);
             } else {
-                $out[$newKey] = is_object($value) ? (method_exists($value, '__toString') ? (string) $value : null) : $value;
+                if (is_object($value)) {
+                    if (method_exists($value, '__toString')) {
+                        $out[$newKey] = (string) $value;
+                    } else {
+                        $out[$newKey] = null;
+                    }
+                } else {
+                    $out[$newKey] = $value;
+                }
             }
         }
     }

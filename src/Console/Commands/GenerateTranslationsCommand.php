@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GaiaTools\TypeBridge\Console\Commands;
 
 use GaiaTools\TypeBridge\Config\GeneratorConfig;
+use GaiaTools\TypeBridge\Config\TranslationDiscoveryConfig;
 use GaiaTools\TypeBridge\Contracts\TranslationSyntaxAdapter;
 use GaiaTools\TypeBridge\Discoverers\SimpleDiscoverer;
 use GaiaTools\TypeBridge\Generators\TranslationGenerator;
@@ -37,7 +38,9 @@ class GenerateTranslationsCommand extends Command
 
         // Wrap user input in a discoverer
         $discoverer = new SimpleDiscoverer(['locale' => $locale, 'flat' => $flat]);
-        $transformer = new TranslationTransformer($generatorConfig, $syntaxAdapter);
+        // Pass discovery config built from type-bridge config so behavior is fully config-driven
+        $discoveryConfig = TranslationDiscoveryConfig::fromConfig();
+        $transformer = new TranslationTransformer($generatorConfig, $syntaxAdapter, $discoveryConfig);
         $writer = new GeneratedFileWriter;
 
         $generator = new TranslationGenerator($discoverer, $transformer, $formatter, $writer);
