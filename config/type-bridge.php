@@ -43,6 +43,19 @@ return [
     // Translation generation configuration
     'translations' => [
         'output_path' => 'js/locales/generated',
+        // Where to discover Laravel translation locales. You can provide:
+        // - a string path, or an array of paths
+        // - glob patterns are supported (e.g. base_path('modules/*/lang'))
+        // Precedence: later paths override earlier ones when the same keys exist.
+        //
+        // If not configured, the fallback is Laravel's default lang directory
+        // (typically base_path('lang')).
+        // Examples:
+        // 'lang_paths' => [
+        //     base_path('lang'),
+        //     base_path('Modules/*/Resources/lang'),
+        // ],
+        'lang_paths' => null,
     ],
 
     // Enum translator generation configuration
