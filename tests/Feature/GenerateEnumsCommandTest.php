@@ -9,6 +9,7 @@ use GaiaTools\TypeBridge\Discoverers\EnumDiscoverer;
 use GaiaTools\TypeBridge\Generators\EnumGenerator;
 use GaiaTools\TypeBridge\OutputFormatters\Enum\JsEnumFormatter;
 use GaiaTools\TypeBridge\OutputFormatters\Enum\TsEnumFormatter;
+use GaiaTools\TypeBridge\Support\EnumTokenParser;
 use GaiaTools\TypeBridge\Tests\TestCase;
 use GaiaTools\TypeBridge\Transformers\EnumTransformer;
 use GaiaTools\TypeBridge\Writers\GeneratedFileWriter;
@@ -25,7 +26,7 @@ final class GenerateEnumsCommandTest extends TestCase
             excludes: ['TestNoComments'],
         );
 
-        $discoverer = new EnumDiscoverer($discoveryConfig);
+        $discoverer = new EnumDiscoverer($discoveryConfig, new EnumTokenParser());
         $transformer = new EnumTransformer(self::createGeneratorConfig(outputFormat: 'ts'));
         $formatter = new TsEnumFormatter;
         $writer = new GeneratedFileWriter;
@@ -68,7 +69,7 @@ final class GenerateEnumsCommandTest extends TestCase
 
         $generatorConfig = self::createGeneratorConfig(outputFormat: 'ts');
 
-        $discoverer = new EnumDiscoverer($discoveryConfig);
+        $discoverer = new EnumDiscoverer($discoveryConfig, new EnumTokenParser());
         $transformer = new EnumTransformer($generatorConfig);
         $formatter = new TsEnumFormatter;
         $writer = new GeneratedFileWriter;
@@ -93,7 +94,7 @@ final class GenerateEnumsCommandTest extends TestCase
 
         $generatorConfig = self::createGeneratorConfig(outputFormat: 'js');
 
-        $discoverer = new EnumDiscoverer($discoveryConfig);
+        $discoverer = new EnumDiscoverer($discoveryConfig, new EnumTokenParser());
         $transformer = new EnumTransformer($generatorConfig);
         $formatter = new JsEnumFormatter;
         $writer = new GeneratedFileWriter;
@@ -118,7 +119,7 @@ final class GenerateEnumsCommandTest extends TestCase
 
         $generatorConfig = self::createGeneratorConfig(outputFormat: 'ts');
 
-        $discoverer = new EnumDiscoverer($discoveryConfig);
+        $discoverer = new EnumDiscoverer($discoveryConfig, new EnumTokenParser());
         $transformer = new EnumTransformer($generatorConfig);
         $formatter = new TsEnumFormatter;
         $writer = new GeneratedFileWriter;
