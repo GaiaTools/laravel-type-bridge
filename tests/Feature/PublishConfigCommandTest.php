@@ -15,7 +15,9 @@ use UnexpectedValueException;
 final class PublishConfigCommandTest extends TestCase
 {
     private string $configPath;
+
     private string $envPath;
+
     private string $envExamplePath;
 
     protected function setUp(): void
@@ -148,7 +150,7 @@ final class PublishConfigCommandTest extends TestCase
         $inner = Mockery::mock(FileEnumerator::class);
         $inner->shouldReceive('enumerate')
             ->once()
-            ->andReturn([new \stdClass()]);
+            ->andReturn([new \stdClass]);
 
         $enforcing = new EnforcingFileEnumerator($inner);
 
@@ -209,7 +211,7 @@ final class PublishConfigCommandTest extends TestCase
         // package.json minimal to avoid notices
         $packageJsonPath = base_path('package.json');
         $originalPackageJson = file_exists($packageJsonPath) ? file_get_contents($packageJsonPath) : null;
-        file_put_contents($packageJsonPath, json_encode(['dependencies' => new \stdClass()]));
+        file_put_contents($packageJsonPath, json_encode(['dependencies' => new \stdClass]));
 
         try {
             $this->artisan('type-bridge:publish')
@@ -346,7 +348,7 @@ final class PublishConfigCommandTest extends TestCase
         // Ensure no stray TS indicators from other sources
         $packageJsonPath = base_path('package.json');
         $originalPackageJson = file_exists($packageJsonPath) ? file_get_contents($packageJsonPath) : null;
-        file_put_contents($packageJsonPath, json_encode(['dependencies' => new \stdClass()]));
+        file_put_contents($packageJsonPath, json_encode(['dependencies' => new \stdClass]));
 
         $tsconfigPath = base_path('tsconfig.json');
         $originalTsconfig = file_exists($tsconfigPath) ? file_get_contents($tsconfigPath) : null;
@@ -438,7 +440,7 @@ final class PublishConfigCommandTest extends TestCase
         // Use a simple package.json to avoid notices
         $packageJsonPath = base_path('package.json');
         $originalPackageJson = file_exists($packageJsonPath) ? file_get_contents($packageJsonPath) : null;
-        file_put_contents($packageJsonPath, json_encode(['dependencies' => new \stdClass()]));
+        file_put_contents($packageJsonPath, json_encode(['dependencies' => new \stdClass]));
 
         try {
             $this->artisan('type-bridge:publish', ['--force' => true])

@@ -32,7 +32,7 @@ class GenerateEnumsCommand extends Command
             ? $optFormat
             : (string) $generatorConfig->outputFormat;
 
-        $discoverer = new EnumDiscoverer($enumConfig, new EnumTokenParser());
+        $discoverer = new EnumDiscoverer($enumConfig, new EnumTokenParser);
         $transformer = new EnumTransformer($generatorConfig);
         $formatter = $format === 'js' ? new JsEnumFormatter : new TsEnumFormatter;
         $writer = new GeneratedFileWriter;

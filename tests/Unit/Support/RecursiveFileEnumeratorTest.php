@@ -12,9 +12,9 @@ final class RecursiveFileEnumeratorTest extends TestCase
 {
     public function test_enumerate_returns_empty_when_directory_does_not_exist(): void
     {
-        $enumerator = new RecursiveFileEnumerator();
+        $enumerator = new RecursiveFileEnumerator;
 
-        $missing = sys_get_temp_dir() . '/tb_missing_' . uniqid();
+        $missing = sys_get_temp_dir().'/tb_missing_'.uniqid();
         self::assertFalse(is_dir($missing));
 
         $items = iterator_to_array($enumerator->enumerate($missing));
@@ -24,15 +24,15 @@ final class RecursiveFileEnumeratorTest extends TestCase
 
     public function test_enumerate_yields_files_recursively(): void
     {
-        $enumerator = new RecursiveFileEnumerator();
+        $enumerator = new RecursiveFileEnumerator;
 
-        $base = sys_get_temp_dir() . '/tb_enum_' . uniqid();
-        $nested = $base . '/nested';
+        $base = sys_get_temp_dir().'/tb_enum_'.uniqid();
+        $nested = $base.'/nested';
 
         mkdir($nested, 0755, true);
 
-        $a = $base . '/a.js';
-        $b = $nested . '/b.ts';
+        $a = $base.'/a.js';
+        $b = $nested.'/b.ts';
 
         file_put_contents($a, 'x');
         file_put_contents($b, 'y');
@@ -66,7 +66,7 @@ final class RecursiveFileEnumeratorTest extends TestCase
     {
         // Inject a factory that yields a stdClass instead of SplFileInfo
         $factory = static function (string $_dir): \Traversable {
-            return new \ArrayIterator([new \stdClass()]);
+            return new \ArrayIterator([new \stdClass]);
         };
 
         $enumerator = new RecursiveFileEnumerator($factory);

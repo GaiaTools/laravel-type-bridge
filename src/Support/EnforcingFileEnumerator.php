@@ -14,7 +14,7 @@ final class EnforcingFileEnumerator implements FileEnumerator
     {
         foreach ($this->inner->enumerate($directory) as $file) {
             if (! $file instanceof SplFileInfo) {
-                throw new UnexpectedValueException('Non-SplFileInfo: ' . get_debug_type($file));
+                throw new UnexpectedValueException('Non-SplFileInfo: '.get_debug_type($file));
             }
 
             yield $file;

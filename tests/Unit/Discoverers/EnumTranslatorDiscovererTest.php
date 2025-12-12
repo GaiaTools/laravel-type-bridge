@@ -9,8 +9,6 @@ use GaiaTools\TypeBridge\Discoverers\EnumTranslatorDiscoverer;
 use GaiaTools\TypeBridge\Support\EnumTokenParser;
 use GaiaTools\TypeBridge\Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
-use ReflectionMethod;
-
 
 class EnumTranslatorDiscovererTest extends TestCase
 {
@@ -26,16 +24,16 @@ class EnumTranslatorDiscovererTest extends TestCase
             utilsLibPath: 'js/lib'
         );
 
-        $discoverer = new EnumTranslatorDiscoverer($config, new EnumTokenParser());
+        $discoverer = new EnumTranslatorDiscoverer($config, new EnumTokenParser);
         $discovered = $discoverer->discover();
 
         $this->assertGreaterThan(0, $discovered->count());
-        
+
         // Check that TestStatusWithTranslator was discovered
         $found = $discovered->first(function ($item) {
             return str_contains($item['reflection']->name, 'TestStatusWithTranslator');
         });
-        
+
         $this->assertNotNull($found);
     }
 
@@ -51,14 +49,14 @@ class EnumTranslatorDiscovererTest extends TestCase
             utilsLibPath: 'js/lib'
         );
 
-        $discoverer = new EnumTranslatorDiscoverer($config, new EnumTokenParser());
+        $discoverer = new EnumTranslatorDiscoverer($config, new EnumTokenParser);
         $discovered = $discoverer->discover();
 
         // Check that TestStatusWithTranslator was excluded
         $found = $discovered->first(function ($item) {
             return str_contains($item['reflection']->name, 'TestStatusWithTranslator');
         });
-        
+
         $this->assertNull($found);
     }
 
@@ -74,7 +72,7 @@ class EnumTranslatorDiscovererTest extends TestCase
             utilsLibPath: 'js/lib'
         );
 
-        $discoverer = new EnumTranslatorDiscoverer($config, new EnumTokenParser());
+        $discoverer = new EnumTranslatorDiscoverer($config, new EnumTokenParser);
         $discovered = $discoverer->discover();
 
         // Find TestStatusWithTranslator
@@ -98,7 +96,7 @@ class EnumTranslatorDiscovererTest extends TestCase
             utilsLibPath: 'js/lib'
         );
 
-        $discoverer = new EnumTranslatorDiscoverer($config, new EnumTokenParser());
+        $discoverer = new EnumTranslatorDiscoverer($config, new EnumTokenParser);
         $discovered = $discoverer->discover();
 
         $this->assertSame(0, $discovered->count());
@@ -132,7 +130,7 @@ PHP
                 utilsLibPath: 'js/lib'
             );
 
-            $discoverer = new EnumTranslatorDiscoverer($config, new EnumTokenParser());
+            $discoverer = new EnumTranslatorDiscoverer($config, new EnumTokenParser);
             $discovered = $discoverer->discover();
 
             // Should not discover non-enum classes
@@ -178,16 +176,16 @@ PHP
                 utilsLibPath: 'js/lib'
             );
 
-            $discoverer = new EnumTranslatorDiscoverer($config, new EnumTokenParser());
+            $discoverer = new EnumTranslatorDiscoverer($config, new EnumTokenParser);
             $discovered = $discoverer->discover();
 
             // Should discover the enum with complex namespace
             $this->assertGreaterThan(0, $discovered->count());
-            
+
             $found = $discovered->first(function ($item) {
                 return str_contains($item['reflection']->name, 'ComplexEnum');
             });
-            
+
             $this->assertNotNull($found);
             $this->assertSame('complex.enum', $found['translationKey']);
         } finally {
@@ -236,13 +234,13 @@ PHP
                 utilsLibPath: 'js/lib'
             );
 
-            $discoverer = new EnumTranslatorDiscoverer($config, new EnumTokenParser());
+            $discoverer = new EnumTranslatorDiscoverer($config, new EnumTokenParser);
             $discovered = $discoverer->discover();
 
             // Should discover both enums
             $this->assertGreaterThanOrEqual(2, $discovered->count());
-            
-            $names = $discovered->pluck('reflection')->map(fn($r) => $r->getShortName())->toArray();
+
+            $names = $discovered->pluck('reflection')->map(fn ($r) => $r->getShortName())->toArray();
             $this->assertContains('FirstEnum', $names);
             $this->assertContains('SecondEnum', $names);
         } finally {
@@ -284,14 +282,14 @@ PHP
                 utilsLibPath: 'js/lib'
             );
 
-            $discoverer = new EnumTranslatorDiscoverer($config, new EnumTokenParser());
+            $discoverer = new EnumTranslatorDiscoverer($config, new EnumTokenParser);
             $discovered = $discoverer->discover();
 
             // Should discover the enum without namespace
             $found = $discovered->first(function ($item) {
                 return $item['reflection']->getShortName() === 'NoNamespaceEnum';
             });
-            
+
             $this->assertNotNull($found);
         } finally {
             \Illuminate\Support\Facades\File::deleteDirectory($tempDir);
@@ -334,14 +332,14 @@ PHP
                 utilsLibPath: 'js/lib'
             );
 
-            $discoverer = new EnumTranslatorDiscoverer($config, new EnumTokenParser());
+            $discoverer = new EnumTranslatorDiscoverer($config, new EnumTokenParser);
             $discovered = $discoverer->discover();
 
             // Should discover the backed enum
             $found = $discovered->first(function ($item) {
                 return str_contains($item['reflection']->name, 'BackedEnum');
             });
-            
+
             $this->assertNotNull($found);
             $this->assertTrue($found['reflection']->isBacked());
         } finally {
@@ -366,15 +364,14 @@ PHP
                 utilsLibPath: 'js/lib'
             );
 
-            $discoverer = new EnumTranslatorDiscoverer($config, new EnumTokenParser());
-            
+            $discoverer = new EnumTranslatorDiscoverer($config, new EnumTokenParser);
+
             // Should return empty collection for directory with no PHP files
             $discovered = $discoverer->discover();
-            
+
             $this->assertSame(0, $discovered->count());
         } finally {
             \Illuminate\Support\Facades\File::deleteDirectory($tempDir);
         }
     }
-
 }

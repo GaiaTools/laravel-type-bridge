@@ -21,7 +21,7 @@ class RecursiveFileEnumerator implements FileEnumerator
      * Allow injecting a custom iterator factory for testing.
      * When null, a RecursiveIteratorIterator over RecursiveDirectoryIterator is used.
      */
-    public function __construct(callable $iteratorFactory = null)
+    public function __construct(?callable $iteratorFactory = null)
     {
         $this->iteratorFactory = $iteratorFactory;
     }
@@ -41,7 +41,7 @@ class RecursiveFileEnumerator implements FileEnumerator
         foreach ($iterator as $file) {
             if (! $file instanceof SplFileInfo) {
                 throw new UnexpectedValueException(
-                    'File enumerator yielded a non-SplFileInfo value: ' . get_debug_type($file)
+                    'File enumerator yielded a non-SplFileInfo value: '.get_debug_type($file)
                 );
             }
 

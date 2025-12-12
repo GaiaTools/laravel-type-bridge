@@ -13,7 +13,7 @@ class GenerateTranslatorTest extends TestCase
     #[Test]
     public function it_can_be_instantiated_with_defaults(): void
     {
-        $attr = new GenerateTranslator();
+        $attr = new GenerateTranslator;
 
         $this->assertNull($attr->translationKey);
         $this->assertTrue($attr->generateComposable);

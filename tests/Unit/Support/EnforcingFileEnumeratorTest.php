@@ -36,7 +36,7 @@ final class EnforcingFileEnumeratorTest extends TestCase
         $inner = Mockery::mock(FileEnumerator::class);
         $inner->shouldReceive('enumerate')
             ->once()
-            ->andReturn([new \stdClass()]);
+            ->andReturn([new \stdClass]);
 
         $enforcing = new EnforcingFileEnumerator($inner);
 

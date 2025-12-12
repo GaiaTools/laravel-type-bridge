@@ -49,6 +49,7 @@ final class EnumTokenParser
             // Capture namespace Foo\Bar;
             if ($this->tokIs($tok, T_NAMESPACE)) {
                 [$namespace, $i] = $this->consumeNamespace($tokens, $i + 1, $count);
+
                 continue;
             }
 
@@ -58,6 +59,7 @@ final class EnumTokenParser
                 if ($name !== '') {
                     $fqcns[] = trim(($namespace !== '' ? $namespace.'\\' : '').$name, '\\');
                 }
+
                 continue;
             }
 
@@ -83,6 +85,7 @@ final class EnumTokenParser
             $text = $this->tokText($t);
             if (trim($text) === '') {
                 $i++;
+
                 continue;
             }
             if ($text === ';' || $text === '{') {
@@ -111,6 +114,7 @@ final class EnumTokenParser
             $text = $this->tokText($t);
             if (trim($text) === '') {
                 $i++;
+
                 continue;
             }
             if ($text === '{' || $text === '(') {

@@ -29,11 +29,11 @@ class EnumTranslatorGeneratorTest extends TestCase
             utilsLibPath: 'js/lib'
         );
 
-        $discoverer = new EnumTranslatorDiscoverer($discoveryConfig, new EnumTokenParser());
+        $discoverer = new EnumTranslatorDiscoverer($discoveryConfig, new EnumTokenParser);
         $generatorConfig = GeneratorConfig::fromConfig();
         $transformer = new EnumTranslatorTransformer($discoveryConfig, $generatorConfig);
         $formatter = new TsEnumTranslatorFormatter('vue-i18n');
-        $writer = new GeneratedFileWriter();
+        $writer = new GeneratedFileWriter;
 
         $generator = new EnumTranslatorGenerator($discoverer, $transformer, $formatter, $writer);
 
@@ -52,11 +52,11 @@ class EnumTranslatorGeneratorTest extends TestCase
             utilsLibPath: 'js/lib'
         );
 
-        $discoverer = new EnumTranslatorDiscoverer($discoveryConfig, new EnumTokenParser());
+        $discoverer = new EnumTranslatorDiscoverer($discoveryConfig, new EnumTokenParser);
         $generatorConfig = GeneratorConfig::fromConfig();
         $transformer = new EnumTranslatorTransformer($discoveryConfig, $generatorConfig);
         $formatter = new TsEnumTranslatorFormatter('vue-i18n');
-        $writer = new GeneratedFileWriter();
+        $writer = new GeneratedFileWriter;
 
         $generator = new EnumTranslatorGenerator($discoverer, $transformer, $formatter, $writer);
 

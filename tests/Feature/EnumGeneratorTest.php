@@ -29,7 +29,7 @@ class EnumGeneratorTest extends TestCase
 
         $generatorConfig = self::createGeneratorConfig();
 
-        $discoverer = new EnumDiscoverer($discoveryConfig, new EnumTokenParser());
+        $discoverer = new EnumDiscoverer($discoveryConfig, new EnumTokenParser);
         $transformer = new EnumTransformer($generatorConfig);
         $formatter = new TsEnumFormatter;
         $writer = new GeneratedFileWriter;
@@ -63,7 +63,7 @@ class EnumGeneratorTest extends TestCase
             outputFormat: 'js',
         );
 
-        $discoverer = new EnumDiscoverer($discoveryConfig, new EnumTokenParser());
+        $discoverer = new EnumDiscoverer($discoveryConfig, new EnumTokenParser);
         $transformer = new EnumTransformer($generatorConfig);
         $formatter = new JsEnumFormatter;
         $writer = new GeneratedFileWriter;
@@ -101,7 +101,7 @@ class EnumGeneratorTest extends TestCase
 
         $generatorConfig = self::createGeneratorConfig();
 
-        $discoverer = new EnumDiscoverer($discoveryConfig, new EnumTokenParser());
+        $discoverer = new EnumDiscoverer($discoveryConfig, new EnumTokenParser);
         $transformer = new EnumTransformer($generatorConfig);
         $formatter = new TsEnumFormatter;
         $writer = new GeneratedFileWriter;
@@ -123,7 +123,7 @@ class EnumGeneratorTest extends TestCase
 
         $generatorConfig = self::createGeneratorConfig();
 
-        $discoverer = new EnumDiscoverer($discoveryConfig, new EnumTokenParser());
+        $discoverer = new EnumDiscoverer($discoveryConfig, new EnumTokenParser);
         $transformer = new EnumTransformer($generatorConfig);
         $formatter = new TsEnumFormatter;
         $writer = new GeneratedFileWriter;

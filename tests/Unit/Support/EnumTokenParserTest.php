@@ -17,7 +17,7 @@ class EnumTokenParserTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->parser = new EnumTokenParser();
+        $this->parser = new EnumTokenParser;
     }
 
     #[Test]
@@ -104,8 +104,28 @@ class EnumTokenParserTest extends TestCase
     {
         // Simulate: enum <whitespace> and then end of tokens (no name present)
         $tokens = [
-            new class { public $id = T_ENUM; public $text = 'enum'; public function is($id) { return $this->id === $id; } },
-            new class { public $id = 0; public $text = "\n\t  "; public function is($id) { return false; } },
+            new class
+            {
+                public $id = T_ENUM;
+
+                public $text = 'enum';
+
+                public function is($id)
+                {
+                    return $this->id === $id;
+                }
+            },
+            new class
+            {
+                public $id = 0;
+
+                public $text = "\n\t  ";
+
+                public function is($id)
+                {
+                    return false;
+                }
+            },
             // no further tokens -> loop should exhaust and hit the fallback return
         ];
 
@@ -205,9 +225,39 @@ class EnumTokenParserTest extends TestCase
     {
         // Create a mock token sequence: enum followed immediately by '{'
         $tokens = [
-            new class { public $id = T_ENUM; public $text = 'enum'; public function is($id) { return $this->id === $id; } },
-            new class { public $id = 0; public $text = ' '; public function is($id) { return false; } },
-            new class { public $id = 0; public $text = '{'; public function is($id) { return false; } },
+            new class
+            {
+                public $id = T_ENUM;
+
+                public $text = 'enum';
+
+                public function is($id)
+                {
+                    return $this->id === $id;
+                }
+            },
+            new class
+            {
+                public $id = 0;
+
+                public $text = ' ';
+
+                public function is($id)
+                {
+                    return false;
+                }
+            },
+            new class
+            {
+                public $id = 0;
+
+                public $text = '{';
+
+                public function is($id)
+                {
+                    return false;
+                }
+            },
         ];
 
         [$name, $newIndex] = $this->parser->consumeNameAfterEnum($tokens, 1, count($tokens));
@@ -260,8 +310,10 @@ class EnumTokenParserTest extends TestCase
     public function it_extracts_text_from_object_with_text_method(): void
     {
         // Create an object with text() method instead of text property
-        $token = new class {
-            public function text(): string {
+        $token = new class
+        {
+            public function text(): string
+            {
                 return 'custom_token';
             }
         };
@@ -302,7 +354,8 @@ class EnumTokenParserTest extends TestCase
     public function it_returns_false_for_object_without_is_method(): void
     {
         // Create an object without is() method
-        $token = new class {
+        $token = new class
+        {
             public $id = T_NAMESPACE;
         };
 
@@ -387,7 +440,17 @@ PHP
     {
         // Test case where we've reached end of tokens without finding a name
         $tokens = [
-            new class { public $id = T_ENUM; public $text = 'enum'; public function is($id) { return $this->id === $id; } },
+            new class
+            {
+                public $id = T_ENUM;
+
+                public $text = 'enum';
+
+                public function is($id)
+                {
+                    return $this->id === $id;
+                }
+            },
         ];
 
         // Start at position 1 (beyond the enum token), with count = 1
@@ -403,10 +466,50 @@ PHP
         // Test case where enum is followed by symbols but no T_STRING or T_NAME_QUALIFIED
         // This covers line 117 where the loop exhausts without finding a valid name token
         $tokens = [
-            new class { public $id = T_ENUM; public $text = 'enum'; public function is($id) { return $this->id === $id; } },
-            new class { public $id = T_WHITESPACE; public $text = ' '; public function is($id) { return $this->id === $id; } },
-            new class { public $id = null; public $text = '{'; public function is($id) { return false; } },  // Symbol, not a name token
-            new class { public $id = null; public $text = '}'; public function is($id) { return false; } },
+            new class
+            {
+                public $id = T_ENUM;
+
+                public $text = 'enum';
+
+                public function is($id)
+                {
+                    return $this->id === $id;
+                }
+            },
+            new class
+            {
+                public $id = T_WHITESPACE;
+
+                public $text = ' ';
+
+                public function is($id)
+                {
+                    return $this->id === $id;
+                }
+            },
+            new class
+            {
+                public $id = null;
+
+                public $text = '{';
+
+                public function is($id)
+                {
+                    return false;
+                }
+            },  // Symbol, not a name token
+            new class
+            {
+                public $id = null;
+
+                public $text = '}';
+
+                public function is($id)
+                {
+                    return false;
+                }
+            },
         ];
 
         // Start after the enum token at position 1

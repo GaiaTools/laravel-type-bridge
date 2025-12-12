@@ -31,16 +31,18 @@ class PublishEnumTranslatorUtilsCommand extends Command
         $skipped = 0;
 
         foreach ($files as $name => $paths) {
-            if (!File::exists($paths['stub'])) {
+            if (! File::exists($paths['stub'])) {
                 $this->error("Stub file not found: {$paths['stub']}");
+
                 continue;
             }
 
             $destination = $paths['destination'];
 
-            if (File::exists($destination) && !$this->option('force')) {
+            if (File::exists($destination) && ! $this->option('force')) {
                 $this->warn("File already exists: {$name}");
                 $skipped++;
+
                 continue;
             }
 

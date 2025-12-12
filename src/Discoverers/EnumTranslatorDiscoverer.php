@@ -17,8 +17,7 @@ final class EnumTranslatorDiscoverer implements Discoverer
     public function __construct(
         private readonly EnumTranslatorDiscoveryConfig $config,
         private readonly EnumTokenParser $tokenParser,
-    ) {
-    }
+    ) {}
 
     public function discover(): Collection
     {
@@ -53,7 +52,6 @@ final class EnumTranslatorDiscoverer implements Discoverer
         return $result;
     }
 
-
     private function shouldInclude(ReflectionEnum $reflection): bool
     {
         $short = $reflection->getShortName();
@@ -64,18 +62,18 @@ final class EnumTranslatorDiscoverer implements Discoverer
             $this->config->excludes
         );
 
-        return !in_array(mb_strtolower($short), $excludedEnums, true)
-            && !in_array(mb_strtolower($fqcn), $excludedEnums, true);
+        return ! in_array(mb_strtolower($short), $excludedEnums, true)
+            && ! in_array(mb_strtolower($fqcn), $excludedEnums, true);
     }
 
     private function getTranslationKey(ReflectionEnum $reflection): ?string
     {
         $attributes = $reflection->getAttributes(GenerateTranslator::class);
 
-        if (!empty($attributes)) {
+        if (! empty($attributes)) {
             $attribute = $attributes[0]->newInstance();
 
-            if (!$attribute->generateComposable) {
+            if (! $attribute->generateComposable) {
                 return null;
             }
 

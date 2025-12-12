@@ -20,8 +20,7 @@ final class EnumDiscoverer implements Discoverer
     public function __construct(
         private readonly EnumDiscoveryConfig $config,
         private readonly EnumTokenParser $tokenParser,
-    ) {
-    }
+    ) {}
 
     /**
      * @return Collection<int, mixed>
@@ -83,7 +82,6 @@ final class EnumDiscoverer implements Discoverer
     {
         return $this->tokenParser->extractEnumFqcnsFromFile($filepath);
     }
-
 
     /**
      * @param  ReflectionEnum<UnitEnum>  $reflection

@@ -42,10 +42,9 @@ class TypeBridgeServiceProvider extends ServiceProvider
     {
         $this->app->bind(FileEnumerator::class, function () {
             return new EnforcingFileEnumerator(
-                new RecursiveFileEnumerator()
+                new RecursiveFileEnumerator
             );
         });
-
 
         $this->mergeConfigFrom(
             __DIR__.'/../config/type-bridge.php',

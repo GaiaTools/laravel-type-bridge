@@ -67,7 +67,7 @@ final class PublishEnumTranslatorUtilsCommandTest extends TestCase
         // Temporarily rename stub directory to simulate missing stubs
         $stubDir = __DIR__.'/../../stubs';
         $backupDir = __DIR__.'/../../stubs_backup';
-        
+
         if (File::exists($stubDir)) {
             File::moveDirectory($stubDir, $backupDir);
         }

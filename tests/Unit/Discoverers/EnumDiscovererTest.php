@@ -25,7 +25,7 @@ class EnumDiscovererTest extends TestCase
             excludes: [],
         );
 
-        $discoverer = new EnumDiscoverer($config, new EnumTokenParser());
+        $discoverer = new EnumDiscoverer($config, new EnumTokenParser);
         $discovered = $discoverer->discover();
 
         $this->assertInstanceOf(Collection::class, $discovered);
@@ -42,7 +42,7 @@ class EnumDiscovererTest extends TestCase
             excludes: [],
         );
 
-        $discoverer = new EnumDiscoverer($config, new EnumTokenParser());
+        $discoverer = new EnumDiscoverer($config, new EnumTokenParser);
         $discovered = $discoverer->discover();
 
         // Should only find TestPriority and TestRole (have GenerateEnum attribute)
@@ -63,7 +63,7 @@ class EnumDiscovererTest extends TestCase
             excludes: ['TestStatus'],
         );
 
-        $discoverer = new EnumDiscoverer($config, new EnumTokenParser());
+        $discoverer = new EnumDiscoverer($config, new EnumTokenParser);
         $discovered = $discoverer->discover();
 
         $names = $discovered->map(fn ($ref) => $ref->getShortName());
@@ -79,7 +79,7 @@ class EnumDiscovererTest extends TestCase
             excludes: ['GaiaTools\\TypeBridge\\Tests\\Fixtures\\Enums\\TestStatus'],
         );
 
-        $discoverer = new EnumDiscoverer($config, new EnumTokenParser());
+        $discoverer = new EnumDiscoverer($config, new EnumTokenParser);
         $discovered = $discoverer->discover();
 
         $names = $discovered->map(fn ($ref) => $ref->getName());
@@ -95,7 +95,7 @@ class EnumDiscovererTest extends TestCase
             excludes: ['TestStatus', 'TestPriority', 'TestRole', 'TestNoComments', 'TestNumeric', 'TestStatusWithTranslator', 'TestColor', 'TestSize', 'TestNoComposable'],
         );
 
-        $discoverer = new EnumDiscoverer($config, new EnumTokenParser());
+        $discoverer = new EnumDiscoverer($config, new EnumTokenParser);
         $discovered = $discoverer->discover();
 
         $this->assertCount(0, $discovered);
@@ -128,7 +128,7 @@ class EnumDiscovererTest extends TestCase
                 excludes: [],
             );
 
-            $discoverer = new EnumDiscoverer($config, new EnumTokenParser());
+            $discoverer = new EnumDiscoverer($config, new EnumTokenParser);
             $discovered = $discoverer->discover();
 
             // The enum should be ignored because it's not autoloadable (enum_exists returns false)

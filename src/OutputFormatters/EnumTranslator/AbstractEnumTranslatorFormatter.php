@@ -17,7 +17,7 @@ abstract class AbstractEnumTranslatorFormatter implements OutputFormatter
     {
         assert($transformed instanceof TransformedEnumTranslator);
 
-        return match($this->i18nFramework) {
+        return match ($this->i18nFramework) {
             'vue-i18n' => $this->formatVueI18n($transformed),
             'i18next' => $this->formatI18next($transformed),
             'laravel' => $this->formatLaravel($transformed),
@@ -29,7 +29,10 @@ abstract class AbstractEnumTranslatorFormatter implements OutputFormatter
     }
 
     abstract protected function formatVueI18n(TransformedEnumTranslator $transformed): string;
+
     abstract protected function formatI18next(TransformedEnumTranslator $transformed): string;
+
     abstract protected function formatLaravel(TransformedEnumTranslator $transformed): string;
+
     abstract protected function formatVanilla(TransformedEnumTranslator $transformed): string;
 }
