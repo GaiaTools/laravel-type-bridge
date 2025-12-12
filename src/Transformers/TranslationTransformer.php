@@ -83,7 +83,11 @@ final class TranslationTransformer implements Transformer
      */
     private function getLangRoots(): array
     {
-        return ($this->discoveryConfig ?? TranslationDiscoveryConfig::fromConfig())->langPaths;
+        $paths = ($this->discoveryConfig ?? TranslationDiscoveryConfig::fromConfig())->langPaths;
+
+        // Ensure result is a proper list<string> (0..n consecutive integer keys)
+        /** @var list<string> */
+        return array_values($paths);
     }
 
     private function buildLocaleDir(string $root, string $locale): string
@@ -117,6 +121,7 @@ final class TranslationTransformer implements Transformer
 
             if ($group === 'enums') {
                 $current = array_merge($current, $data);
+
                 continue;
             }
 
@@ -129,11 +134,18 @@ final class TranslationTransformer implements Transformer
     /**
      * Hoist nested grouping key "enums" within a file's returned array.
      *
-     * @param  array<string, mixed>  $data
+     * @param  array<mixed, mixed>  $data
      * @return array<string, mixed>
      */
     private function hoistEnumKey(array $data): array
     {
+        // Normalize keys to strings to satisfy return type expectations
+        $normalized = [];
+        foreach ($data as $key => $value) {
+            $normalized[(string) $key] = $value;
+        }
+        $data = $normalized;
+
         if (isset($data['enums']) && is_array($data['enums'])) {
             foreach ($data['enums'] as $key => $value) {
                 $data[$key] = $value;
@@ -167,7 +179,15 @@ final class TranslationTransformer implements Transformer
             if (is_array($value)) {
                 $this->flattenRecursive($value, $newKey, $out);
             } else {
-                $out[$newKey] = is_object($value) ? (method_exists($value, '__toString') ? (string) $value : null) : $value;
+                if (is_object($value)) {
+                    if (method_exists($value, '__toString')) {
+                        $out[$newKey] = (string) $value;
+                    } else {
+                        $out[$newKey] = null;
+                    }
+                } else {
+                    $out[$newKey] = $value;
+                }
             }
         }
     }
