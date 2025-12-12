@@ -53,47 +53,19 @@ final class TranslationTransformer implements Transformer
      */
     private function readAndMerge(string $locale): array
     {
-        $roots = ($this->discoveryConfig ?? TranslationDiscoveryConfig::fromConfig())->langPaths;
+        $roots = $this->getLangRoots();
 
-        // For each configured root, look for the locale directory and merge in order
         $anyFound = false;
         $final = [];
 
         foreach ($roots as $root) {
-            $langDir = rtrim($root, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$locale;
+            $langDir = $this->buildLocaleDir($root, $locale);
             if (! File::isDirectory($langDir)) {
                 continue;
             }
+
             $anyFound = true;
-
-            /** @var Collection<int, SplFileInfo> $files */
-            $files = collect(File::files($langDir))
-                ->filter(fn (SplFileInfo $file) => str_ends_with($file->getFilename(), '.php'))
-                ->values();
-
-            $current = [];
-            foreach ($files as $file) {
-                $group = pathinfo($file->getFilename(), PATHINFO_FILENAME);
-                $data = require $file->getPathname();
-
-                if (is_array($data)) {
-                    // Hoist nested grouping keys within the file (e.g., "enums")
-                    if (isset($data['enums']) && is_array($data['enums'])) {
-                        foreach ($data['enums'] as $key => $value) {
-                            $data[$key] = $value;
-                        }
-                        unset($data['enums']);
-                    }
-
-                    // Special handling: hoist "enums" file contents to root level
-                    if ($group === 'enums') {
-                        $current = array_merge($current, $data);
-                    } else {
-                        // Keep file-based grouping for other files
-                        $current[$group] = $data;
-                    }
-                }
-            }
+            $current = $this->loadLocaleDir($langDir);
 
             // Merge this root into final; later roots override earlier ones
             $final = array_replace_recursive($final, $current);
@@ -104,6 +76,72 @@ final class TranslationTransformer implements Transformer
         }
 
         return $final;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getLangRoots(): array
+    {
+        return ($this->discoveryConfig ?? TranslationDiscoveryConfig::fromConfig())->langPaths;
+    }
+
+    private function buildLocaleDir(string $root, string $locale): string
+    {
+        return rtrim($root, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$locale;
+    }
+
+    /**
+     * Load and merge translation arrays from a locale directory.
+     * Special rule: contents of the "enums.php" file are hoisted to the root level.
+     *
+     * @return array<string, mixed>
+     */
+    private function loadLocaleDir(string $langDir): array
+    {
+        /** @var Collection<int, SplFileInfo> $files */
+        $files = collect(File::files($langDir))
+            ->filter(fn (SplFileInfo $file) => str_ends_with($file->getFilename(), '.php'))
+            ->values();
+
+        $current = [];
+        foreach ($files as $file) {
+            $group = pathinfo($file->getFilename(), PATHINFO_FILENAME);
+            $data = require $file->getPathname();
+
+            if (! is_array($data)) {
+                continue;
+            }
+
+            $data = $this->hoistEnumKey($data);
+
+            if ($group === 'enums') {
+                $current = array_merge($current, $data);
+                continue;
+            }
+
+            $current[$group] = $data;
+        }
+
+        return $current;
+    }
+
+    /**
+     * Hoist nested grouping key "enums" within a file's returned array.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function hoistEnumKey(array $data): array
+    {
+        if (isset($data['enums']) && is_array($data['enums'])) {
+            foreach ($data['enums'] as $key => $value) {
+                $data[$key] = $value;
+            }
+            unset($data['enums']);
+        }
+
+        return $data;
     }
 
     /**

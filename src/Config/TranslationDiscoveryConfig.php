@@ -19,39 +19,67 @@ final readonly class TranslationDiscoveryConfig
 
     public static function fromConfig(): self
     {
-        // Read optional configured paths; allow strings or arrays. Globs are allowed.
+        // Read configured paths and resolve candidates; fall back to Laravel's default
         /** @var array<string,mixed>|null $cfg */
         $cfg = config()->get('type-bridge.translations');
-        $configured = [];
-        if (is_array($cfg)) {
-            $raw = Arr::get($cfg, 'lang_paths');
-            foreach ((array) ($raw ?? []) as $p) {
-                if (is_string($p) && $p !== '') {
-                    $configured[] = $p;
-                }
+
+        $configured = self::configuredLangPaths($cfg);
+        $candidates = $configured ?: [base_path('lang')];
+
+        return new self(langPaths: self::resolveCandidates($candidates));
+    }
+
+    /**
+     * @param  array<string,mixed>|null  $cfg
+     * @return array<int,string>
+     */
+    private static function configuredLangPaths(?array $cfg): array
+    {
+        if (! is_array($cfg)) {
+            return [];
+        }
+
+        $raw = Arr::get($cfg, 'lang_paths');
+        $out = [];
+        foreach ((array) ($raw ?? []) as $p) {
+            if (is_string($p) && $p !== '') {
+                $out[] = $p;
             }
         }
 
-        // Fallback: Laravel's default lang directory
-        $defaults = [
-            base_path('lang'),
-        ];
+        return $out;
+    }
 
-        $candidates = ! empty($configured) ? $configured : $defaults;
-
-        // Resolve globs and keep only existing directories; de-duplicate while preserving order
+    /**
+     * Resolve globs and keep only existing directories; de-duplicate while preserving order.
+     *
+     * @param  array<int,string>  $candidates
+     * @return array<int,string>
+     */
+    private static function resolveCandidates(array $candidates): array
+    {
         $resolved = [];
         foreach ($candidates as $candidate) {
-            $paths = str_contains($candidate, '*') ? (glob($candidate) ?: []) : [$candidate];
+            if (str_contains($candidate, '*')) {
+                $paths = glob($candidate) ?: [];
+            } else {
+                $paths = [$candidate];
+            }
             foreach ($paths as $path) {
-                if (is_dir($path) && ! in_array($path, $resolved, true)) {
-                    $resolved[] = $path;
-                }
+                self::appendUniqueExistingDir($resolved, $path);
             }
         }
 
-        return new self(
-            langPaths: $resolved,
-        );
+        return $resolved;
+    }
+
+    /**
+     * @param  array<int,string>  $list
+     */
+    private static function appendUniqueExistingDir(array &$list, string $path): void
+    {
+        if (is_dir($path) && ! in_array($path, $list, true)) {
+            $list[] = $path;
+        }
     }
 }
