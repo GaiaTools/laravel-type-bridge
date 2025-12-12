@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace GaiaTools\TypeBridge\Tests\Unit\Discoverers;
 
+use GaiaTools\TypeBridge\Attributes\GenerateEnum;
 use GaiaTools\TypeBridge\Config\EnumDiscoveryConfig;
 use GaiaTools\TypeBridge\Discoverers\EnumDiscoverer;
+use GaiaTools\TypeBridge\Support\EnumTokenParser;
 use GaiaTools\TypeBridge\Tests\TestCase;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use PHPUnit\Framework\Attributes\Test;
 use ReflectionEnum;
@@ -22,10 +25,10 @@ class EnumDiscovererTest extends TestCase
             excludes: [],
         );
 
-        $discoverer = new EnumDiscoverer($config);
+        $discoverer = new EnumDiscoverer($config, new EnumTokenParser);
         $discovered = $discoverer->discover();
 
-        $this->assertInstanceOf(\Illuminate\Support\Collection::class, $discovered);
+        $this->assertInstanceOf(Collection::class, $discovered);
         $this->assertGreaterThanOrEqual(3, $discovered->count()); // TestStatus, TestPriority, TestRole
         $this->assertContainsOnlyInstancesOf(ReflectionEnum::class, $discovered);
     }
@@ -39,14 +42,14 @@ class EnumDiscovererTest extends TestCase
             excludes: [],
         );
 
-        $discoverer = new EnumDiscoverer($config);
+        $discoverer = new EnumDiscoverer($config, new EnumTokenParser);
         $discovered = $discoverer->discover();
 
         // Should only find TestPriority and TestRole (have GenerateEnum attribute)
         $this->assertGreaterThanOrEqual(2, $discovered->count());
 
         foreach ($discovered as $reflection) {
-            $attributes = $reflection->getAttributes(\GaiaTools\TypeBridge\Attributes\GenerateEnum::class);
+            $attributes = $reflection->getAttributes(GenerateEnum::class);
             $this->assertNotEmpty($attributes, "Enum {$reflection->getName()} should have GenerateEnum attribute");
         }
     }
@@ -60,7 +63,7 @@ class EnumDiscovererTest extends TestCase
             excludes: ['TestStatus'],
         );
 
-        $discoverer = new EnumDiscoverer($config);
+        $discoverer = new EnumDiscoverer($config, new EnumTokenParser);
         $discovered = $discoverer->discover();
 
         $names = $discovered->map(fn ($ref) => $ref->getShortName());
@@ -76,7 +79,7 @@ class EnumDiscovererTest extends TestCase
             excludes: ['GaiaTools\\TypeBridge\\Tests\\Fixtures\\Enums\\TestStatus'],
         );
 
-        $discoverer = new EnumDiscoverer($config);
+        $discoverer = new EnumDiscoverer($config, new EnumTokenParser);
         $discovered = $discoverer->discover();
 
         $names = $discovered->map(fn ($ref) => $ref->getName());
@@ -89,10 +92,10 @@ class EnumDiscovererTest extends TestCase
         $config = new EnumDiscoveryConfig(
             paths: [__DIR__.'/../../Fixtures/Enums'],
             generateBackedEnums: true,
-            excludes: ['TestStatus', 'TestPriority', 'TestRole', 'TestNoComments', 'TestNumeric'],
+            excludes: ['TestStatus', 'TestPriority', 'TestRole', 'TestNoComments', 'TestNumeric', 'TestStatusWithTranslator', 'TestColor', 'TestSize', 'TestNoComposable'],
         );
 
-        $discoverer = new EnumDiscoverer($config);
+        $discoverer = new EnumDiscoverer($config, new EnumTokenParser);
         $discovered = $discoverer->discover();
 
         $this->assertCount(0, $discovered);
@@ -125,7 +128,7 @@ class EnumDiscovererTest extends TestCase
                 excludes: [],
             );
 
-            $discoverer = new EnumDiscoverer($config);
+            $discoverer = new EnumDiscoverer($config, new EnumTokenParser);
             $discovered = $discoverer->discover();
 
             // The enum should be ignored because it's not autoloadable (enum_exists returns false)

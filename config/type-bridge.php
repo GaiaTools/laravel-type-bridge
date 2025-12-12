@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+// config/type-bridge.php
+
 return [
     // Output format for all generated files: 'ts' or 'js'
     'output_format' => env('TYPE_BRIDGE_OUTPUT_FORMAT', 'ts'),
@@ -13,34 +15,45 @@ return [
     // Whether to include trailing commas in generated objects and arrays
     'trailing_commas' => env('TYPE_BRIDGE_TRAILING_COMMAS', true),
 
+    'i18n' => [
+        // Target i18n library for all translation-related generation
+        // Options: 'vue-i18n', 'i18next', 'laravel', 'vanilla'
+        // - 'vue-i18n': For Vue.js projects
+        // - 'i18next': For i18next (works with React, vanilla JS, Node, etc.)
+        // - 'laravel': Laravel syntax (no transformations)
+        // - 'vanilla': Custom/framework-agnostic implementation
+        'library' => env('TYPE_BRIDGE_I18N_LIBRARY', 'i18next'),
+
+        // Custom adapter class (optional - for users who want to provide their own)
+        'custom_adapter' => null, // e.g., \App\TypeBridge\CustomI18nAdapter::class
+    ],
+
     // Enum generation configuration
     'enums' => [
-        // Output path (relative to resources directory)
         'output_path' => 'js/enums/generated',
-
-        // Discovery configuration
         'discovery' => [
             'paths' => [
                 app_path('Enums'),
             ],
-            // When true: generates all backed enums
-            // When false: generates ONLY enums with GenerateEnum attribute
             'generate_backed_enums' => true,
-            // Exclude specific enums (by short name or FQCN)
             'excludes' => [],
         ],
     ],
 
     // Translation generation configuration
     'translations' => [
-        // Output path (relative to resources directory)
         'output_path' => 'js/locales/generated',
+    ],
 
-        // Target i18n library for syntax transformation
-        // Options: 'i18next' (default, works for react-i18next too), 'vue-i18n', 'laravel'
-        'i18n_library' => env('TYPE_BRIDGE_I18N_LIBRARY', 'i18next'),
-
-        // Custom adapter class (optional - for users who want to provide their own)
-        'custom_adapter' => null, // e.g., \App\TypeBridge\CustomAdapter::class
+    // Enum translator generation configuration
+    'enum_translators' => [
+        'enabled' => true,
+        'output_path' => 'js/composables/generated',
+        'utils_composables_path' => 'js/composables',
+        'utils_lib_path' => 'js/lib',
+        'discovery_paths' => [
+            app_path('Enums'),
+        ],
+        'excludes' => [],
     ],
 ];

@@ -1,0 +1,154 @@
+type BackedEnumValue = string | number;
+
+/**
+ * Minimal translation engine interface.
+ * This can wrap any translation library that exposes a `t(key: string): string` function.
+ */
+export interface TranslationEngine {
+    t(key: string): string;
+}
+
+/**
+ * Callable translator function with additional helper methods.
+ */
+export type TranslatorFunction<TValue extends BackedEnumValue> =
+    ((key: TValue) => string) & {
+        options(): Array<{ value: TValue; label: string }>;
+        has(key: TValue): boolean;
+    };
+
+/**
+ * Options for translator behavior.
+ */
+export interface TranslatorOptions {
+    /**
+     * When true, logs a warning when a value has no mapping.
+     * @default true
+     */
+    warnOnMissing?: boolean;
+
+    /**
+     * When true, returns the original value as a string when
+     * no mapping is found. When false, returns an empty string.
+     * @default true
+     */
+    fallbackToKey?: boolean;
+}
+
+/**
+ * Global translation engine storage
+ */
+let globalEngine: TranslationEngine | null = null;
+
+/**
+ * Configure the global translation engine that will be used by all translators.
+ * Call this once during app initialization.
+ *
+ * @example
+ * // Vue I18n example (main.ts)
+ * import { configureTranslationEngine } from '@/composables/useTranslator';
+ * import { useI18n } from 'vue-i18n';
+ *
+ * const app = createApp(App);
+ * app.use(i18n);
+ *
+ * // After i18n is registered, configure it
+ * configureTranslationEngine({
+ *   t: (key) => i18n.global.t(key)
+ * });
+ *
+ * @example
+ * // i18next example
+ * import i18n from '@/i18n';
+ * import { configureTranslationEngine } from '@/composables/useTranslator';
+ *
+ * configureTranslationEngine({
+ *   t: (key) => i18n.t(key)
+ * });
+ */
+export function configureTranslationEngine(engine: TranslationEngine): void {
+    if (!engine || typeof engine.t !== 'function') {
+        throw new Error(
+            'configureTranslationEngine: engine must have a "t(key: string): string" method.'
+        );
+    }
+    globalEngine = engine;
+}
+
+/**
+ * Get the configured global translation engine.
+ * Throws an error if not configured.
+ */
+function getGlobalEngine(): TranslationEngine {
+    if (!globalEngine) {
+        throw new Error(
+            'Translation engine not configured. Call configureTranslationEngine() during app initialization.'
+        );
+    }
+    return globalEngine;
+}
+
+/**
+ * Creates a translator function that maps enum-like values to translated labels.
+ *
+ * The translation engine is automatically retrieved from the global configuration.
+ * If you need to use a different engine for a specific translator, you can still
+ * pass it as the second parameter.
+ *
+ * @example
+ * // Using global engine (typical usage)
+ * const mapping = createEnumTranslationMap(StatusEnum, 'StatusEnum');
+ * const translate = useTranslator(mapping);
+ * translate(StatusEnum.ACTIVE); // => "Active"
+ *
+ * @example
+ * // Using custom engine (override)
+ * const customEngine = { t: (key) => myCustomTranslator(key) };
+ * const translate = useTranslator(mapping, customEngine);
+ *
+ * @param translations Map of enum-like values to translation keys
+ * @param engine       Optional translation engine (uses global if not provided)
+ * @param options      Optional behavior flags
+ */
+export function useTranslator<TValue extends BackedEnumValue>(
+    translations: Record<TValue, string>,
+    engine?: TranslationEngine,
+    options: TranslatorOptions = {}
+): TranslatorFunction<TValue> {
+    // Use provided engine or fall back to global engine
+    const translationEngine = engine ?? getGlobalEngine();
+
+    const { warnOnMissing = true, fallbackToKey = true } = options;
+
+    const t = translationEngine.t.bind(translationEngine);
+
+    const translate = ((key: TValue): string => {
+        const translationKey = translations[key];
+
+        if (!translationKey) {
+            if (warnOnMissing) {
+                console.warn(
+                    `Missing translation mapping for: ${String(key)}`
+                );
+            }
+            return fallbackToKey ? String(key) : '';
+        }
+
+        return t(translationKey);
+    }) as TranslatorFunction<TValue>;
+
+    translate.options = () => {
+        return (Object.entries(translations) as Array<[TValue, string]>).map(
+            ([value, translationKey]) => ({
+                value,
+                label: t(translationKey),
+            })
+        );
+    };
+
+    translate.has = (key: TValue): boolean => {
+        return key in translations;
+    };
+
+    return translate;
+}

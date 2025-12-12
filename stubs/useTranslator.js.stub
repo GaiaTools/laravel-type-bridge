@@ -1,0 +1,121 @@
+/**
+ * Global translation engine storage
+ * @type {import('./useTranslator').TranslationEngine | null}
+ */
+let globalEngine = null;
+
+/**
+ * Configure the global translation engine that will be used by all translators.
+ * Call this once during app initialization.
+ *
+ * @param {import('./useTranslator').TranslationEngine} engine
+ *
+ * @example
+ * // Vue I18n example (main.js)
+ * import { configureTranslationEngine } from '@/composables/useTranslator';
+ * import { useI18n } from 'vue-i18n';
+ *
+ * const app = createApp(App);
+ * app.use(i18n);
+ *
+ * // After i18n is registered, configure it
+ * configureTranslationEngine({
+ *   t: (key) => i18n.global.t(key)
+ * });
+ *
+ * @example
+ * // i18next example
+ * import i18n from '@/i18n';
+ * import { configureTranslationEngine } from '@/composables/useTranslator';
+ *
+ * configureTranslationEngine({
+ *   t: (key) => i18n.t(key)
+ * });
+ */
+export function configureTranslationEngine(engine) {
+    if (!engine || typeof engine.t !== 'function') {
+        throw new Error(
+            'configureTranslationEngine: engine must have a "t(key: string): string" method.'
+        );
+    }
+    globalEngine = engine;
+}
+
+/**
+ * Get the configured global translation engine.
+ * Throws an error if not configured.
+ *
+ * @returns {import('./useTranslator').TranslationEngine}
+ */
+function getGlobalEngine() {
+    if (!globalEngine) {
+        throw new Error(
+            'Translation engine not configured. Call configureTranslationEngine() during app initialization.'
+        );
+    }
+    return globalEngine;
+}
+
+/**
+ * Creates a translator function that maps enum-like values to translated labels.
+ *
+ * The translation engine is automatically retrieved from the global configuration.
+ * If you need to use a different engine for a specific translator, you can still
+ * pass it as the second parameter.
+ *
+ * @template {string | number} TValue
+ * @param {Record<TValue, string>} translations - Map of enum-like values to translation keys
+ * @param {import('./useTranslator').TranslationEngine} [engine] - Optional translation engine (uses global if not provided)
+ * @param {import('./useTranslator').TranslatorOptions} [options={}] - Optional behavior flags
+ * @returns {import('./useTranslator').TranslatorFunction<TValue>}
+ *
+ * @example
+ * // Using global engine (typical usage)
+ * const mapping = createEnumTranslationMap(StatusEnum, 'StatusEnum');
+ * const translate = useTranslator(mapping);
+ * translate(StatusEnum.ACTIVE); // => "Active"
+ *
+ * @example
+ * // Using custom engine (override)
+ * const customEngine = { t: (key) => myCustomTranslator(key) };
+ * const translate = useTranslator(mapping, customEngine);
+ */
+export function useTranslator(translations, engine, options = {}) {
+    // Use provided engine or fall back to global engine
+    const translationEngine = engine ?? getGlobalEngine();
+
+    const { warnOnMissing = true, fallbackToKey = true } = options;
+
+    const t = translationEngine.t.bind(translationEngine);
+
+    /** @type {import('./useTranslator').TranslatorFunction<TValue>} */
+    const translate = (key) => {
+        const translationKey = translations[key];
+
+        if (!translationKey) {
+            if (warnOnMissing) {
+                console.warn(
+                    `Missing translation mapping for: ${String(key)}`
+                );
+            }
+            return fallbackToKey ? String(key) : '';
+        }
+
+        return t(translationKey);
+    };
+
+    translate.options = () => {
+        return Object.entries(translations).map(
+            ([value, translationKey]) => ({
+                value,
+                label: t(translationKey),
+            })
+        );
+    };
+
+    translate.has = (key) => {
+        return key in translations;
+    };
+
+    return translate;
+}

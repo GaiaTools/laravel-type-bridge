@@ -11,6 +11,7 @@ use GaiaTools\TypeBridge\Generators\EnumGenerator;
 use GaiaTools\TypeBridge\OutputFormatters\Enum\JsEnumFormatter;
 use GaiaTools\TypeBridge\OutputFormatters\Enum\TsEnumFormatter;
 use GaiaTools\TypeBridge\Support\EnumFileParser;
+use GaiaTools\TypeBridge\Support\EnumTokenParser;
 use GaiaTools\TypeBridge\Transformers\EnumTransformer;
 use GaiaTools\TypeBridge\Writers\GeneratedFileWriter;
 use Illuminate\Console\Command;
@@ -31,7 +32,7 @@ class GenerateEnumsCommand extends Command
             ? $optFormat
             : (string) $generatorConfig->outputFormat;
 
-        $discoverer = new EnumDiscoverer($enumConfig);
+        $discoverer = new EnumDiscoverer($enumConfig, new EnumTokenParser);
         $transformer = new EnumTransformer($generatorConfig);
         $formatter = $format === 'js' ? new JsEnumFormatter : new TsEnumFormatter;
         $writer = new GeneratedFileWriter;
