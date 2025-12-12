@@ -77,6 +77,18 @@ return [
         // Output path (relative to resources directory)
         'output_path' => 'js/locales/generated',
 
+        // Where to discover Laravel translation locales. You can provide:
+        // - a string path, or an array of paths
+        // - glob patterns are supported (e.g. base_path('Modules/*/Resources/lang'))
+        // Precedence: later paths override earlier ones when the same keys exist.
+        // If not configured, the fallback is Laravel's default lang directory (base_path('lang')).
+        // Examples:
+        // 'lang_paths' => [
+        //     base_path('lang'),
+        //     base_path('Modules/*/Resources/lang'),
+        // ],
+        'lang_paths' => null,
+
         // Target i18n library for syntax transformation
         // Options: 'i18next' (default, works for react-i18next too), 'vue-i18n', 'laravel'
         'i18n_library' => env('TYPE_BRIDGE_I18N_LIBRARY', 'i18next'),
