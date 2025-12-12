@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use ReflectionEnum;
 use SplFileInfo;
+use UnitEnum;
 
 final class EnumTranslatorDiscoverer implements Discoverer
 {
@@ -19,6 +20,11 @@ final class EnumTranslatorDiscoverer implements Discoverer
         private readonly EnumTokenParser $tokenParser,
     ) {}
 
+    /**
+     * Discover enum reflections with their translation keys.
+     *
+     * @return Collection<int, mixed>
+     */
     public function discover(): Collection
     {
         $paths = collect($this->config->discoveryPaths);
@@ -35,8 +41,8 @@ final class EnumTranslatorDiscoverer implements Discoverer
                 ->values();
         });
 
-        /** @var Collection<int, array{reflection: ReflectionEnum, translationKey: string}> */
-        $result = $classes
+        /** @var Collection<int, mixed>  */
+        return $classes
             ->filter(fn (string $class) => enum_exists($class))
             ->map(fn (string $enumClass) => new ReflectionEnum($enumClass))
             ->filter(fn (ReflectionEnum $ref) => $this->shouldInclude($ref))
@@ -48,17 +54,16 @@ final class EnumTranslatorDiscoverer implements Discoverer
             })
             ->filter(fn (array $item) => $item['translationKey'] !== null)
             ->values();
-
-        return $result;
     }
 
+    /** @param ReflectionEnum<UnitEnum> $reflection */
     private function shouldInclude(ReflectionEnum $reflection): bool
     {
         $short = $reflection->getShortName();
         $fqcn = $reflection->getName();
 
         $excludedEnums = array_map(
-            static fn ($v) => mb_strtolower($v),
+            static fn ($value) => mb_strtolower($value),
             $this->config->excludes
         );
 
@@ -66,6 +71,7 @@ final class EnumTranslatorDiscoverer implements Discoverer
             && ! in_array(mb_strtolower($fqcn), $excludedEnums, true);
     }
 
+    /** @param ReflectionEnum<UnitEnum> $reflection */
     private function getTranslationKey(ReflectionEnum $reflection): ?string
     {
         $attributes = $reflection->getAttributes(GenerateTranslator::class);

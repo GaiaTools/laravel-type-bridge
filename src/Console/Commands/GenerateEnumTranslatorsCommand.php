@@ -40,7 +40,7 @@ class GenerateEnumTranslatorsCommand extends Command
             ? $optFormat
             : (string) $generatorConfig->outputFormat;
 
-        $i18nLibrary = config('type-bridge.i18n.library', 'vue-i18n');
+        $i18nLibrary = config()->string('type-bridge.i18n.library', 'vue-i18n');
 
         $discoverer = new EnumTranslatorDiscoverer($translatorConfig, new EnumTokenParser);
         $transformer = new EnumTranslatorTransformer($translatorConfig);

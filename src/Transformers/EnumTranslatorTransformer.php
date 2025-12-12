@@ -5,6 +5,8 @@ namespace GaiaTools\TypeBridge\Transformers;
 use GaiaTools\TypeBridge\Config\EnumTranslatorDiscoveryConfig;
 use GaiaTools\TypeBridge\Contracts\Transformer;
 use GaiaTools\TypeBridge\ValueObjects\TransformedEnumTranslator;
+use ReflectionEnum;
+use UnitEnum;
 
 final class EnumTranslatorTransformer implements Transformer
 {
@@ -12,10 +14,12 @@ final class EnumTranslatorTransformer implements Transformer
         private readonly EnumTranslatorDiscoveryConfig $discoveryConfig,
     ) {}
 
+    /**
+     * @param array{reflection: ReflectionEnum<UnitEnum>, translationKey: string} $source
+     */
     public function transform(mixed $source): TransformedEnumTranslator
     {
-        assert(is_array($source) && isset($source['reflection'], $source['translationKey']));
-
+        // PHPStan knows the precise array shape from the PHPDoc; just read values.
         $reflection = $source['reflection'];
         $enumName = $reflection->getShortName();
         $composableName = "use{$enumName}Translator";

@@ -13,7 +13,7 @@ use UnexpectedValueException;
 class RecursiveFileEnumerator implements FileEnumerator
 {
     /**
-     * @var null|callable(string):Traversable
+     * @var null|callable(string):Traversable<int, mixed>
      */
     private $iteratorFactory;
 
@@ -21,17 +21,24 @@ class RecursiveFileEnumerator implements FileEnumerator
      * Allow injecting a custom iterator factory for testing.
      * When null, a RecursiveIteratorIterator over RecursiveDirectoryIterator is used.
      */
+    /**
+     * @param null|callable(string):Traversable<int, mixed> $iteratorFactory
+     */
     public function __construct(?callable $iteratorFactory = null)
     {
         $this->iteratorFactory = $iteratorFactory;
     }
 
+    /**
+     * @return iterable<SplFileInfo>
+     */
     public function enumerate(string $directory): iterable
     {
         if (! is_dir($directory)) {
             return [];
         }
 
+        /** @var Traversable<int, mixed> $iterator */
         $iterator = $this->iteratorFactory
             ? ($this->iteratorFactory)($directory)
             : new RecursiveIteratorIterator(

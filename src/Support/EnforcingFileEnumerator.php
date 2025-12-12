@@ -12,7 +12,10 @@ final class EnforcingFileEnumerator implements FileEnumerator
 
     public function enumerate(string $directory): iterable
     {
-        foreach ($this->inner->enumerate($directory) as $file) {
+        /** @var iterable<mixed> $iter */
+        $iter = $this->inner->enumerate($directory);
+
+        foreach ($iter as $file) {
             if (! $file instanceof SplFileInfo) {
                 throw new UnexpectedValueException('Non-SplFileInfo: '.get_debug_type($file));
             }
