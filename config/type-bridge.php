@@ -22,7 +22,7 @@ return [
         // - 'i18next': For i18next (works with React, vanilla JS, Node, etc.)
         // - 'laravel': Laravel syntax (no transformations)
         // - 'vanilla': Custom/framework-agnostic implementation
-        'library' => env('TYPE_BRIDGE_I18N_LIBRARY', 'vue-i18n'),
+        'library' => env('TYPE_BRIDGE_I18N_LIBRARY', 'i18next'),
 
         // Custom adapter class (optional - for users who want to provide their own)
         'custom_adapter' => null, // e.g., \App\TypeBridge\CustomI18nAdapter::class
