@@ -20,7 +20,7 @@ final readonly class EnumTranslatorDiscoveryConfig
     public static function fromConfig(): self
     {
         /** @var array<string, mixed> $config */
-        $config = config()->array('type-bridge.enum_translators', []);
+        $config = config()->get('type-bridge.enum_translators');
 
         $discoveryPaths = [];
         foreach ((array) ($config['discovery_paths'] ?? ['app/Enums']) as $value) {
