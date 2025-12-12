@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GaiaTools\TypeBridge\Console\Commands;
 
+use GaiaTools\TypeBridge\Contracts\FileEnumerator;
 use Illuminate\Console\Command;
 
 class PublishConfigCommand extends Command
@@ -11,6 +12,11 @@ class PublishConfigCommand extends Command
     protected $signature = 'type-bridge:publish {--force : Overwrite existing config file}';
 
     protected $description = 'Publish Type Bridge configuration with smart defaults';
+
+    public function __construct(private readonly FileEnumerator $files)
+    {
+        parent::__construct();
+    }
 
     public function handle(): int
     {
@@ -105,7 +111,7 @@ class PublishConfigCommand extends Command
         ];
 
         foreach ($commonDirs as $dir) {
-            if (is_dir($dir) && $this->hasTypeScriptFiles($dir)) {
+            if ($this->hasTypeScriptFiles($dir)) {
                 return 'ts';
             }
         }
@@ -151,30 +157,12 @@ class PublishConfigCommand extends Command
     /**
      * Check if directory contains TypeScript files
      */
-    private function hasTypeScriptFiles(string $directory): bool
+    private function hasTypeScriptFiles(string $path): bool
     {
-        if (! is_dir($directory)) {
-            return false;
-        }
-
-        try {
-            $iterator = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($directory, \RecursiveDirectoryIterator::SKIP_DOTS),
-                \RecursiveIteratorIterator::SELF_FIRST
-            );
-
-            foreach ($iterator as $file) {
-                // Type guard: ensure we have SplFileInfo
-                if (! $file instanceof \SplFileInfo) {
-                    continue;
-                }
-
-                if ($file->isFile() && $file->getExtension() === 'ts') {
-                    return true;
-                }
+        foreach ($this->files->enumerate($path) as $file) {
+            if ($file->getExtension() === 'ts') {
+                return true;
             }
-        } catch (\Exception $e) {
-            // Directory not accessible, skip
         }
 
         return false;

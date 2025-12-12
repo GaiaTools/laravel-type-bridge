@@ -12,7 +12,10 @@ use GaiaTools\TypeBridge\Console\Commands\GenerateEnumTranslatorsCommand;
 use GaiaTools\TypeBridge\Console\Commands\GenerateTranslationsCommand;
 use GaiaTools\TypeBridge\Console\Commands\PublishConfigCommand;
 use GaiaTools\TypeBridge\Console\Commands\PublishEnumTranslatorUtilsCommand;
+use GaiaTools\TypeBridge\Contracts\FileEnumerator;
 use GaiaTools\TypeBridge\Contracts\TranslationSyntaxAdapter;
+use GaiaTools\TypeBridge\Support\EnforcingFileEnumerator;
+use GaiaTools\TypeBridge\Support\RecursiveFileEnumerator;
 use Illuminate\Support\ServiceProvider;
 use InvalidArgumentException;
 
@@ -37,6 +40,13 @@ class TypeBridgeServiceProvider extends ServiceProvider
 
     public function register(): void
     {
+        $this->app->bind(FileEnumerator::class, function () {
+            return new EnforcingFileEnumerator(
+                new RecursiveFileEnumerator()
+            );
+        });
+
+
         $this->mergeConfigFrom(
             __DIR__.'/../config/type-bridge.php',
             'type-bridge'
