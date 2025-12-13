@@ -10,12 +10,17 @@ use GaiaTools\TypeBridge\ValueObjects\TransformedEnumTranslator;
 
 final class JsEnumTranslatorFormatter extends AbstractEnumTranslatorFormatter
 {
+    private const DEFAULT_UTILS_LIB_IMPORT_PATH = '@/lib';
+
     protected function formatVueI18n(TransformedEnumTranslator $transformed): string
     {
+        $composablesImportBase = rtrim(config()->string('type-bridge.enum_translators.utils_composables_import_path', '@/composables'), '/');
+        $libImportBase = rtrim(config()->string('type-bridge.enum_translators.utils_lib_import_path', self::DEFAULT_UTILS_LIB_IMPORT_PATH), '/');
+
         return <<<JS
-import { useTranslator } from '@/composables/useTranslator';
+import { useTranslator } from '{$composablesImportBase}/useTranslator';
 import { {$transformed->enumName} } from '{$transformed->enumImportPath}';
-import { createEnumTranslationMap } from '@/lib/createEnumTranslationMap';
+import { createEnumTranslationMap } from '{$libImportBase}/createEnumTranslationMap';
 
 /**
  * Translator composable for {$transformed->enumName}
@@ -31,18 +36,21 @@ JS;
 
     protected function formatI18next(TransformedEnumTranslator $transformed): string
     {
+        $composablesImportBase = rtrim(config()->string('type-bridge.enum_translators.utils_composables_import_path', '@/composables'), '/');
+        $libImportBase = rtrim(config()->string('type-bridge.enum_translators.utils_lib_import_path', self::DEFAULT_UTILS_LIB_IMPORT_PATH), '/');
+
         return <<<JS
+import { useTranslator } from '{$composablesImportBase}/useTranslator';
 import { {$transformed->enumName} } from '{$transformed->enumImportPath}';
-import { useEnumTranslator } from '@/hooks/useEnumTranslator';
-import { createEnumTranslationMap } from '@/lib/createEnumTranslationMap';
+import { createEnumTranslationMap } from '{$libImportBase}/createEnumTranslationMap';
 
 /**
- * Translator hook for {$transformed->enumName}
+ * Translator function for {$transformed->enumName}
  * @returns {Function} Translator function with utility methods
  */
 export function {$transformed->name}() {
     const translations = createEnumTranslationMap({$transformed->enumName}, '{$transformed->translationKey}');
-    return useEnumTranslator(translations);
+    return useTranslator(translations);
 }
 
 JS;
@@ -50,10 +58,12 @@ JS;
 
     protected function formatLaravel(TransformedEnumTranslator $transformed): string
     {
+        $libImportBase = rtrim(config()->string('type-bridge.enum_translators.utils_lib_import_path', self::DEFAULT_UTILS_LIB_IMPORT_PATH), '/');
+
         return <<<JS
 import { {$transformed->enumName} } from '{$transformed->enumImportPath}';
-import { createEnumTranslationMap } from '@/lib/createEnumTranslationMap';
-import { createTranslator } from '@/lib/createTranslator';
+import { createEnumTranslationMap } from '{$libImportBase}/createEnumTranslationMap';
+import { createTranslator } from '{$libImportBase}/createTranslator';
 
 /**
  * Translator for {$transformed->enumName}
@@ -67,10 +77,12 @@ JS;
 
     protected function formatVanilla(TransformedEnumTranslator $transformed): string
     {
+        $libImportBase = rtrim(config()->string('type-bridge.enum_translators.utils_lib_import_path', self::DEFAULT_UTILS_LIB_IMPORT_PATH), '/');
+
         return <<<JS
 import { {$transformed->enumName} } from '{$transformed->enumImportPath}';
-import { createEnumTranslationMap } from '@/lib/createEnumTranslationMap';
-import { createTranslator } from '@/lib/createTranslator';
+import { createEnumTranslationMap } from '{$libImportBase}/createEnumTranslationMap';
+import { createTranslator } from '{$libImportBase}/createTranslator';
 
 /**
  * Translator for {$transformed->enumName}

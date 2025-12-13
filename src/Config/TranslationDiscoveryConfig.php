@@ -20,30 +20,30 @@ final readonly class TranslationDiscoveryConfig
     public static function fromConfig(): self
     {
         // Read configured paths and resolve candidates; fall back to Laravel's default
-        /** @var array<string,mixed>|null $cfg */
-        $cfg = config()->get('type-bridge.translations');
+        /** @var array<string,mixed>|null $config */
+        $config = config()->get('type-bridge.translations');
 
-        $configured = self::configuredLangPaths($cfg);
+        $configured = self::configuredLangPaths($config);
         $candidates = $configured ?: [base_path('lang')];
 
         return new self(langPaths: self::resolveCandidates($candidates));
     }
 
     /**
-     * @param  array<string,mixed>|null  $cfg
+     * @param  array<string,mixed>|null  $config
      * @return array<int,string>
      */
-    private static function configuredLangPaths(?array $cfg): array
+    private static function configuredLangPaths(?array $config): array
     {
-        if (! is_array($cfg)) {
+        if (! is_array($config)) {
             return [];
         }
 
-        $raw = Arr::get($cfg, 'lang_paths');
+        $paths = Arr::get($config, 'discovery.include_paths');
         $out = [];
-        foreach ((array) ($raw ?? []) as $p) {
-            if (is_string($p) && $p !== '') {
-                $out[] = $p;
+        foreach ((array) ($paths ?? []) as $path) {
+            if (is_string($path) && $path !== '') {
+                $out[] = $path;
             }
         }
 

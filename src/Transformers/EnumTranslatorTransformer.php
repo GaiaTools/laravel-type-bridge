@@ -24,8 +24,11 @@ final class EnumTranslatorTransformer implements Transformer
         $enumName = $reflection->getShortName();
         $composableName = "use{$enumName}Translator";
 
-        // Get enum output path from enum config
-        $enumImportPath = '@/enums/generated/'.$enumName;
+        // Build enum import path based on configured import base to mirror output path
+        /** @var string $enumImportBase */
+        $enumImportBase = config('type-bridge.enums.import_base', '@/enums/generated');
+        $enumImportBase = rtrim($enumImportBase, '/');
+        $enumImportPath = $enumImportBase.'/'.$enumName;
 
         return new TransformedEnumTranslator(
             name: $composableName,

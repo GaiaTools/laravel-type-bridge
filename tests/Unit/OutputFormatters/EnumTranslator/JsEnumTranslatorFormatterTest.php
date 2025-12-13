@@ -50,7 +50,7 @@ class JsEnumTranslatorFormatterTest extends TestCase
         $output = $formatter->format($transformed);
 
         $this->assertStringContainsString('import { Status }', $output);
-        $this->assertStringContainsString('useEnumTranslator', $output);
+        $this->assertStringContainsString('useTranslator', $output);
         $this->assertStringContainsString('createEnumTranslationMap', $output);
     }
 

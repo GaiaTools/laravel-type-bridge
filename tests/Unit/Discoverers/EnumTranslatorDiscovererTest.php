@@ -16,7 +16,6 @@ class EnumTranslatorDiscovererTest extends TestCase
     public function it_discovers_enums_with_translator_attribute(): void
     {
         $config = new EnumTranslatorDiscoveryConfig(
-            enabled: true,
             discoveryPaths: [__DIR__.'/../../Fixtures/Enums'],
             excludes: [],
             outputPath: 'js/composables/generated',
@@ -41,7 +40,6 @@ class EnumTranslatorDiscovererTest extends TestCase
     public function it_respects_excludes(): void
     {
         $config = new EnumTranslatorDiscoveryConfig(
-            enabled: true,
             discoveryPaths: [__DIR__.'/../../Fixtures/Enums'],
             excludes: ['TestStatusWithTranslator'],
             outputPath: 'js/composables/generated',
@@ -64,7 +62,6 @@ class EnumTranslatorDiscovererTest extends TestCase
     public function it_extracts_translation_key_from_attribute(): void
     {
         $config = new EnumTranslatorDiscoveryConfig(
-            enabled: true,
             discoveryPaths: [__DIR__.'/../../Fixtures/Enums'],
             excludes: [],
             outputPath: 'js/composables/generated',
@@ -88,7 +85,6 @@ class EnumTranslatorDiscovererTest extends TestCase
     public function it_handles_empty_discovery_paths(): void
     {
         $config = new EnumTranslatorDiscoveryConfig(
-            enabled: true,
             discoveryPaths: [],
             excludes: [],
             outputPath: 'js/composables/generated',
@@ -122,7 +118,6 @@ PHP
             );
 
             $config = new EnumTranslatorDiscoveryConfig(
-                enabled: true,
                 discoveryPaths: [$tempDir],
                 excludes: [],
                 outputPath: 'js/composables/generated',
@@ -168,7 +163,6 @@ PHP
             require_once $testFile;
 
             $config = new EnumTranslatorDiscoveryConfig(
-                enabled: true,
                 discoveryPaths: [$tempDir],
                 excludes: [],
                 outputPath: 'js/composables/generated',
@@ -226,7 +220,6 @@ PHP
             require_once $testFile;
 
             $config = new EnumTranslatorDiscoveryConfig(
-                enabled: true,
                 discoveryPaths: [$tempDir],
                 excludes: [],
                 outputPath: 'js/composables/generated',
@@ -274,7 +267,6 @@ PHP
             require_once $testFile;
 
             $config = new EnumTranslatorDiscoveryConfig(
-                enabled: true,
                 discoveryPaths: [$tempDir],
                 excludes: [],
                 outputPath: 'js/composables/generated',
@@ -324,7 +316,6 @@ PHP
             require_once $testFile;
 
             $config = new EnumTranslatorDiscoveryConfig(
-                enabled: true,
                 discoveryPaths: [$tempDir],
                 excludes: [],
                 outputPath: 'js/composables/generated',
@@ -356,7 +347,6 @@ PHP
 
         try {
             $config = new EnumTranslatorDiscoveryConfig(
-                enabled: true,
                 discoveryPaths: [$tempDir],
                 excludes: [],
                 outputPath: 'js/composables/generated',

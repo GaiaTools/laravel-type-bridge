@@ -23,7 +23,7 @@ final readonly class GeneratorConfig
 
         $translationOutputPath = config()->string('type-bridge.translations.output_path', 'js/locales/generated');
 
-        $i18nLibrary = config()->string('type-bridge.translations.i18n_library', 'i18next');
+        $i18nLibrary = config()->string('type-bridge.i18n_library', 'i18next');
 
         /** @var string|null $customAdapter */
         $customAdapter = config('type-bridge.translations.custom_adapter');

@@ -17,8 +17,7 @@ class EnumTranslatorDiscoveryConfigTest extends TestCase
 
         $cfg = EnumTranslatorDiscoveryConfig::fromConfig();
 
-        $this->assertTrue($cfg->enabled);
-        $this->assertSame(['app/Enums'], $cfg->discoveryPaths);
+        $this->assertSame([app_path('Enums')], $cfg->discoveryPaths);
         $this->assertSame([], $cfg->excludes);
         $this->assertSame('js/composables/generated', $cfg->outputPath);
         $this->assertSame('js/composables', $cfg->utilsComposablesPath);
@@ -29,17 +28,15 @@ class EnumTranslatorDiscoveryConfigTest extends TestCase
     public function it_reads_all_config_values(): void
     {
         config([
-            'type-bridge.enum_translators.enabled' => false,
-            'type-bridge.enum_translators.discovery_paths' => ['app/Models/Enums', 'app/Domain'],
-            'type-bridge.enum_translators.excludes' => ['TestEnum'],
-            'type-bridge.enum_translators.output_path' => 'frontend/composables',
-            'type-bridge.enum_translators.utils_composables_path' => 'frontend/utils/composables',
-            'type-bridge.enum_translators.utils_lib_path' => 'frontend/utils/lib',
+            'type-bridge.enum_translators.discovery.include_paths' => ['app/Models/Enums', 'app/Domain'],
+            'type-bridge.enum_translators.discovery.exclude_paths' => ['TestEnum'],
+            'type-bridge.enum_translators.translator_output_path' => 'frontend/composables',
+            'type-bridge.enum_translators.utils_composables_output_path' => 'frontend/utils/composables',
+            'type-bridge.enum_translators.utils_lib_output_path' => 'frontend/utils/lib',
         ]);
 
         $cfg = EnumTranslatorDiscoveryConfig::fromConfig();
 
-        $this->assertFalse($cfg->enabled);
         $this->assertSame(['app/Models/Enums', 'app/Domain'], $cfg->discoveryPaths);
         $this->assertSame(['TestEnum'], $cfg->excludes);
         $this->assertSame('frontend/composables', $cfg->outputPath);
