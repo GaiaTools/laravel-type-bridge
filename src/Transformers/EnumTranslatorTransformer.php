@@ -28,7 +28,7 @@ final class EnumTranslatorTransformer implements Transformer
         /** @var string $enumImportBase */
         $enumImportBase = (string) config('type-bridge.enums.import_base', '@/enums/generated');
         $enumImportBase = rtrim($enumImportBase, '/');
-        $enumImportPath = $enumImportBase . '/' . $enumName;
+        $enumImportPath = $enumImportBase.'/'.$enumName;
 
         return new TransformedEnumTranslator(
             name: $composableName,

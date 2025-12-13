@@ -85,7 +85,7 @@ class TranslationDiscoveryConfigTest extends TestCase
     #[Test]
     public function it_falls_back_to_base_lang_when_no_valid_paths_configured(): void
     {
-        config(['type-bridge.translations.discovery.include_paths' => ['','   ', null]]);
+        config(['type-bridge.translations.discovery.include_paths' => ['', '   ', null]]);
 
         $cfg = TranslationDiscoveryConfig::fromConfig();
 

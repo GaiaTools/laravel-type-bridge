@@ -14,6 +14,7 @@ final class JsEnumTranslatorFormatter extends AbstractEnumTranslatorFormatter
     {
         $composablesImportBase = rtrim((string) config('type-bridge.enum_translators.utils_composables_import_path', '@/composables'), '/');
         $libImportBase = rtrim((string) config('type-bridge.enum_translators.utils_lib_import_path', '@/lib'), '/');
+
         return <<<JS
 import { useTranslator } from '{$composablesImportBase}/useTranslator';
 import { {$transformed->enumName} } from '{$transformed->enumImportPath}';
@@ -35,6 +36,7 @@ JS;
     {
         $composablesImportBase = rtrim((string) config('type-bridge.enum_translators.utils_composables_import_path', '@/composables'), '/');
         $libImportBase = rtrim((string) config('type-bridge.enum_translators.utils_lib_import_path', '@/lib'), '/');
+
         return <<<JS
 import { useTranslator } from '{$composablesImportBase}/useTranslator';
 import { {$transformed->enumName} } from '{$transformed->enumImportPath}';
@@ -55,6 +57,7 @@ JS;
     protected function formatLaravel(TransformedEnumTranslator $transformed): string
     {
         $libImportBase = rtrim((string) config('type-bridge.enum_translators.utils_lib_import_path', '@/lib'), '/');
+
         return <<<JS
 import { {$transformed->enumName} } from '{$transformed->enumImportPath}';
 import { createEnumTranslationMap } from '{$libImportBase}/createEnumTranslationMap';
@@ -73,6 +76,7 @@ JS;
     protected function formatVanilla(TransformedEnumTranslator $transformed): string
     {
         $libImportBase = rtrim((string) config('type-bridge.enum_translators.utils_lib_import_path', '@/lib'), '/');
+
         return <<<JS
 import { {$transformed->enumName} } from '{$transformed->enumImportPath}';
 import { createEnumTranslationMap } from '{$libImportBase}/createEnumTranslationMap';
