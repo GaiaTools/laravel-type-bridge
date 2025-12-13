@@ -10,10 +10,12 @@ use GaiaTools\TypeBridge\ValueObjects\TransformedEnumTranslator;
 
 final class TsEnumTranslatorFormatter extends AbstractEnumTranslatorFormatter
 {
+    private const DEFAULT_UTILS_LIB_IMPORT_PATH = '@/lib';
+
     protected function formatVueI18n(TransformedEnumTranslator $transformed): string
     {
         $composablesImportBase = rtrim(config()->string('type-bridge.enum_translators.utils_composables_import_path', '@/composables'), '/');
-        $libImportBase = rtrim(config()->string('type-bridge.enum_translators.utils_lib_import_path', '@/lib'), '/');
+        $libImportBase = rtrim(config()->string('type-bridge.enum_translators.utils_lib_import_path', self::DEFAULT_UTILS_LIB_IMPORT_PATH), '/');
 
         return <<<TS
 import { useTranslator } from '{$composablesImportBase}/useTranslator';
@@ -31,7 +33,7 @@ TS;
     protected function formatI18next(TransformedEnumTranslator $transformed): string
     {
         $composablesImportBase = rtrim(config()->string('type-bridge.enum_translators.utils_composables_import_path', '@/composables'), '/');
-        $libImportBase = rtrim(config()->string('type-bridge.enum_translators.utils_lib_import_path', '@/lib'), '/');
+        $libImportBase = rtrim(config()->string('type-bridge.enum_translators.utils_lib_import_path', self::DEFAULT_UTILS_LIB_IMPORT_PATH), '/');
 
         return <<<TS
 import { useTranslator } from '{$composablesImportBase}/useTranslator';
@@ -48,7 +50,7 @@ TS;
 
     protected function formatLaravel(TransformedEnumTranslator $transformed): string
     {
-        $libImportBase = rtrim(config()->string('type-bridge.enum_translators.utils_lib_import_path', '@/lib'), '/');
+        $libImportBase = rtrim(config()->string('type-bridge.enum_translators.utils_lib_import_path', self::DEFAULT_UTILS_LIB_IMPORT_PATH), '/');
 
         return <<<TS
 import { {$transformed->enumName} } from '{$transformed->enumImportPath}';
@@ -64,7 +66,7 @@ TS;
 
     protected function formatVanilla(TransformedEnumTranslator $transformed): string
     {
-        $libImportBase = rtrim(config()->string('type-bridge.enum_translators.utils_lib_import_path', '@/lib'), '/');
+        $libImportBase = rtrim(config()->string('type-bridge.enum_translators.utils_lib_import_path', self::DEFAULT_UTILS_LIB_IMPORT_PATH), '/');
 
         return <<<TS
 import { {$transformed->enumName} } from '{$transformed->enumImportPath}';
