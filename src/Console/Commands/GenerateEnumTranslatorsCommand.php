@@ -27,12 +27,6 @@ class GenerateEnumTranslatorsCommand extends Command
     {
         $translatorConfig = EnumTranslatorDiscoveryConfig::fromConfig();
 
-        if (! $translatorConfig->enabled) {
-            $this->components->info('Enum translator generation is disabled.');
-
-            return self::SUCCESS;
-        }
-
         $generatorConfig = GeneratorConfig::fromConfig();
 
         $optFormat = $this->option('format');
@@ -40,7 +34,7 @@ class GenerateEnumTranslatorsCommand extends Command
             ? $optFormat
             : (string) $generatorConfig->outputFormat;
 
-        $i18nLibrary = config()->string('type-bridge.i18n.library', 'vue-i18n');
+        $i18nLibrary = config()->string('type-bridge.i18n_library', 'vue-i18n');
 
         $discoverer = new EnumTranslatorDiscoverer($translatorConfig, new EnumTokenParser);
         $transformer = new EnumTranslatorTransformer($translatorConfig);

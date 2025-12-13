@@ -21,7 +21,6 @@ class EnumTranslatorGeneratorTest extends TestCase
     public function it_returns_correct_name(): void
     {
         $discoveryConfig = new EnumTranslatorDiscoveryConfig(
-            enabled: true,
             discoveryPaths: [],
             excludes: [],
             outputPath: 'js/composables/generated',
@@ -44,7 +43,6 @@ class EnumTranslatorGeneratorTest extends TestCase
     public function it_generates_enum_translator_files(): void
     {
         $discoveryConfig = new EnumTranslatorDiscoveryConfig(
-            enabled: true,
             discoveryPaths: [__DIR__.'/../../Fixtures/Enums'],
             excludes: [],
             outputPath: 'js/composables/generated',

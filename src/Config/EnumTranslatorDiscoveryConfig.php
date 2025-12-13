@@ -9,7 +9,6 @@ final readonly class EnumTranslatorDiscoveryConfig
      * @param  array<int,string>  $excludes
      */
     public function __construct(
-        public bool $enabled,
         public array $discoveryPaths,
         public array $excludes,
         public string $outputPath,
@@ -22,26 +21,15 @@ final readonly class EnumTranslatorDiscoveryConfig
         /** @var array<string, mixed> $config */
         $config = config()->get('type-bridge.enum_translators');
 
-        $discoveryPaths = [];
-        foreach ((array) ($config['discovery_paths'] ?? ['app/Enums']) as $value) {
-            if (is_string($value)) {
-                $discoveryPaths[] = $value;
-            }
-        }
+        $discoveryPaths = (array) ($config['discovery']['include_paths'] ?? [app_path('Enums')]);
 
-        $excludes = [];
-        foreach ((array) ($config['excludes'] ?? []) as $value) {
-            if (is_string($value)) {
-                $excludes[] = $value;
-            }
-        }
+        $excludes = (array) ($config['discovery']['exclude_paths'] ?? []);
 
-        $outputPath = $config['output_path'] ?? 'js/composables/generated';
-        $utilsComposablesPath = $config['utils_composables_path'] ?? 'js/composables';
-        $utilsLibPath = $config['utils_lib_path'] ?? 'js/lib';
+        $outputPath = $config['translator_output_path'] ?? 'js/composables/generated';
+        $utilsComposablesPath = $config['utils_composables_output_path'] ?? 'js/composables';
+        $utilsLibPath = $config['utils_lib_output_path'] ?? 'js/lib';
 
         return new self(
-            enabled: (bool) ($config['enabled'] ?? true),
             discoveryPaths: $discoveryPaths,
             excludes: $excludes,
             outputPath: is_string($outputPath) ? $outputPath : 'js/composables/generated',
