@@ -20,7 +20,6 @@ class EnumTranslatorTransformerTest extends TestCase
     {
         $generatorConfig = GeneratorConfig::fromConfig();
         $discoveryConfig = new EnumTranslatorDiscoveryConfig(
-            enabled: true,
             discoveryPaths: ['app/Enums'],
             excludes: [],
             outputPath: 'js/composables/generated',
@@ -51,7 +50,6 @@ class EnumTranslatorTransformerTest extends TestCase
     {
         $generatorConfig = GeneratorConfig::fromConfig();
         $discoveryConfig = new EnumTranslatorDiscoveryConfig(
-            enabled: true,
             discoveryPaths: ['app/Enums'],
             excludes: [],
             outputPath: 'js/composables/generated',
