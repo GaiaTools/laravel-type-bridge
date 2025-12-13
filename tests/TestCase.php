@@ -52,14 +52,14 @@ abstract class TestCase extends Orchestra
 
         // Align test config keys with production config readers
         // Enum discovery
-        $app['config']->set('type-bridge.enums.discovery.paths', [
+        $app['config']->set('type-bridge.enums.discovery.include_paths', [
             __DIR__.'/Fixtures/Enums',
         ]);
         // Exclude TestNoComments: this fixture intentionally lacks doc comments to
         // validate comment requirements elsewhere. The --check flow and most
         // generator tests should ignore it to avoid RuntimeException during
         // transformation.
-        $app['config']->set('type-bridge.enums.discovery.excludes', ['TestNoComments']);
+        $app['config']->set('type-bridge.enums.discovery.exclude_paths', ['TestNoComments']);
         $app['config']->set('type-bridge.enums.discovery.generate_backed_enums', true);
 
         // Output paths used by GeneratorConfig::fromConfig()

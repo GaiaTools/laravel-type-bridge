@@ -9,6 +9,7 @@ use GaiaTools\TypeBridge\Config\TranslationDiscoveryConfig;
 use GaiaTools\TypeBridge\Tests\TestCase;
 use GaiaTools\TypeBridge\Transformers\TranslationTransformer;
 use Illuminate\Support\Facades\File;
+use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Test;
 
 class TranslationTransformerConfigDrivenTest extends TestCase
@@ -62,7 +63,7 @@ PHP);
     public function it_reads_from_configured_paths_and_respects_override_precedence(): void
     {
         // Later paths should override earlier ones
-        config(['type-bridge.translations.lang_paths' => [
+        config(['type-bridge.translations.discovery.include_paths' => [
             $this->alphaPath,
             $this->betaPath,
         ]]);
@@ -93,9 +94,9 @@ PHP);
         // Configure paths that exist but lack the requested locale
         $emptyRoot = base_path('tmp_lang/Empty/lang');
         File::makeDirectory($emptyRoot, 0755, true);
-        config(['type-bridge.translations.lang_paths' => [$emptyRoot]]);
+        config(['type-bridge.translations.discovery.include_paths' => [$emptyRoot]]);
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Locale directory not found for locale');
 
         $generatorConfig = self::createGeneratorConfig();

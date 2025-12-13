@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace GaiaTools\TypeBridge\Tests\Unit\Transformers;
 
 use GaiaTools\TypeBridge\Adapters\I18nextSyntaxAdapter;
+use GaiaTools\TypeBridge\Config\TranslationDiscoveryConfig;
 use GaiaTools\TypeBridge\Tests\TestCase;
 use GaiaTools\TypeBridge\Transformers\TranslationTransformer;
 use GaiaTools\TypeBridge\ValueObjects\TransformedTranslation;
+use Illuminate\Support\Facades\File;
 use PHPUnit\Framework\Attributes\Test;
 
 class TranslationTransformerTest extends TestCase
@@ -132,5 +134,60 @@ class TranslationTransformerTest extends TestCase
         $source = ['locale' => 'nonexistent', 'flat' => false];
 
         $this->transformer->transform($source);
+    }
+
+    #[Test]
+    public function it_ignores_php_files_that_do_not_return_arrays(): void
+    {
+        // The fixture non_array.php returns a string, so it should be ignored
+        $source = ['locale' => 'en', 'flat' => false];
+
+        $result = $this->transformer->transform($source);
+
+        $this->assertArrayNotHasKey('non_array', $result->data);
+    }
+
+    #[Test]
+    public function it_flattens_objects_with_and_without_to_string(): void
+    {
+        $source = ['locale' => 'en', 'flat' => true];
+
+        $result = $this->transformer->transform($source);
+
+        // From fixtures/lang/en/objects.php
+        $this->assertArrayHasKey('objects.with_to_string', $result->data);
+        $this->assertSame('stringable', $result->data['objects.with_to_string']);
+
+        // Non-stringable object should become null when flattened
+        $this->assertArrayHasKey('objects.plain_object', $result->data);
+        $this->assertNull($result->data['objects.plain_object']);
+    }
+
+    #[Test]
+    public function it_uses_provided_discovery_config_instead_of_default(): void
+    {
+        // Create a temporary custom lang root that is not part of default fixtures
+        $tempRoot = base_path('tmp_custom_lang');
+        $enDir = $tempRoot.'/en';
+        File::deleteDirectory($tempRoot);
+        File::makeDirectory($enDir, 0755, true);
+
+        // Create a single file in this custom root
+        file_put_contents($enDir.'/custom.php', "<?php\nreturn ['key' => 'value'];\n");
+
+        $config = self::createGeneratorConfig();
+        $syntaxAdapter = new I18nextSyntaxAdapter;
+        $disc = new TranslationDiscoveryConfig([$tempRoot]);
+        $transformer = new TranslationTransformer($config, $syntaxAdapter, $disc);
+
+        $result = $transformer->transform(['locale' => 'en', 'flat' => false]);
+
+        // Should only have 'custom' group from temp root, not the default fixtures like 'messages'
+        $this->assertArrayHasKey('custom', $result->data);
+        $this->assertSame(['key' => 'value'], $result->data['custom']);
+        $this->assertArrayNotHasKey('messages', $result->data);
+
+        // Cleanup
+        File::deleteDirectory($tempRoot);
     }
 }
