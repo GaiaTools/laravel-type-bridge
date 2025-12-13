@@ -26,7 +26,7 @@ final class EnumTranslatorTransformer implements Transformer
 
         // Build enum import path based on configured import base to mirror output path
         /** @var string $enumImportBase */
-        $enumImportBase = (string) config('type-bridge.enums.import_base', '@/enums/generated');
+        $enumImportBase = config('type-bridge.enums.import_base', '@/enums/generated');
         $enumImportBase = rtrim($enumImportBase, '/');
         $enumImportPath = $enumImportBase.'/'.$enumName;
 
