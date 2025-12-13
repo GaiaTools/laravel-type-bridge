@@ -2,71 +2,139 @@
 
 declare(strict_types=1);
 
-// config/type-bridge.php
+/*
+ |--------------------------------------------------------------------------
+ | Type Bridge Configuration
+ |--------------------------------------------------------------------------
+ | This file controls how Laravel Type Bridge discovers types, generates
+ | files, and formats output for enums and translations.
+ */
 
 return [
-    // Output format for all generated files: 'ts' or 'js'
+    /*
+    |--------------------------------------------------------------------------
+    | Output Format
+    |--------------------------------------------------------------------------
+    | Output format for all generated files.
+    |
+    | Supported: 'ts' (TypeScript), 'js' (JavaScript)
+    */
     'output_format' => env('TYPE_BRIDGE_OUTPUT_FORMAT', 'ts'),
 
-    // Max line length for ESLint disable directive
-    // Set to 0 or negative to disable
+    /*
+    |--------------------------------------------------------------------------
+    | Max Line Length
+    |--------------------------------------------------------------------------
+    | Max line length used for emitting ESLint disable directives.
+    | Set to 0 or a negative number to disable the directive generation.
+    */
     'max_line_length' => env('TYPE_BRIDGE_MAX_LINE_LENGTH', 120),
 
-    // Whether to include trailing commas in generated objects and arrays
+    /*
+    |--------------------------------------------------------------------------
+    | Trailing Commas
+    |--------------------------------------------------------------------------
+    | Whether to include trailing commas in generated objects and arrays.
+    */
     'trailing_commas' => env('TYPE_BRIDGE_TRAILING_COMMAS', true),
 
-    'i18n' => [
-        // Target i18n library for all translation-related generation
-        // Options: 'vue-i18n', 'i18next', 'laravel', 'vanilla'
-        // - 'vue-i18n': For Vue.js projects
-        // - 'i18next': For i18next (works with React, vanilla JS, Node, etc.)
-        // - 'laravel': Laravel syntax (no transformations)
-        // - 'vanilla': Custom/framework-agnostic implementation
-        'library' => env('TYPE_BRIDGE_I18N_LIBRARY', 'i18next'),
+    /*
+    |--------------------------------------------------------------------------
+    | i18n Library
+    |--------------------------------------------------------------------------
+    | Target i18n library for all translation-related generation.
+    |
+    | Options:
+    |  - 'vue-i18n': Vue.js projects
+    |  - 'i18next' : i18next (React, vanilla JS, Node, etc.)
+    |  - 'laravel' : Laravel syntax (no transformations)
+    |  - 'vanilla' : Custom/framework-agnostic implementation
+    */
+    'i18n_library' => env('TYPE_BRIDGE_I18N_LIBRARY', 'i18next'),
 
-        // Custom adapter class (optional - for users who want to provide their own)
-        'custom_adapter' => null, // e.g., \App\TypeBridge\CustomI18nAdapter::class
-    ],
-
-    // Enum generation configuration
+    /*
+    |--------------------------------------------------------------------------
+    | Enums
+    |--------------------------------------------------------------------------
+    | Configuration for PHP enum discovery and generated outputs.
+    */
     'enums' => [
-        'output_path' => 'js/enums/generated',
+        /* Whether to generate translators for backed enums only or all enums */
+        'generate_backed_enums' => true,
+
+        /* Paths used to discover enums */
         'discovery' => [
-            'paths' => [
+            'include_paths' => [
                 app_path('Enums'),
             ],
-            'generate_backed_enums' => true,
-            'excludes' => [],
+            'exclude_paths' => [],
         ],
+
+        /* Where generated enum artifacts will be written (relative to project root) */
+        'output_path' => 'js/enums/generated',
+
+        /*
+        | Import base used when generating import statements for enums.
+        | Typically mirrors the output_path but with your project alias (e.g. '@').
+        | Example: output_path 'js/enums/generated' → import_base '@/enums/generated'
+        */
+        'import_base' => '@/enums/generated',
     ],
 
-    // Translation generation configuration
+    /*
+    |--------------------------------------------------------------------------
+    | Translations
+    |--------------------------------------------------------------------------
+    | Configuration for translation file discovery and generated outputs.
+    */
     'translations' => [
+        /* Paths used to discover translation files */
+        'discovery' => [
+            'include_paths' => [
+                base_path('lang'),
+            ],
+            'exclude_paths' => [],
+        ],
+
+        /* Where generated translation artifacts will be written */
         'output_path' => 'js/locales/generated',
-        // Where to discover Laravel translation locales. You can provide:
-        // - a string path, or an array of paths
-        // - glob patterns are supported (e.g. base_path('modules/*/lang'))
-        // Precedence: later paths override earlier ones when the same keys exist.
-        //
-        // If not configured, the fallback is Laravel's default lang directory
-        // (typically base_path('lang')).
-        // Examples:
-        // 'lang_paths' => [
-        //     base_path('lang'),
-        //     base_path('Modules/*/Resources/lang'),
-        // ],
-        'lang_paths' => null,
+
+        /*
+        | Custom adapter class (optional) for advanced users who want to
+        | provide their own i18n integration.
+        | Example: \App\TypeBridge\CustomI18nAdapter::class
+        */
+        'custom_adapter' => null,
     ],
 
-    // Enum translator generation configuration
+    /*
+    |--------------------------------------------------------------------------
+    | Enum Translators
+    |--------------------------------------------------------------------------
+    | Configuration for discovering enums and generating translator utilities
+    | and composables used in front-end code.
+    */
     'enum_translators' => [
-        'enabled' => true,
-        'output_path' => 'js/composables/generated',
-        'utils_composables_path' => 'js/composables',
-        'utils_lib_path' => 'js/lib',
-        'discovery_paths' => [
-            app_path('Enums'),
+        /* Paths used to discover enums for generating translators */
+        'discovery' => [
+            'include_paths' => [
+                app_path('Enums'),
+            ],
+            'exclude_paths' => [],
         ],
-        'excludes' => [],
+
+        /* Where enum translator files will be generated */
+        'translator_output_path' => 'js/composables/generated',
+
+        /*
+        | Output locations for shared utilities used by generated translators
+        | Import bases (aliases) to mirror the above output paths.
+        | Example: 'js/composables' → '@/composables'
+        */
+        'utils_composables_output_path' => 'js/composables',
+        'utils_composables_import_path' => '@/composables',
+
+        'utils_lib_output_path' => 'js/lib',
+        'utils_lib_import_path' => '@/lib',
     ],
 ];
