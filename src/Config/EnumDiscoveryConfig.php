@@ -18,8 +18,8 @@ final class EnumDiscoveryConfig
 
     public static function fromConfig(): self
     {
-        $rawPaths = (array) config('type-bridge.enums.discovery.paths', [app_path('Enums')]);
-        $rawExcludes = (array) config('type-bridge.enums.discovery.excludes', []);
+        $rawPaths = (array) config('type-bridge.enums.discovery.include_paths', [app_path('Enums')]);
+        $rawExcludes = (array) config('type-bridge.enums.discovery.exclude_paths', []);
 
         /** @var list<string> $paths */
         $paths = array_values(array_filter($rawPaths, static fn ($v): bool => is_string($v)));
@@ -28,7 +28,7 @@ final class EnumDiscoveryConfig
 
         return new self(
             paths: $paths,
-            generateBackedEnums: (bool) config('type-bridge.enums.discovery.generate_backed_enums', false),
+            generateBackedEnums: (bool) config('type-bridge.enums.generate_backed_enums', false),
             excludes: $excludes,
         );
     }

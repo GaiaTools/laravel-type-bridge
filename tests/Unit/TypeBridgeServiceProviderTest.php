@@ -24,8 +24,8 @@ class TypeBridgeServiceProviderTest extends TestCase
     public function register_binds_default_i18next_adapter(): void
     {
         // default is i18next per provider
-        $this->app['config']->set('type-bridge.i18n.library', 'i18next');
-        $this->app['config']->set('type-bridge.i18n.custom_adapter', null);
+        $this->app['config']->set('type-bridge.i18n_library', 'i18next');
+        $this->app['config']->set('type-bridge.translations.custom_adapter', null);
 
         $resolved = $this->app->make(TranslationSyntaxAdapter::class);
 
@@ -36,8 +36,8 @@ class TypeBridgeServiceProviderTest extends TestCase
     #[Test]
     public function register_binds_vue_i18n_adapter_when_configured(): void
     {
-        $this->app['config']->set('type-bridge.i18n.library', 'vue-i18n');
-        $this->app['config']->set('type-bridge.i18n.custom_adapter', null);
+        $this->app['config']->set('type-bridge.i18n_library', 'vue-i18n');
+        $this->app['config']->set('type-bridge.translations.custom_adapter', null);
 
         $resolved = $this->app->make(TranslationSyntaxAdapter::class);
 
@@ -48,8 +48,8 @@ class TypeBridgeServiceProviderTest extends TestCase
     #[Test]
     public function register_binds_laravel_adapter_when_configured(): void
     {
-        $this->app['config']->set('type-bridge.i18n.library', 'laravel');
-        $this->app['config']->set('type-bridge.i18n.custom_adapter', null);
+        $this->app['config']->set('type-bridge.i18n_library', 'laravel');
+        $this->app['config']->set('type-bridge.translations.custom_adapter', null);
 
         $resolved = $this->app->make(TranslationSyntaxAdapter::class);
 
@@ -74,8 +74,8 @@ class TypeBridgeServiceProviderTest extends TestCase
         });
 
         // Even if library set otherwise, custom_adapter takes precedence
-        $this->app['config']->set('type-bridge.i18n.library', 'i18next');
-        $this->app['config']->set('type-bridge.i18n.custom_adapter', $customClass);
+        $this->app['config']->set('type-bridge.i18n_library', 'i18next');
+        $this->app['config']->set('type-bridge.translations.custom_adapter', $customClass);
 
         $resolved = $this->app->make(TranslationSyntaxAdapter::class);
 
@@ -86,8 +86,8 @@ class TypeBridgeServiceProviderTest extends TestCase
     #[Test]
     public function register_throws_for_unknown_library(): void
     {
-        $this->app['config']->set('type-bridge.i18n.library', 'unknown-lib');
-        $this->app['config']->set('type-bridge.i18n.custom_adapter', null);
+        $this->app['config']->set('type-bridge.i18n_library', 'unknown-lib');
+        $this->app['config']->set('type-bridge.translations.custom_adapter', null);
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Unknown i18n library: unknown-lib');

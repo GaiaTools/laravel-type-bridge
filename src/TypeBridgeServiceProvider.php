@@ -52,10 +52,10 @@ class TypeBridgeServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(TranslationSyntaxAdapter::class, function ($app) {
-            $library = config()->string('type-bridge.i18n.library', 'i18next');
+            $library = config()->string('type-bridge.i18n_library', 'i18next');
 
             /** @var string|null $customAdapter */
-            $customAdapter = config('type-bridge.i18n.custom_adapter');
+            $customAdapter = config('type-bridge.translations.custom_adapter');
 
             if ($customAdapter !== null && class_exists($customAdapter)) {
                 return $app->make($customAdapter);
