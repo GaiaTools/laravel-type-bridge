@@ -70,7 +70,7 @@ class TypeBridgeServiceProvider extends ServiceProvider
                 'passthrough' => new PassthroughSyntaxAdapter,
 
                 default => throw new InvalidArgumentException(
-                    "Unknown i18n library: {$library}. Supported: i18next, react-i18next, vue-i18n, laravel, vanilla, passthrough"
+                    "Unknown i18n library: {$library}. Supported: i18next, react-i18next, vue-i18n, passthrough"
                 ),
             };
         });
