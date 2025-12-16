@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace GaiaTools\TypeBridge;
 
 use GaiaTools\TypeBridge\Adapters\I18nextSyntaxAdapter;
-use GaiaTools\TypeBridge\Adapters\LaravelSyntaxAdapter;
+use GaiaTools\TypeBridge\Adapters\PassthroughSyntaxAdapter;
 use GaiaTools\TypeBridge\Adapters\VueI18nSyntaxAdapter;
 use GaiaTools\TypeBridge\Console\Commands\GenerateEnumsCommand;
 use GaiaTools\TypeBridge\Console\Commands\GenerateEnumTranslatorsCommand;
@@ -62,11 +62,15 @@ class TypeBridgeServiceProvider extends ServiceProvider
             }
 
             return match ($library) {
-                'i18next' => new I18nextSyntaxAdapter,
+                'i18next',
+                'react-i18next' => new I18nextSyntaxAdapter,
+
                 'vue-i18n' => new VueI18nSyntaxAdapter,
-                'laravel' => new LaravelSyntaxAdapter,
+
+                'passthrough' => new PassthroughSyntaxAdapter,
+
                 default => throw new InvalidArgumentException(
-                    "Unknown i18n library: {$library}. Supported: i18next, vue-i18n, laravel"
+                    "Unknown i18n library: {$library}. Supported: i18next, react-i18next, vue-i18n, laravel, vanilla, passthrough"
                 ),
             };
         });

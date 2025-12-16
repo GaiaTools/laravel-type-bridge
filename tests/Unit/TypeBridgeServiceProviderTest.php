@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace GaiaTools\TypeBridge\Tests\Unit;
 
 use GaiaTools\TypeBridge\Adapters\I18nextSyntaxAdapter;
-use GaiaTools\TypeBridge\Adapters\LaravelSyntaxAdapter;
+use GaiaTools\TypeBridge\Adapters\PassthroughSyntaxAdapter;
 use GaiaTools\TypeBridge\Adapters\VueI18nSyntaxAdapter;
 use GaiaTools\TypeBridge\Console\Commands\GenerateEnumsCommand;
 use GaiaTools\TypeBridge\Console\Commands\GenerateTranslationsCommand;
@@ -53,8 +53,8 @@ class TypeBridgeServiceProviderTest extends TestCase
 
         $resolved = $this->app->make(TranslationSyntaxAdapter::class);
 
-        $this->assertInstanceOf(LaravelSyntaxAdapter::class, $resolved);
-        $this->assertSame('laravel', $resolved->getTargetLibrary());
+        $this->assertInstanceOf(PassthroughSyntaxAdapter::class, $resolved);
+        $this->assertSame('passthrough', $resolved->getTargetLibrary());
     }
 
     #[Test]
