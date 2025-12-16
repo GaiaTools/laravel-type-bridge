@@ -22,7 +22,7 @@ abstract class AbstractEnumTranslatorFormatter implements OutputFormatter
             'vue-i18n' => $this->formatVueI18n($transformed),
             'i18next' => $this->formatI18next($transformed),
             'react-i18next' => $this->formatReactI18next($transformed),
-            'vanilla' => $this->formatWithEngine($transformed, 'function', 'PassthroughEngine'),
+            'passthrough' => $this->formatWithEngine($transformed, 'function', 'PassthroughEngine'),
             default => throw new InvalidArgumentException(
                 "Unsupported i18n framework: {$this->i18nFramework}. " .
                 "Supported: vue-i18n, i18next, react-i18next, vanilla"
