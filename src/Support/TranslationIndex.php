@@ -63,6 +63,8 @@ final class TranslationIndex
             }
 
             $current = $this->loadLocaleDir($dir);
+            // Normalize class-like keys (e.g., FQCN) to short names to mirror TranslationTransformer
+            $current = $this->normalizeClassLikeKeys($current);
             $merged = array_replace_recursive($merged, $current);
         }
 
@@ -123,6 +125,37 @@ final class TranslationIndex
         }
 
         return $data;
+    }
+
+    /**
+     * Normalize top-level and nested keys by replacing any FQCN-like keys
+     * (containing backslashes) with their short class name (last segment).
+     * Mirrors TranslationTransformer::normalizeClassLikeKeys.
+     *
+     * @param  array<mixed, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function normalizeClassLikeKeys(array $data): array
+    {
+        $out = [];
+        foreach ($data as $key => $value) {
+            $normalizedKey = is_string($key) ? $this->shortClassName($key) : (string) $key;
+            if (is_array($value)) {
+                $out[$normalizedKey] = $this->normalizeClassLikeKeys($value);
+            } else {
+                $out[$normalizedKey] = $value;
+            }
+        }
+
+        return $out;
+    }
+
+    private function shortClassName(string $maybeFqcn): string
+    {
+        $trimmed = ltrim($maybeFqcn, '\\');
+        $pos = strrpos($trimmed, '\\');
+
+        return $pos === false ? $trimmed : substr($trimmed, $pos + 1);
     }
 
     /**
