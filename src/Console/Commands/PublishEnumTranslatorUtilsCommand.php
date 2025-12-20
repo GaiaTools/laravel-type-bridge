@@ -13,10 +13,10 @@ class PublishEnumTranslatorUtilsCommand extends Command
 
     public function handle(): int
     {
-        $outputFormat = config('type-bridge.output_format', 'ts');
+        $outputFormat = config()->string('type-bridge.output_format', 'ts');
         $extension = $outputFormat === 'ts' ? 'ts' : 'js';
-        $utilsComposablesOutputPath = config('type-bridge.enum_translators.utils_composables_output_path', 'js/composables');
-        $utilsLibOutputPath = config('type-bridge.enum_translators.utils_lib_output_path', 'js/lib');
+        $utilsComposablesOutputPath = config()->string('type-bridge.enum_translators.utils_composables_output_path', 'js/composables');
+        $utilsLibOutputPath = config()->string('type-bridge.enum_translators.utils_lib_output_path', 'js/lib');
 
         $stubExtension = '.stub';
 
