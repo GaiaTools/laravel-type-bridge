@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GaiaTools\TypeBridge\Tests\Unit;
 
 use GaiaTools\TypeBridge\Adapters\I18nextSyntaxAdapter;
-use GaiaTools\TypeBridge\Adapters\LaravelSyntaxAdapter;
 use GaiaTools\TypeBridge\Adapters\VueI18nSyntaxAdapter;
 use GaiaTools\TypeBridge\Console\Commands\GenerateEnumsCommand;
 use GaiaTools\TypeBridge\Console\Commands\GenerateTranslationsCommand;
@@ -43,18 +42,6 @@ class TypeBridgeServiceProviderTest extends TestCase
 
         $this->assertInstanceOf(VueI18nSyntaxAdapter::class, $resolved);
         $this->assertSame('vue-i18n', $resolved->getTargetLibrary());
-    }
-
-    #[Test]
-    public function register_binds_laravel_adapter_when_configured(): void
-    {
-        $this->app['config']->set('type-bridge.i18n_library', 'laravel');
-        $this->app['config']->set('type-bridge.translations.custom_adapter', null);
-
-        $resolved = $this->app->make(TranslationSyntaxAdapter::class);
-
-        $this->assertInstanceOf(LaravelSyntaxAdapter::class, $resolved);
-        $this->assertSame('laravel', $resolved->getTargetLibrary());
     }
 
     #[Test]

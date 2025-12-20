@@ -13,17 +13,25 @@ class PublishEnumTranslatorUtilsCommand extends Command
 
     public function handle(): int
     {
-        $outputFormat = config('type-bridge.output_format', 'ts');
+        $outputFormat = config()->string('type-bridge.output_format', 'ts');
         $extension = $outputFormat === 'ts' ? 'ts' : 'js';
+        $utilsComposablesOutputPath = config()->string('type-bridge.enum_translators.utils_composables_output_path', 'js/composables');
+        $utilsLibOutputPath = config()->string('type-bridge.enum_translators.utils_lib_output_path', 'js/lib');
+
+        $stubExtension = '.stub';
 
         $files = [
             "useTranslator.{$extension}" => [
-                'stub' => __DIR__.'/../../../stubs/useTranslator.'.$extension.'.stub',
-                'destination' => resource_path("frontend/composables/useTranslator.{$extension}"),
+                'stub' => __DIR__.'/../../../stubs/useTranslator.'.$extension.$stubExtension,
+                'destination' => resource_path("{$utilsComposablesOutputPath}/useTranslator.{$extension}"),
             ],
             "createEnumTranslationMap.{$extension}" => [
-                'stub' => __DIR__.'/../../../stubs/createEnumTranslationMap.'.$extension.'.stub',
-                'destination' => resource_path("frontend/lib/createEnumTranslationMap.{$extension}"),
+                'stub' => __DIR__.'/../../../stubs/createEnumTranslationMap.'.$extension.$stubExtension,
+                'destination' => resource_path("{$utilsLibOutputPath}/createEnumTranslationMap.{$extension}"),
+            ],
+            "translators.{$extension}" => [
+                'stub' => __DIR__.'/../../../stubs/translators.'.$extension.$stubExtension,
+                'destination' => resource_path("{$utilsLibOutputPath}/translators.{$extension}"),
             ],
         ];
 

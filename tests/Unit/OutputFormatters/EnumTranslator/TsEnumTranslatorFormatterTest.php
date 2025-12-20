@@ -55,9 +55,9 @@ class TsEnumTranslatorFormatterTest extends TestCase
     }
 
     #[Test]
-    public function it_formats_for_laravel(): void
+    public function it_formats_for_react_i18next(): void
     {
-        $formatter = new TsEnumTranslatorFormatter('laravel');
+        $formatter = new TsEnumTranslatorFormatter('react-i18next');
 
         $transformed = new TransformedEnumTranslator(
             name: 'useStatusTranslator',
@@ -70,27 +70,7 @@ class TsEnumTranslatorFormatterTest extends TestCase
         $output = $formatter->format($transformed);
 
         $this->assertStringContainsString('import { Status }', $output);
-        $this->assertStringContainsString('createTranslator', $output);
-        $this->assertStringContainsString('createEnumTranslationMap', $output);
-    }
-
-    #[Test]
-    public function it_formats_for_vanilla(): void
-    {
-        $formatter = new TsEnumTranslatorFormatter('vanilla');
-
-        $transformed = new TransformedEnumTranslator(
-            name: 'useStatusTranslator',
-            enumName: 'Status',
-            translationKey: 'enums.status',
-            enumImportPath: '@/enums/generated/Status',
-            outputPath: 'js/composables/generated'
-        );
-
-        $output = $formatter->format($transformed);
-
-        $this->assertStringContainsString('import { Status }', $output);
-        $this->assertStringContainsString('createTranslator', $output);
+        $this->assertStringContainsString('useTranslator', $output);
         $this->assertStringContainsString('createEnumTranslationMap', $output);
     }
 

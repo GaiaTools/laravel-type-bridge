@@ -55,9 +55,9 @@ class JsEnumTranslatorFormatterTest extends TestCase
     }
 
     #[Test]
-    public function it_formats_for_laravel(): void
+    public function it_formats_for_react_i18next(): void
     {
-        $formatter = new JsEnumTranslatorFormatter('laravel');
+        $formatter = new JsEnumTranslatorFormatter('react-i18next');
 
         $transformed = new TransformedEnumTranslator(
             name: 'useStatusTranslator',
@@ -69,29 +69,13 @@ class JsEnumTranslatorFormatterTest extends TestCase
 
         $output = $formatter->format($transformed);
 
+        // Common expectations
         $this->assertStringContainsString('import { Status }', $output);
-        $this->assertStringContainsString('createTranslator', $output);
+        $this->assertStringContainsString('useTranslator', $output);
         $this->assertStringContainsString('createEnumTranslationMap', $output);
-    }
 
-    #[Test]
-    public function it_formats_for_vanilla(): void
-    {
-        $formatter = new JsEnumTranslatorFormatter('vanilla');
-
-        $transformed = new TransformedEnumTranslator(
-            name: 'useStatusTranslator',
-            enumName: 'Status',
-            translationKey: 'enums.status',
-            enumImportPath: '@/enums/generated/Status',
-            outputPath: 'js/composables/generated'
-        );
-
-        $output = $formatter->format($transformed);
-
-        $this->assertStringContainsString('import { Status }', $output);
-        $this->assertStringContainsString('createTranslator', $output);
-        $this->assertStringContainsString('createEnumTranslationMap', $output);
+        // React-i18next specific: JS formatter emits JSDoc containing the docType 'hook'
+        $this->assertStringContainsString('Translator hook for Status', $output);
     }
 
     #[Test]
