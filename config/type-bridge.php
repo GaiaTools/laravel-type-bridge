@@ -46,9 +46,7 @@ return [
     |
     | Options:
     |  - 'vue-i18n': Vue.js projects
-    |  - 'i18next' : i18next (React, vanilla JS, Node, etc.)
-    |  - 'laravel' : Laravel syntax (no transformations)
-    |  - 'vanilla' : Custom/framework-agnostic implementation
+    |  - 'i18next' : i18next (React, react-i18next, Node, etc.)
     */
     'i18n_library' => env('TYPE_BRIDGE_I18N_LIBRARY', 'i18next'),
 

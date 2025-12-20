@@ -57,22 +57,6 @@ function getGlobalEngine() {
 }
 
 /**
- * Passthrough translation engine - passthrough implementation
- *
- * This engine is used when you want self-contained translations
- * without any external i18n framework. It treats the "translation key"
- * as the actual translated value.
- *
- * Use this when:
- * - You want zero dependencies
- * - Translations are embedded in the generated code
- * - You don't need framework-specific features (pluralization, interpolation, etc.)
- */
-export const PassthroughEngine: TranslationEngine = {
-    t: (key: string): string => key,
-};
-
-/**
  * Creates a translator function that maps enum-like values to translated labels.
  *
  * The translation engine is automatically retrieved from the global configuration.

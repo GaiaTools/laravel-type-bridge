@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GaiaTools\TypeBridge;
 
 use GaiaTools\TypeBridge\Adapters\I18nextSyntaxAdapter;
-use GaiaTools\TypeBridge\Adapters\PassthroughSyntaxAdapter;
 use GaiaTools\TypeBridge\Adapters\VueI18nSyntaxAdapter;
 use GaiaTools\TypeBridge\Console\Commands\GenerateEnumsCommand;
 use GaiaTools\TypeBridge\Console\Commands\GenerateEnumTranslatorsCommand;
@@ -67,10 +66,8 @@ class TypeBridgeServiceProvider extends ServiceProvider
 
                 'vue-i18n' => new VueI18nSyntaxAdapter,
 
-                'passthrough' => new PassthroughSyntaxAdapter,
-
                 default => throw new InvalidArgumentException(
-                    "Unknown i18n library: {$library}. Supported: i18next, react-i18next, vue-i18n, passthrough"
+                    "Unknown i18n library: {$library}. Supported: i18next, react-i18next, vue-i18n"
                 ),
             };
         });

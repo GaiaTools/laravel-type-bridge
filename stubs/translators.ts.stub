@@ -1,0 +1,24 @@
+// These helpers create a minimal TranslationEngine-compatible wrapper
+// around popular i18n libraries so they can be used with
+// `configureTranslationEngine` from `useTranslator`.
+//
+// We intentionally return an object with a `t(key: string): string` method
+// instead of a bare function, to match the `TranslationEngine` expected by
+// `configureTranslationEngine`.
+type TranslationEngine = { t: (key: string) => string };
+
+export function createVueI18nTranslator<T extends { global: { t: (key: string) => unknown } }>(
+  i18n: T
+): TranslationEngine {
+  return {
+    t: (key: string) => String(i18n.global.t(key)),
+  };
+}
+
+export function createReactI18nextTranslator<T extends { t: (key: string) => unknown }>(
+  i18n: T
+): TranslationEngine {
+  return {
+    t: (key: string) => String(i18n.t(key)),
+  };
+}

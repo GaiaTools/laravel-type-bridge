@@ -54,25 +54,6 @@ class JsEnumTranslatorFormatterTest extends TestCase
         $this->assertStringContainsString('createEnumTranslationMap', $output);
     }
 
-    #[Test]
-    public function it_formats_for_vanilla(): void
-    {
-        $formatter = new JsEnumTranslatorFormatter('vanilla');
-
-        $transformed = new TransformedEnumTranslator(
-            name: 'useStatusTranslator',
-            enumName: 'Status',
-            translationKey: 'enums.status',
-            enumImportPath: '@/enums/generated/Status',
-            outputPath: 'js/composables/generated'
-        );
-
-        $output = $formatter->format($transformed);
-
-        $this->assertStringContainsString('import { Status }', $output);
-        $this->assertStringContainsString('useTranslator', $output);
-        $this->assertStringContainsString('createEnumTranslationMap', $output);
-    }
 
     #[Test]
     public function it_returns_js_extension(): void

@@ -15,28 +15,25 @@ class PublishEnumTranslatorUtilsCommand extends Command
     {
         $outputFormat = config('type-bridge.output_format', 'ts');
         $extension = $outputFormat === 'ts' ? 'ts' : 'js';
-        $i18nLibrary = config('type-bridge.i18n_library', 'i18next');
         $utilsComposablesOutputPath = config('type-bridge.enum_translators.utils_composables_output_path', 'js/composables');
         $utilsLibOutputPath = config('type-bridge.enum_translators.utils_lib_output_path', 'js/lib');
 
+        $stubExtension = '.stub';
+
         $files = [
             "useTranslator.{$extension}" => [
-                'stub' => __DIR__.'/../../../stubs/useTranslator.'.$extension.'.stub',
+                'stub' => __DIR__.'/../../../stubs/useTranslator.'.$extension.$stubExtension,
                 'destination' => resource_path("{$utilsComposablesOutputPath}/useTranslator.{$extension}"),
             ],
             "createEnumTranslationMap.{$extension}" => [
-                'stub' => __DIR__.'/../../../stubs/createEnumTranslationMap.'.$extension.'.stub',
+                'stub' => __DIR__.'/../../../stubs/createEnumTranslationMap.'.$extension.$stubExtension,
                 'destination' => resource_path("{$utilsLibOutputPath}/createEnumTranslationMap.{$extension}"),
             ],
+            "translators.{$extension}" => [
+                'stub' => __DIR__.'/../../../stubs/translators.'.$extension.$stubExtension,
+                'destination' => resource_path("{$utilsLibOutputPath}/translators.{$extension}"),
+            ]
         ];
-
-        // If passthrough is selected, also publish the PassthroughEngine file
-        if ($i18nLibrary === 'passthrough') {
-            $files["PassthroughEngine.{$extension}"] = [
-                'stub' => __DIR__.'/../../../stubs/PassthroughEngine.'.$extension.'.stub',
-                'destination' => resource_path("{$utilsLibOutputPath}/PassthroughEngine.{$extension}"),
-            ];
-        }
 
         $published = 0;
         $skipped = 0;

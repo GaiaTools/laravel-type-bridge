@@ -1,0 +1,11 @@
+export function createVueI18nTranslator(i18n) {
+    return {
+        t: (key) => String(i18n.global.t(key)),
+    };
+}
+
+export function createReactI18nextTranslator(i18n) {
+    return {
+        t: (key) => String(i18n.t(key)),
+    };
+}
