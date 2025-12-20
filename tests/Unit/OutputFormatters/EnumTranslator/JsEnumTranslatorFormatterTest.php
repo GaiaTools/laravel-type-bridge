@@ -55,6 +55,30 @@ class JsEnumTranslatorFormatterTest extends TestCase
     }
 
     #[Test]
+    public function it_formats_for_react_i18next(): void
+    {
+        $formatter = new JsEnumTranslatorFormatter('react-i18next');
+
+        $transformed = new TransformedEnumTranslator(
+            name: 'useStatusTranslator',
+            enumName: 'Status',
+            translationKey: 'enums.status',
+            enumImportPath: '@/enums/generated/Status',
+            outputPath: 'js/composables/generated'
+        );
+
+        $output = $formatter->format($transformed);
+
+        // Common expectations
+        $this->assertStringContainsString('import { Status }', $output);
+        $this->assertStringContainsString('useTranslator', $output);
+        $this->assertStringContainsString('createEnumTranslationMap', $output);
+
+        // React-i18next specific: JS formatter emits JSDoc containing the docType 'hook'
+        $this->assertStringContainsString('Translator hook for Status', $output);
+    }
+
+    #[Test]
     public function it_returns_js_extension(): void
     {
         $formatter = new JsEnumTranslatorFormatter('vue-i18n');
