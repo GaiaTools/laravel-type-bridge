@@ -23,8 +23,8 @@ abstract class AbstractEnumTranslatorFormatter implements OutputFormatter
             'i18next' => $this->formatI18next($transformed),
             'react-i18next' => $this->formatReactI18next($transformed),
             default => throw new InvalidArgumentException(
-                "Unsupported i18n framework: {$this->i18nFramework}. " .
-                "Supported: vue-i18n, i18next, react-i18next"
+                "Unsupported i18n framework: {$this->i18nFramework}. ".
+                'Supported: vue-i18n, i18next, react-i18next'
             ),
         };
     }
@@ -63,8 +63,8 @@ abstract class AbstractEnumTranslatorFormatter implements OutputFormatter
      * Shared engine-driven formatter implementation.
      * Override in subclass to provide language-specific formatting (JS vs TS).
      *
-     * @param string $docType Documentation type for JSDoc (e.g., 'composable', 'function', 'hook')
-     * @param string $engine The engine symbol name (e.g., 'VueI18nEngine', 'I18nextEngine', 'ReactI18nextEngine')
+     * @param  string  $docType  Documentation type for JSDoc (e.g., 'composable', 'function', 'hook')
+     * @param  string  $engine  The engine symbol name (e.g., 'VueI18nEngine', 'I18nextEngine', 'ReactI18nextEngine')
      */
     abstract protected function formatWithEngine(
         TransformedEnumTranslator $transformed,

@@ -32,7 +32,7 @@ class PublishEnumTranslatorUtilsCommand extends Command
             "translators.{$extension}" => [
                 'stub' => __DIR__.'/../../../stubs/translators.'.$extension.$stubExtension,
                 'destination' => resource_path("{$utilsLibOutputPath}/translators.{$extension}"),
-            ]
+            ],
         ];
 
         $published = 0;

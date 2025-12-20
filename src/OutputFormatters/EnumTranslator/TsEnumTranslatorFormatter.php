@@ -9,15 +9,15 @@ use GaiaTools\TypeBridge\ValueObjects\TransformedEnumTranslator;
 final class TsEnumTranslatorFormatter extends AbstractEnumTranslatorFormatter
 {
     private const DEFAULT_UTILS_LIB_IMPORT_PATH = '@/lib';
+
     private const DEFAULT_COMPOSABLES_IMPORT_PATH = '@/composables';
 
     /**
      * Shared engine-driven formatter implementation for TypeScript.
      * Generates code using useTranslator with translation keys.
      *
-     * @param TransformedEnumTranslator $transformed
-     * @param string $docType Unused in TypeScript (no JSDoc differentiation)
-     * @param string $engine Engine symbol name (unused in lean output; engine is configured at app setup)
+     * @param  string  $docType  Unused in TypeScript (no JSDoc differentiation)
+     * @param  string  $engine  Engine symbol name (unused in lean output; engine is configured at app setup)
      */
     protected function formatWithEngine(
         TransformedEnumTranslator $transformed,

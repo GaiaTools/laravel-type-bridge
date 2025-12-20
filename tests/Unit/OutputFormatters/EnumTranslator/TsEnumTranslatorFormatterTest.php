@@ -54,7 +54,6 @@ class TsEnumTranslatorFormatterTest extends TestCase
         $this->assertStringContainsString('createEnumTranslationMap', $output);
     }
 
-
     #[Test]
     public function it_returns_ts_extension(): void
     {
