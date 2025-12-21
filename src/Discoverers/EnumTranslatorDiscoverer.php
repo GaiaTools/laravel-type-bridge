@@ -65,6 +65,7 @@ final class EnumTranslatorDiscoverer implements Discoverer
             $items = $items->filter(function (array $item): bool {
                 /** @var ReflectionEnum<UnitEnum> $ref */
                 $ref = $item['reflection'];
+
                 return in_array($ref->getName(), $this->allowedEnums, true);
             })->values();
         }
@@ -77,6 +78,7 @@ final class EnumTranslatorDiscoverer implements Discoverer
                 $ref = $item['reflection'];
                 /** @var string $prefix */
                 $prefix = $item['translationKey'];
+
                 return $this->translationIndex->hasAnyForEnum($prefix, $ref);
             })->values();
         }

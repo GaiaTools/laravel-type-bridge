@@ -6,9 +6,9 @@ declare(strict_types=1);
 
 namespace GaiaTools\TypeBridge\Console\Commands;
 
+use GaiaTools\TypeBridge\Config\EnumDiscoveryConfig;
 use GaiaTools\TypeBridge\Config\EnumTranslatorDiscoveryConfig;
 use GaiaTools\TypeBridge\Config\GeneratorConfig;
-use GaiaTools\TypeBridge\Config\EnumDiscoveryConfig;
 use GaiaTools\TypeBridge\Discoverers\EnumDiscoverer;
 use GaiaTools\TypeBridge\Discoverers\EnumTranslatorDiscoverer;
 use GaiaTools\TypeBridge\Generators\EnumTranslatorGenerator;
@@ -25,6 +25,7 @@ use UnitEnum;
 class GenerateEnumTranslatorsCommand extends Command
 {
     private const CHECK = '✅';
+
     private const CROSS = '❌';
 
     protected $signature = 'type-bridge:enum-translators {--format=} {--dry : Show what would be generated and why, without writing files}';
@@ -80,7 +81,7 @@ class GenerateEnumTranslatorsCommand extends Command
      */
     private function discoverFeEnums(): array
     {
-        $feEnumDiscoverer = new EnumDiscoverer(EnumDiscoveryConfig::fromConfig(), new EnumTokenParser());
+        $feEnumDiscoverer = new EnumDiscoverer(EnumDiscoveryConfig::fromConfig(), new EnumTokenParser);
 
         /** @var list<class-string<UnitEnum>> $names */
         $names = $feEnumDiscoverer->discover()
@@ -92,7 +93,7 @@ class GenerateEnumTranslatorsCommand extends Command
 
     private function createTranslationIndex(): TranslationIndex
     {
-        return new TranslationIndex();
+        return new TranslationIndex;
     }
 
     /**
@@ -140,7 +141,7 @@ class GenerateEnumTranslatorsCommand extends Command
      */
     private function discoverDryCandidates(EnumTranslatorDiscoveryConfig $translatorConfig)
     {
-        $dryDiscoverer = new EnumTranslatorDiscoverer($translatorConfig, new EnumTokenParser());
+        $dryDiscoverer = new EnumTranslatorDiscoverer($translatorConfig, new EnumTokenParser);
 
         return $dryDiscoverer->discover();
     }

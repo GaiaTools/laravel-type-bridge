@@ -95,6 +95,7 @@ final class TranslationIndex
 
             if ($group === 'enums') {
                 $current = array_merge($current, $data);
+
                 continue;
             }
 
