@@ -83,12 +83,10 @@ class GenerateEnumTranslatorsCommand extends Command
     {
         $feEnumDiscoverer = new EnumDiscoverer(EnumDiscoveryConfig::fromConfig(), new EnumTokenParser);
 
-        /** @var list<class-string<UnitEnum>> $names */
-        $names = $feEnumDiscoverer->discover()
+        /** @var list<class-string<UnitEnum>> */
+        return $feEnumDiscoverer->discover()
             ->map(fn (ReflectionEnum $r) => $r->getName())
             ->all();
-
-        return $names;
     }
 
     private function createTranslationIndex(): TranslationIndex
