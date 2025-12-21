@@ -10,14 +10,13 @@ use GaiaTools\TypeBridge\Contracts\Transformer;
 use GaiaTools\TypeBridge\Contracts\TranslationSyntaxAdapter;
 use GaiaTools\TypeBridge\Support\TranslationResolver;
 use GaiaTools\TypeBridge\ValueObjects\TransformedTranslation;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use InvalidArgumentException;
-use SplFileInfo;
 
 final class TranslationTransformer implements Transformer
 {
     use TranslationResolver;
+
     public function __construct(
         private readonly GeneratorConfig $config,
         private readonly TranslationSyntaxAdapter $syntaxAdapter,
@@ -91,6 +90,4 @@ final class TranslationTransformer implements Transformer
         /** @var list<string> */
         return array_values($paths);
     }
-
-    
 }

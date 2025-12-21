@@ -6,9 +6,7 @@ namespace GaiaTools\TypeBridge\Support;
 
 use GaiaTools\TypeBridge\Config\TranslationDiscoveryConfig;
 use Illuminate\Support\Facades\File;
-use GaiaTools\TypeBridge\Support\TranslationResolver;
 use ReflectionEnum;
-use SplFileInfo;
 use UnitEnum;
 
 /**
@@ -17,6 +15,7 @@ use UnitEnum;
 final class TranslationIndex
 {
     use TranslationResolver;
+
     /** @var array<string, mixed>|null */
     private ?array $flat = null;
 
