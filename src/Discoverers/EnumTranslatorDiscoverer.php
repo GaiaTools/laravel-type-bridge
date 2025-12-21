@@ -79,11 +79,7 @@ final class EnumTranslatorDiscoverer implements Discoverer
                     /** @var ReflectionEnum<UnitEnum> $ref */
                     $ref = $item['reflection'];
                     $prefix = $item['translationKey'];
-                    if ($prefix === null) {
-                        return false;
-                    }
-
-                    return $this->translationIndex->hasAnyForEnum($prefix, $ref);
+                    return $this->translationIndex->hasAnyForEnum((string) $prefix, $ref);
                 })
                 ->values();
         }
