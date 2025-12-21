@@ -15,10 +15,11 @@ use GaiaTools\TypeBridge\OutputFormatters\Translation\TsTranslationFormatter;
 use GaiaTools\TypeBridge\Transformers\TranslationTransformer;
 use GaiaTools\TypeBridge\Writers\GeneratedFileWriter;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
 
 class GenerateTranslationsCommand extends Command
 {
-    protected $signature = 'type-bridge:translations {locale} {--flat} {--format=}';
+    protected $signature = 'type-bridge:translations {locale?} {--flat} {--format=}';
 
     protected $description = 'Generate frontend translation files from Laravel lang files';
 
@@ -29,21 +30,14 @@ class GenerateTranslationsCommand extends Command
 
         $generatorConfig = GeneratorConfig::fromConfig();
         $format = $this->option('format') ?? $generatorConfig->outputFormat;
+        $formatter = $this->makeFormatter($format);
 
-        $formatter = match ($format) {
-            'json' => new JsonTranslationFormatter,
-            'js' => new JsTranslationFormatter,
-            default => new TsTranslationFormatter,
-        };
+        // Build discovery config and items
+        $discoveryConfig = $this->buildDiscoveryConfig();
+        $items = $this->buildDiscoveryItems($locale, $flat, $discoveryConfig);
 
-        // Wrap user input in a discoverer
-        $discoverer = new SimpleDiscoverer(['locale' => $locale, 'flat' => $flat]);
-        // Pass discovery config built from type-bridge config so behavior is fully config-driven
-        $discoveryConfig = TranslationDiscoveryConfig::fromConfig();
-        $transformer = new TranslationTransformer($generatorConfig, $syntaxAdapter, $discoveryConfig);
-        $writer = new GeneratedFileWriter;
-
-        $generator = new TranslationGenerator($discoverer, $transformer, $formatter, $writer);
+        // Create generator pipeline
+        $generator = $this->createGenerator($items, $generatorConfig, $syntaxAdapter, $discoveryConfig, $formatter);
 
         $this->components->info('Generating translations...');
 
@@ -52,5 +46,69 @@ class GenerateTranslationsCommand extends Command
         $this->components->info(sprintf('Generated %d translation file(s)', $files->count()));
 
         return self::SUCCESS;
+    }
+
+    private function makeFormatter(string $format): JsonTranslationFormatter|JsTranslationFormatter|TsTranslationFormatter
+    {
+        return match ($format) {
+            'json' => new JsonTranslationFormatter,
+            'js' => new JsTranslationFormatter,
+            default => new TsTranslationFormatter,
+        };
+    }
+
+    private function buildDiscoveryConfig(): TranslationDiscoveryConfig
+    {
+        return TranslationDiscoveryConfig::fromConfig();
+    }
+
+    /**
+     * @return array<string,mixed>|list<array{locale:string,flat:bool}>
+     */
+    private function buildDiscoveryItems(?string $locale, bool $flat, TranslationDiscoveryConfig $discoveryConfig): array
+    {
+        if (filled($locale)) {
+            return ['locale' => $locale, 'flat' => $flat];
+        }
+
+        $locales = $this->discoverLocales($discoveryConfig);
+
+        return array_map(static fn (string $loc): array => ['locale' => $loc, 'flat' => $flat], $locales);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function discoverLocales(TranslationDiscoveryConfig $discoveryConfig): array
+    {
+        $locales = [];
+        foreach ($discoveryConfig->langPaths as $root) {
+            if (! File::isDirectory($root)) {
+                continue;
+            }
+            foreach (File::directories($root) as $dir) {
+                $locales[] = basename($dir);
+            }
+        }
+
+        $locales = array_values(array_unique($locales));
+        sort($locales);
+
+        /** @var list<string> $locales */
+        return $locales;
+    }
+
+    private function createGenerator(
+        mixed $items,
+        GeneratorConfig $generatorConfig,
+        TranslationSyntaxAdapter $syntaxAdapter,
+        TranslationDiscoveryConfig $discoveryConfig,
+        JsonTranslationFormatter|JsTranslationFormatter|TsTranslationFormatter $formatter,
+    ): TranslationGenerator {
+        $discoverer = new SimpleDiscoverer($items);
+        $transformer = new TranslationTransformer($generatorConfig, $syntaxAdapter, $discoveryConfig);
+        $writer = new GeneratedFileWriter;
+
+        return new TranslationGenerator($discoverer, $transformer, $formatter, $writer);
     }
 }
