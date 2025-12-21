@@ -62,7 +62,8 @@ final class EnumTranslatorDiscoverer implements Discoverer
         // If an allowlist of enums is provided, intersect with it (FE-generated enums)
         if (is_array($this->allowedEnums)) {
             /** @var Collection<int, mixed> $items */
-            $items = $items->filter(function (array $item): bool {
+            $items = $items->filter(function ($item): bool {
+                /** @var array{reflection: ReflectionEnum<UnitEnum>, translationKey: (string|null)} $item */
                 /** @var ReflectionEnum<UnitEnum> $ref */
                 $ref = $item['reflection'];
 
@@ -70,17 +71,21 @@ final class EnumTranslatorDiscoverer implements Discoverer
             })->values();
         }
 
-        // If a TranslationIndex is available, keep only enums that have at least one translation string
         if ($this->translationIndex !== null) {
             /** @var Collection<int, mixed> $items */
-            $items = $items->filter(function (array $item): bool {
-                /** @var ReflectionEnum<UnitEnum> $ref */
-                $ref = $item['reflection'];
-                /** @var string $prefix */
-                $prefix = $item['translationKey'];
+            $items = $items
+                ->filter(function ($item): bool {
+                    /** @var array{reflection: ReflectionEnum<UnitEnum>, translationKey: (string|null)} $item */
+                    /** @var ReflectionEnum<UnitEnum> $ref */
+                    $ref = $item['reflection'];
+                    $prefix = $item['translationKey'];
+                    if ($prefix === null) {
+                        return false;
+                    }
 
-                return $this->translationIndex->hasAnyForEnum($prefix, $ref);
-            })->values();
+                    return $this->translationIndex->hasAnyForEnum($prefix, $ref);
+                })
+                ->values();
         }
 
         return $items;

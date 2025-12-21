@@ -19,6 +19,7 @@ use GaiaTools\TypeBridge\Support\TranslationIndex;
 use GaiaTools\TypeBridge\Transformers\EnumTranslatorTransformer;
 use GaiaTools\TypeBridge\Writers\GeneratedFileWriter;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use ReflectionEnum;
 use UnitEnum;
 
@@ -85,7 +86,11 @@ class GenerateEnumTranslatorsCommand extends Command
 
         /** @var list<class-string<UnitEnum>> */
         return $feEnumDiscoverer->discover()
-            ->map(fn (ReflectionEnum $r) => $r->getName())
+            // Collection::map expects callable(mixed, int): mixed, so accept mixed and assert inside
+            ->map(function ($r) {
+                /** @var ReflectionEnum<UnitEnum> $r */
+                return $r->getName();
+            })
             ->all();
     }
 
@@ -115,18 +120,21 @@ class GenerateEnumTranslatorsCommand extends Command
             'noTrans' => 0,
         ];
 
-        foreach ($candidates as $item) {
-            $evaluation = $this->evaluateDryCandidate($item, $feEnums, $translationIndex);
+        // Keep as Collection: iterate with each() and assert item shape inline for static analysis
+        $candidates
+            ->each(function ($item) use (&$rows, &$stats, $feEnums, $translationIndex): void {
+                /** @var array{reflection: ReflectionEnum<UnitEnum>, translationKey: string} $item */
+                $evaluation = $this->evaluateDryCandidate($item, $feEnums, $translationIndex);
 
-            $rows[] = [
-                $evaluation['enumFqcn'],
-                $evaluation['prefix'],
-                $evaluation['isFrontendGeneratedEnum'] ? self::CHECK : self::CROSS,
-                $evaluation['hasTrans'] ? self::CHECK : self::CROSS,
-            ];
+                $rows[] = [
+                    $evaluation['enumFqcn'],
+                    $evaluation['prefix'],
+                    $evaluation['isFrontendGeneratedEnum'] ? self::CHECK : self::CROSS,
+                    $evaluation['hasTrans'] ? self::CHECK : self::CROSS,
+                ];
 
-            $this->accumulateDryStats($evaluation, $stats);
-        }
+                $this->accumulateDryStats($evaluation, $stats);
+            });
 
         $this->renderDryTable($headers, $rows);
         $this->renderDrySummary($stats);
@@ -137,7 +145,10 @@ class GenerateEnumTranslatorsCommand extends Command
     /**
      * Discover unfiltered candidates for dry run.
      */
-    private function discoverDryCandidates(EnumTranslatorDiscoveryConfig $translatorConfig)
+    /**
+     * @return Collection<int, mixed>
+     */
+    private function discoverDryCandidates(EnumTranslatorDiscoveryConfig $translatorConfig): Collection
     {
         $dryDiscoverer = new EnumTranslatorDiscoverer($translatorConfig, new EnumTokenParser);
 
@@ -145,13 +156,13 @@ class GenerateEnumTranslatorsCommand extends Command
     }
 
     /**
-     * @param  array{reflection: ReflectionEnum, translationKey: string}  $item
+     * @param  array{reflection: ReflectionEnum<UnitEnum>, translationKey: string}  $item
      * @param  array<int,string>  $feEnums
      * @return array{enumFqcn:string,prefix:string,isFrontendGeneratedEnum:bool,hasTrans:bool}
      */
     private function evaluateDryCandidate(array $item, array $feEnums, TranslationIndex $translationIndex): array
     {
-        /** @var ReflectionEnum $ref */
+        /** @var ReflectionEnum<UnitEnum> $ref */
         $ref = $item['reflection'];
         /** @var string $prefix */
         $prefix = $item['translationKey'];

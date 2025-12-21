@@ -51,7 +51,7 @@ final class TranslationIndex
             return $this->flat;
         }
 
-        $locale = $this->locale ?? (string) (config('app.locale') ?: 'en');
+        $locale = $this->locale ?? config()->string('app.locale', 'en');
 
         $roots = ($this->config ?? TranslationDiscoveryConfig::fromConfig())->langPaths;
         $merged = [];
