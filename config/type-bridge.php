@@ -95,7 +95,7 @@ return [
         ],
 
         /* Where generated translation artifacts will be written */
-        'output_path' => 'js/locales/generated',
+        'output_path' => 'js/lang/generated',
 
         /*
         | Custom adapter class (optional) for advanced users who want to
