@@ -6,6 +6,7 @@ namespace GaiaTools\TypeBridge\Support;
 
 use GaiaTools\TypeBridge\Config\TranslationDiscoveryConfig;
 use Illuminate\Support\Facades\File;
+use GaiaTools\TypeBridge\Support\TranslationResolver;
 use ReflectionEnum;
 use SplFileInfo;
 use UnitEnum;
@@ -15,6 +16,7 @@ use UnitEnum;
  */
 final class TranslationIndex
 {
+    use TranslationResolver;
     /** @var array<string, mixed>|null */
     private ?array $flat = null;
 
@@ -57,7 +59,7 @@ final class TranslationIndex
         $merged = [];
 
         foreach ($roots as $root) {
-            $dir = rtrim($root, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$locale;
+            $dir = $this->buildLocaleDir($root, $locale);
             if (! File::isDirectory($dir)) {
                 continue;
             }
@@ -73,117 +75,5 @@ final class TranslationIndex
         return $this->flat;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function loadLocaleDir(string $langDir): array
-    {
-        $files = collect(File::files($langDir))
-            ->filter(fn (SplFileInfo $file) => str_ends_with($file->getFilename(), '.php'))
-            ->values();
-
-        $current = [];
-        foreach ($files as $file) {
-            $group = pathinfo($file->getFilename(), PATHINFO_FILENAME);
-            $data = require $file->getPathname();
-
-            if (! is_array($data)) {
-                continue;
-            }
-
-            $data = $this->hoistEnumKey($data);
-
-            if ($group === 'enums') {
-                $current = array_merge($current, $data);
-
-                continue;
-            }
-
-            $current[$group] = $data;
-        }
-
-        return $current;
-    }
-
-    /**
-     * @param  array<mixed, mixed>  $data
-     * @return array<string, mixed>
-     */
-    private function hoistEnumKey(array $data): array
-    {
-        // Normalize keys to strings first
-        $normalized = [];
-        foreach ($data as $key => $value) {
-            $normalized[(string) $key] = $value;
-        }
-        $data = $normalized;
-
-        if (isset($data['enums']) && is_array($data['enums'])) {
-            foreach ($data['enums'] as $key => $value) {
-                $data[$key] = $value;
-            }
-            unset($data['enums']);
-        }
-
-        return $data;
-    }
-
-    /**
-     * Normalize top-level and nested keys by replacing any FQCN-like keys
-     * (containing backslashes) with their short class name (last segment).
-     * Mirrors TranslationTransformer::normalizeClassLikeKeys.
-     *
-     * @param  array<mixed, mixed>  $data
-     * @return array<string, mixed>
-     */
-    private function normalizeClassLikeKeys(array $data): array
-    {
-        $out = [];
-        foreach ($data as $key => $value) {
-            $normalizedKey = is_string($key) ? $this->shortClassName($key) : (string) $key;
-            if (is_array($value)) {
-                $out[$normalizedKey] = $this->normalizeClassLikeKeys($value);
-            } else {
-                $out[$normalizedKey] = $value;
-            }
-        }
-
-        return $out;
-    }
-
-    private function shortClassName(string $maybeFqcn): string
-    {
-        $trimmed = ltrim($maybeFqcn, '\\');
-        $pos = strrpos($trimmed, '\\');
-
-        return $pos === false ? $trimmed : substr($trimmed, $pos + 1);
-    }
-
-    /**
-     * @param  array<mixed, mixed>  $input
-     * @return array<string, mixed>
-     */
-    private function dotFlatten(array $input): array
-    {
-        $flat = [];
-        $this->flattenRecursive($input, '', $flat);
-
-        return $flat;
-    }
-
-    /**
-     * @param  array<mixed, mixed>  $input
-     * @param  array<string, mixed>  $out
-     */
-    private function flattenRecursive(array $input, string $prefix, array &$out): void
-    {
-        foreach ($input as $key => $value) {
-            $newKey = $prefix === '' ? (string) $key : $prefix.'.'.$key;
-            if (is_array($value)) {
-                $this->flattenRecursive($value, $newKey, $out);
-            } else {
-                $out[$newKey] = $value;
-            }
-        }
-    }
+    // Methods moved to TranslationResolver trait
 }
