@@ -25,11 +25,13 @@ class GenerateTranslationsCommand extends Command
 
     public function handle(TranslationSyntaxAdapter $syntaxAdapter): int
     {
-        $locale = $this->argument('locale');
+        $localeArg = $this->argument('locale');
+        $locale = is_string($localeArg) ? $localeArg : null;
         $flat = (bool) $this->option('flat');
 
         $generatorConfig = GeneratorConfig::fromConfig();
-        $format = $this->option('format') ?? $generatorConfig->outputFormat;
+        $formatOpt = $this->option('format');
+        $format = is_string($formatOpt) ? $formatOpt : $generatorConfig->outputFormat;
         $formatter = $this->makeFormatter($format);
 
         // Build discovery config and items
