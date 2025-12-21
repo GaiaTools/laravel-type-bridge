@@ -32,7 +32,7 @@ final class GenerateTranslationsCommandUnitTest extends TestCase
             ],
         );
 
-        $command = new GenerateTranslationsCommand();
+        $command = new GenerateTranslationsCommand;
 
         // Use reflection to directly invoke the private discoverLocales method
         $method = new \ReflectionMethod($command, 'discoverLocales');
