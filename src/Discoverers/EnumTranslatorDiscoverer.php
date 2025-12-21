@@ -6,6 +6,7 @@ use GaiaTools\TypeBridge\Attributes\GenerateTranslator;
 use GaiaTools\TypeBridge\Config\EnumTranslatorDiscoveryConfig;
 use GaiaTools\TypeBridge\Contracts\Discoverer;
 use GaiaTools\TypeBridge\Support\EnumTokenParser;
+use GaiaTools\TypeBridge\Support\TranslationIndex;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -18,6 +19,9 @@ final class EnumTranslatorDiscoverer implements Discoverer
     public function __construct(
         private readonly EnumTranslatorDiscoveryConfig $config,
         private readonly EnumTokenParser $tokenParser,
+        /** @var list<class-string<UnitEnum>>|null */
+        private readonly ?array $allowedEnums = null,
+        private readonly ?TranslationIndex $translationIndex = null,
     ) {}
 
     /**
@@ -41,8 +45,8 @@ final class EnumTranslatorDiscoverer implements Discoverer
                 ->values();
         });
 
-        /** @var Collection<int, mixed> */
-        return $classes
+        /** @var Collection<int, mixed> $items */
+        $items = $classes
             ->filter(fn (string $class) => enum_exists($class))
             ->map(fn (string $enumClass) => new ReflectionEnum($enumClass))
             ->filter(fn (ReflectionEnum $ref) => $this->shouldInclude($ref))
@@ -54,6 +58,34 @@ final class EnumTranslatorDiscoverer implements Discoverer
             })
             ->filter(fn (array $item) => $item['translationKey'] !== null)
             ->values();
+
+        // If an allowlist of enums is provided, intersect with it (FE-generated enums)
+        if (is_array($this->allowedEnums)) {
+            /** @var Collection<int, mixed> $items */
+            $items = $items->filter(function ($item): bool {
+                /** @var array{reflection: ReflectionEnum<UnitEnum>, translationKey: (string|null)} $item */
+                /** @var ReflectionEnum<UnitEnum> $ref */
+                $ref = $item['reflection'];
+
+                return in_array($ref->getName(), $this->allowedEnums, true);
+            })->values();
+        }
+
+        if ($this->translationIndex !== null) {
+            /** @var Collection<int, mixed> $items */
+            $items = $items
+                ->filter(function ($item): bool {
+                    /** @var array{reflection: ReflectionEnum<UnitEnum>, translationKey: (string|null)} $item */
+                    /** @var ReflectionEnum<UnitEnum> $ref */
+                    $ref = $item['reflection'];
+                    $prefix = $item['translationKey'];
+
+                    return $this->translationIndex->hasAnyForEnum((string) $prefix, $ref);
+                })
+                ->values();
+        }
+
+        return $items;
     }
 
     /** @param ReflectionEnum<UnitEnum> $reflection */
