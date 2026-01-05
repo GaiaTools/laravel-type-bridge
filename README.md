@@ -56,45 +56,59 @@ return [
 
     // Enum generation configuration
     'enums' => [
+        // Whether to generate all backed enums by default or only those with #[GenerateEnum]
+        'generate_backed_enums' => true,
+
         // Output path (relative to resources directory)
         'output_path' => 'js/enums/generated',
 
+        // Base import path for generated enums
+        'import_base' => '@/enums/generated',
+
         // Discovery configuration
         'discovery' => [
-            'paths' => [
+            'include_paths' => [
                 app_path('Enums'),
             ],
-            // When true: generates all backed enums
-            // When false: generates ONLY enums with GenerateEnum attribute
-            'generate_backed_enums' => true,
             // Exclude specific enums (by short name or FQCN)
-            'excludes' => [],
+            'exclude_paths' => [],
         ],
     ],
 
     // Translation generation configuration
     'translations' => [
         // Output path (relative to resources directory)
-        'output_path' => 'js/locales/generated',
+        'output_path' => 'js/lang/generated',
 
-        // Where to discover Laravel translation locales. You can provide:
-        // - a string path, or an array of paths
-        // - glob patterns are supported (e.g. base_path('Modules/*/Resources/lang'))
-        // Precedence: later paths override earlier ones when the same keys exist.
-        // If not configured, the fallback is Laravel's default lang directory (base_path('lang')).
-        // Examples:
-        // 'lang_paths' => [
-        //     base_path('lang'),
-        //     base_path('Modules/*/Resources/lang'),
-        // ],
-        'lang_paths' => null,
+        // Discovery configuration
+        'discovery' => [
+            'include_paths' => [
+                base_path('lang'),
+            ],
+            'exclude_paths' => [],
+        ],
 
-        // Target i18n library for syntax transformation
-        // Options: 'i18next' (default, works for react-i18next too), 'vue-i18n', 'laravel'
-        'i18n_library' => env('TYPE_BRIDGE_I18N_LIBRARY', 'i18next'),
+        // Custom adapter class (optional)
+        'custom_adapter' => null,
+    ],
 
-        // Custom adapter class (optional - for users who want to provide their own)
-        'custom_adapter' => null, // e.g., \App\TypeBridge\CustomAdapter::class
+    // Target i18n library for syntax transformation
+    // Options: 'i18next' (default), 'vue-i18n'
+    'i18n_library' => env('TYPE_BRIDGE_I18N_LIBRARY', 'i18next'),
+
+    // Enum translator generation configuration
+    'enum_translators' => [
+        'discovery' => [
+            'include_paths' => [
+                app_path('Enums'),
+            ],
+            'exclude_paths' => [],
+        ],
+        'translator_output_path' => 'js/composables/generated',
+        'utils_composables_output_path' => 'js/composables',
+        'utils_composables_import_path' => '@/composables',
+        'utils_lib_output_path' => 'js/lib',
+        'utils_lib_import_path' => '@/lib',
     ],
 ];
 
