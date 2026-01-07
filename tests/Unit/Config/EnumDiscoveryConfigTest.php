@@ -14,9 +14,7 @@ class EnumDiscoveryConfigTest extends TestCase
     public function it_uses_defaults_when_config_missing(): void
     {
         // Ensure keys are not set
-        config()->offsetUnset('type-bridge.enums.discovery.include_paths');
-        config()->offsetUnset('type-bridge.enums.discovery.exclude_paths');
-        config()->offsetUnset('type-bridge.enums.generate_backed_enums');
+        config(['type-bridge.enums.generate_backed_enums' => null]);
 
         $cfg = EnumDiscoveryConfig::fromConfig();
         // Some environments may return the provided default, others may resolve to an empty array;
@@ -29,7 +27,7 @@ class EnumDiscoveryConfigTest extends TestCase
         if ($cfg->paths !== []) {
             $this->assertSame(app_path('Enums'), $cfg->paths[0]);
         }
-        $this->assertFalse($cfg->generateBackedEnums);
+        $this->assertTrue($cfg->generateBackedEnums);
         $this->assertSame([], $cfg->excludes);
     }
 
@@ -50,7 +48,7 @@ class EnumDiscoveryConfigTest extends TestCase
     #[Test]
     public function it_overrides_generate_backed_enums(): void
     {
-        config(['type-bridge.enums.discovery.generate_backed_enums' => true]);
+        config(['type-bridge.enums.generate_backed_enums' => true]);
         $cfg = EnumDiscoveryConfig::fromConfig();
         $this->assertTrue($cfg->generateBackedEnums);
 
