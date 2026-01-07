@@ -13,8 +13,8 @@ class EnumDiscoveryConfigTest extends TestCase
     #[Test]
     public function it_uses_defaults_when_config_missing(): void
     {
-        // Ensure keys are not set
-        config(['type-bridge.enums.generate_backed_enums' => null]);
+        // Clear the config for this package to test defaults
+        config(['type-bridge' => []]);
 
         $cfg = EnumDiscoveryConfig::fromConfig();
         // Some environments may return the provided default, others may resolve to an empty array;
