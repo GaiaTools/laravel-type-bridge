@@ -21,7 +21,7 @@ final readonly class GeneratorConfig
 
         $enumOutputPath = config()->string('type-bridge.enums.output_path', 'js/enums/generated');
 
-        $translationOutputPath = config()->string('type-bridge.translations.output_path', 'js/locales/generated');
+        $translationOutputPath = config()->string('type-bridge.translations.output_path', 'js/lang/generated');
 
         $i18nLibrary = config()->string('type-bridge.i18n_library', 'i18next');
 

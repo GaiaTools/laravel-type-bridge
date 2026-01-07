@@ -1,0 +1,121 @@
+{
+    "name": "Laravel Type Bridge",
+    "description": "Bridge the gap between Laravel and your frontend with type-safe enums and translations.",
+    "repository": "https://github.com/GaiaTools/laravel-type-bridge",
+    "tags": [
+        "laravel",
+        "typescript",
+        "javascript",
+        "enums",
+        "translations",
+        "code generation"
+    ],
+    "head": {
+        "title": "Laravel Type Bridge Documentation"
+    },
+    "nav": [
+        {
+            "text": "Guide",
+            "link": "getting-started"
+        },
+        {
+            "text": "Examples",
+            "items": [
+                {
+                    "text": "Enums",
+                    "link": "examples/enums"
+                },
+                {
+                    "text": "Translations",
+                    "link": "examples/translations"
+                },
+                {
+                    "text": "Helpers",
+                    "link": "examples/helpers"
+                }
+            ]
+        },
+        {
+            "text": "Reference",
+            "items": [
+                {
+                    "text": "GenerateEnum Attribute",
+                    "link": "generate-enum"
+                },
+                {
+                    "text": "Configuration",
+                    "link": "configuration"
+                },
+                {
+                    "text": "API Reference",
+                    "link": "api"
+                }
+            ]
+        }
+    ],
+    "sidebar": [
+        {
+            "text": "Introduction",
+            "items": [
+                {
+                    "text": "Overview",
+                    "link": "index"
+                },
+                {
+                    "text": "Getting Started",
+                    "link": "getting-started"
+                }
+            ]
+        },
+        {
+            "text": "Usage & Reference",
+            "items": [
+                {
+                    "text": "Configuration",
+                    "link": "configuration"
+                },
+                {
+                    "text": "GenerateEnum Attribute",
+                    "link": "generate-enum"
+                },
+                {
+                    "text": "API Reference",
+                    "link": "api"
+                },
+                {
+                    "text": "FAQ & Troubleshooting",
+                    "link": "faq"
+                }
+            ]
+        },
+        {
+            "text": "Internal Architecture",
+            "items": [
+                {
+                    "text": "Architecture Overview",
+                    "link": "architecture"
+                },
+                {
+                    "text": "Discoverers",
+                    "link": "discoverers"
+                },
+                {
+                    "text": "Transformers",
+                    "link": "transformers"
+                },
+                {
+                    "text": "Formatters",
+                    "link": "formatters"
+                },
+                {
+                    "text": "Writers",
+                    "link": "writers"
+                },
+                {
+                    "text": "Adapters",
+                    "link": "adapters"
+                }
+            ]
+        }
+    ]
+}

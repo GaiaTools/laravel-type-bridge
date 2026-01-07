@@ -28,7 +28,7 @@ final class EnumDiscoveryConfig
 
         return new self(
             paths: $paths,
-            generateBackedEnums: (bool) config('type-bridge.enums.generate_backed_enums', false),
+            generateBackedEnums: (bool) config('type-bridge.enums.generate_backed_enums', true),
             excludes: $excludes,
         );
     }
