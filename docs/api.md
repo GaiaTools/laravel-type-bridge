@@ -27,6 +27,25 @@ enum Status: string { ... }
 | `hasTranslator` | `bool` | `false` | Whether to generate a translator helper for this enum. |
 | `outputFormat` | `string` | `null` | Override global format (`ts` or `js`). |
 
+### `#[GenerateTranslator]`
+
+Apply this attribute to your PHP enums to customize their frontend translator generation.
+
+```php
+use GaiaTools\TypeBridge\Attributes\GenerateTranslator;
+
+#[GenerateTranslator(
+    translationKey: 'custom.prefix',
+    generateComposable: true
+)]
+enum Status: string { ... }
+```
+
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `translationKey` | `string` | `null` | Custom translation key prefix. Defaults to the enum's short name. |
+| `generateComposable` | `bool` | `true` | Whether to generate a composable for this enum. Set to `false` to skip. |
+
 ## CLI Commands
 
 ### `type-bridge:publish`
@@ -50,6 +69,10 @@ Publishes the core frontend utility files (composables and libs) needed for enum
 ### `type-bridge:enum-translators`
 Generates the per-enum translator composables.
 
+::: info
+For a translator to be generated, the enum must be included in your frontend generation set AND have matching translations in your Laravel language files. Use the `--dry` flag to see why an enum might be skipped.
+:::
+
 - `--format=ts|js`: Override the configured output format.
 - `--dry`: Show which enums are eligible for translator generation without writing files.
 
@@ -60,7 +83,7 @@ Configures the global translation engine used by generated translators.
 
 ```typescript
 type Engine = {
-  t: (key: string) => string;
+    t: (key: string) => string;
 };
 ```
 

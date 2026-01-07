@@ -32,7 +32,7 @@ php artisan vendor:publish --tag=type-bridge-config
 
 ### 1. Create a Backed Enum
 
-Create a standard PHP backed enum in `app/Enums`:
+Create a standard PHP backed enum in `app/Enums`. By default, all backed enums in this directory will be automatically discovered:
 
 ```php
 <?php
@@ -58,6 +58,11 @@ php artisan type-bridge:enums
 This generates `resources/js/enums/generated/Status.ts` (assuming TypeScript default):
 
 ```typescript
+// !!!!
+// This is a generated file.
+// Do not manually change this file
+// !!!!
+
 export const Status = {
     Active: 'active',
     Inactive: 'inactive',
@@ -96,12 +101,26 @@ import { configureTranslationEngine } from '@/composables/useTranslator';
 import { createVueI18nTranslator } from '@/lib/translators';
 import { createI18n } from 'vue-i18n';
 
-const i18n = createI18n({ 
-  legacy: false, 
-  locale: 'en',
-  messages: { /* ... */ } 
+const i18n = createI18n({
+    legacy: false,
+    locale: 'en',
+    messages: { /* ... */ }
 });
 
 // Configure the engine to use vue-i18n
 configureTranslationEngine(createVueI18nTranslator(i18n));
 ```
+
+### 3. Generate Enum Translators
+
+After setting up your enums, translations, and utilities, you can generate the translator helpers:
+
+```bash
+php artisan type-bridge:enum-translators
+```
+
+This command will discover enums that are marked for frontend generation and have matching translations, then create a dedicated helper for each.
+
+::: tip
+If you're unsure why an enum isn't being generated, run `php artisan type-bridge:enum-translators --dry` to see the eligibility check results.
+:::

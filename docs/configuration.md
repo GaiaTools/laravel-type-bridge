@@ -69,7 +69,7 @@ Configure how and where your enums are discovered and generated.
 ### Translation Details
 - **`output_path`**: Where generated translation files will be written (relative to your `resources` directory).
 - **`include_paths`**: Where to discover Laravel translations. Supports strings, arrays, or glob patterns (e.g., `base_path('Modules/*/Resources/lang')`).
-- **`custom_adapter`**: Provide your own adapter class for unique requirements.
+- **`custom_adapter`**: Provide your own adapter class for unique requirements. See [Adapters](./adapters.md) for implementation details.
 
 ## i18n Library
 
