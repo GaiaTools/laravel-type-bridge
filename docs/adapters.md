@@ -30,7 +30,9 @@ interface TranslationSyntaxAdapter
 ```
 
 ::: tip
+
 You can provide a custom adapter by setting `translations.custom_adapter` in your `config/type-bridge.php`.
+
 :::
 
 ## Implementing a Custom Adapter

@@ -22,7 +22,9 @@ return [
 ```
 
 ::: details Advanced General Options
+
 - **`max_line_length`**: Set to `0` or negative to disable the `/* eslint-disable max-len */` insertion entirely.
+
 :::
 
 ## Enums Configuration
@@ -100,5 +102,7 @@ Controls the generation of translator composables and utility paths.
 ```
 
 ::: warning
+
 Ensure your `resources/js` directory structure matches these paths or update the config to suit your project.
+
 :::

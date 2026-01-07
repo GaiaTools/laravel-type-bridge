@@ -70,7 +70,9 @@ The `type-bridge:publish-translator-utils` command publishes the core frontend u
 The `type-bridge:enum-translators` command generates the per-enum translator composables.
 
 ::: info
+
 For a translator to be generated, the enum must be included in your frontend generation set AND have matching translations in your Laravel language files. Use the `--dry` flag to see why an enum might be skipped.
+
 :::
 
 - `--format=ts|js`: Override the configured output format.

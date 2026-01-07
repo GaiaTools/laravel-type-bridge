@@ -7,7 +7,9 @@ title: Overview
 Laravel Type Bridge is a package for generating TypeScript or JavaScript enums and frontend translation files from your Laravel application. It bridges the gap between your backend definitions and frontend usage, ensuring type safety and consistency across your stack.
 
 ::: tip
+
 This package is especially useful for Inertia.js projects or any decoupled frontend that consumes Laravel-driven data.
+
 :::
 
 ## Key Features

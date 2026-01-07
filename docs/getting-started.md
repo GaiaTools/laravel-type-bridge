@@ -122,5 +122,7 @@ php artisan type-bridge:enum-translators
 This command will discover enums that are marked for frontend generation and have matching translations, then create a dedicated helper for each.
 
 ::: tip
+
 If you're unsure why an enum isn't being generated, run `php artisan type-bridge:enum-translators --dry` to see the eligibility check results.
+
 :::

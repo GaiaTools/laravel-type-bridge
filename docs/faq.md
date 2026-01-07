@@ -12,10 +12,12 @@ Check if your enums are "Backed Enums" (e.g., `enum Status: string`). Pure enums
 Also, ensure your enum directory is included in the `enums.discovery.include_paths` configuration.
 
 ### CI fails with "Enums differ from generated frontend files"
-This happens when you've modified a PHP enum but haven't run the generation command. 
+This happens when you've modified a PHP enum but haven't run the generation command.
 
 ::: tip
+
 Run `php artisan type-bridge:enums` locally and commit the updated frontend files to resolve this.
+
 :::
 
 ### Translators are returning translation keys instead of labels
@@ -33,7 +35,9 @@ If enums are missing, you can temporarily set `generate_backed_enums` to `true` 
 Do not manually edit files in the `generated` folders. These files are overwritten every time you run the generation commands. If you need custom logic, wrap the generated code in your own modules.
 
 ::: danger
+
 Manually edited files in `generated/` directories will be LOST on the next command run.
+
 :::
 
 ## Still having trouble?
