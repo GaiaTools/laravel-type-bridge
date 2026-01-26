@@ -272,45 +272,6 @@ enum ThemeVisibility: string
 }
 ```
 
-### Enum with Translator
-
-Generate enums with automatic translation support:
-
-```php
-<?php
-
-namespace App\Enums;
-
-use GaiaTools\TypeBridge\Attributes\GenerateEnum;
-
-#[GenerateEnum(hasTranslator: true)]
-enum UserRole: string
-{
-    case Admin = 'admin';
-    case User = 'user';
-    case Guest = 'guest';
-}
-```
-
-### Custom Output Format per Enum
-
-Override the global output format for specific enums:
-
-```php
-<?php
-
-namespace App\Enums;
-
-use GaiaTools\TypeBridge\Attributes\GenerateEnum;
-
-#[GenerateEnum(outputFormat: 'js')]
-enum Priority: int
-{
-    case Low = 1;
-    case Medium = 2;
-    case High = 3;
-}
-```
 
 ## Available Commands
 
@@ -582,8 +543,6 @@ export const en = {
 The `#[GenerateEnum]` attribute accepts the following options:
 
 - `requiresComments` (bool): Include PHPDoc comments in generated output
-- `hasTranslator` (bool): Generate a translator for the enum
-- `outputFormat` (string|null): Override global output format ('ts' or 'js')
 
 ## License
 

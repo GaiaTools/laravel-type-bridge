@@ -75,10 +75,6 @@
                     "link": "configuration"
                 },
                 {
-                    "text": "GenerateEnum Attribute",
-                    "link": "generate-enum"
-                },
-                {
                     "text": "API Reference",
                     "link": "api"
                 },
