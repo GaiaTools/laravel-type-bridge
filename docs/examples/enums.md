@@ -10,7 +10,7 @@ This page demonstrates how to set up PHP backed enums for generation and what th
 
 Define a PHP backed enum in your Laravel application. You can use the `#[GenerateEnum]` attribute to mark it for generation or customize its behavior.
 
-See the [GenerateEnum Attribute](../api.md#generateenum) documentation for more details on available options.
+See the [GenerateEnum Attribute](../api#generateenum) documentation for more details on available options.
 
 ```php
 <?php

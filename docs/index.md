@@ -29,10 +29,10 @@ This package is especially useful for Inertia.js projects or any decoupled front
 
 ## Next Steps
 
-- [Getting Started](./getting-started.md)
-- [Enum Examples](examples/enums.md)
-- [Translation Examples](examples/translations.md)
-- [Helper Examples](examples/helpers.md)
-- [Configuration](./configuration.md)
-- [API Reference](./api.md)
-- [Architecture](./architecture.md)
+- [Getting Started](./getting-started)
+- [Enum Examples](examples/enums)
+- [Translation Examples](examples/translations)
+- [Helper Examples](examples/helpers)
+- [Configuration](./configuration)
+- [API Reference](./api)
+- [Architecture](./architecture)

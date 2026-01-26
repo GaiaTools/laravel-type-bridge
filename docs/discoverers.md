@@ -30,4 +30,4 @@ interface Discoverer
 2. The `discover()` method is called to scan directories or files.
 3. It returns a `Collection` of raw items, such as `ReflectionEnum` objects or file paths.
 
-These items are then passed to a [Transformer](./transformers.md) in the generation pipeline.
+These items are then passed to a [Transformer](./transformers) in the generation pipeline.
