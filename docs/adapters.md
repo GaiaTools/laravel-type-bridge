@@ -61,7 +61,7 @@ class MyCustomAdapter implements TranslationSyntaxAdapter
 
 ## Extending via Service Container
 
-Since the package uses the Laravel Service Container, you can re-bind internal classes to your own implementations in a Service Provider. For example, to swap the [Discoverer](./discoverers.md) for enums:
+Since the package uses the Laravel Service Container, you can re-bind internal classes to your own implementations in a Service Provider. For example, to swap the [Discoverer](./discoverers) for enums:
 
 ```php
 $this->app->bind(\GaiaTools\TypeBridge\Discoverers\EnumDiscoverer::class, function ($app) {

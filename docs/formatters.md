@@ -31,4 +31,4 @@ interface OutputFormatter
 - They iterate over its data to build a string representation.
 - They handle language-specific syntax (e.g., `export const` for JS/TS, or JSON objects).
 
-The generated string is then passed to the [Writer](./writers.md) to be saved to disk.
+The generated string is then passed to the [Writer](./writers) to be saved to disk.

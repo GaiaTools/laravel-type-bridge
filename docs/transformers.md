@@ -29,4 +29,4 @@ The transformer stage is where most of the package's logic resides:
 - Extracting data from reflection objects.
 - Normalizing keys and values.
 
-The output of a Transformer is typically a specialized Value Object like `TransformedEnum` or `TransformedTranslation`, which is then passed to a [Formatter](./formatters.md).
+The output of a Transformer is typically a specialized Value Object like `TransformedEnum` or `TransformedTranslation`, which is then passed to a [Formatter](./formatters).

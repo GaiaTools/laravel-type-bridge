@@ -14,9 +14,7 @@ Apply the `#[GenerateEnum]` attribute to your PHP enums to customize their front
 use GaiaTools\TypeBridge\Attributes\GenerateEnum;
 
 #[GenerateEnum(
-    requiresComments: true,
-    hasTranslator: true,
-    outputFormat: 'ts'
+    requiresComments: true
 )]
 enum Status: string { ... }
 ```
@@ -24,8 +22,6 @@ enum Status: string { ... }
 | Parameter | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `requiresComments` | `bool` | `false` | Include PHPDoc comments in the generated output. |
-| `hasTranslator` | `bool` | `false` | Whether to generate a translator helper for this enum. |
-| `outputFormat` | `string` | `null` | Override global format (`ts` or `js`). |
 
 ### Generate Translator Attribute
 

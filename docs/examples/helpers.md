@@ -10,8 +10,8 @@ Translation helpers bridge the gap between enum values and their human-readable 
 
 For a translation helper to be generated and function correctly, you need:
 
-1.  **Generated Enums**: The enum must be marked for frontend generation. See [Enum Examples](enums.md).
-2.  **Generated Translations**: The enum must have translations in your Laravel `lang` files, and they must be generated in the frontend. See [Translation Examples](translations.md).
+1.  **Generated Enums**: The enum must be marked for frontend generation. See [Enum Examples](enums).
+2.  **Generated Translations**: The enum must have translations in your Laravel `lang` files, and they must be generated in the frontend. See [Translation Examples](translations).
 
 The generator (`type-bridge:enum-translators`) will automatically skip enums that are not part of your frontend generation set or are missing translations. You can use the `--dry` flag to see why an enum might be skipped.
 
@@ -39,7 +39,7 @@ export function useUserRoleTranslator() {
 
 ### Usage in Frontend
 
-After [configuring your translation engine](../getting-started.md#2-setup-translation-utilities), you can use the generated helper in your components.
+After [configuring your translation engine](../getting-started#2-setup-translation-utilities), you can use the generated helper in your components.
 
 ```typescript
 import { useUserRoleTranslator } from '@/composables/generated/useUserRoleTranslator';
