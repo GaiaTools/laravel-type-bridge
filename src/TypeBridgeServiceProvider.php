@@ -6,6 +6,7 @@ namespace GaiaTools\TypeBridge;
 
 use GaiaTools\TypeBridge\Adapters\I18nextSyntaxAdapter;
 use GaiaTools\TypeBridge\Adapters\VueI18nSyntaxAdapter;
+use GaiaTools\TypeBridge\Console\Commands\GenerateAllCommand;
 use GaiaTools\TypeBridge\Console\Commands\GenerateEnumsCommand;
 use GaiaTools\TypeBridge\Console\Commands\GenerateEnumTranslatorsCommand;
 use GaiaTools\TypeBridge\Console\Commands\GenerateTranslationsCommand;
@@ -28,6 +29,7 @@ class TypeBridgeServiceProvider extends ServiceProvider
             ], 'type-bridge-config');
 
             $this->commands([
+                GenerateAllCommand::class,
                 GenerateEnumsCommand::class,
                 GenerateTranslationsCommand::class,
                 GenerateEnumTranslatorsCommand::class, // Add this
