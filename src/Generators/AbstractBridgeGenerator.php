@@ -26,6 +26,17 @@ abstract class AbstractBridgeGenerator implements BridgeGenerator
     {
         $discovered = $this->discoverer->discover();
 
+        return $this->generateFrom($discovered);
+    }
+
+    abstract protected function buildFilePath(mixed $transformed): string;
+
+    /**
+     * @param  Collection<int,mixed>  $discovered
+     * @return Collection<int, GeneratedFile>
+     */
+    protected function generateFrom(Collection $discovered): Collection
+    {
         return $discovered->map(function (mixed $item) {
             $transformed = $this->transformer->transform($item);
             $formatted = $this->formatter->format($transformed);
@@ -39,8 +50,6 @@ abstract class AbstractBridgeGenerator implements BridgeGenerator
             return $generatedFile;
         });
     }
-
-    abstract protected function buildFilePath(mixed $transformed): string;
 
     protected function wrapContent(string $content): string
     {

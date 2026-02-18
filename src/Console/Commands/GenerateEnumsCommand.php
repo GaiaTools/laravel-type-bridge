@@ -15,10 +15,11 @@ use GaiaTools\TypeBridge\Support\EnumTokenParser;
 use GaiaTools\TypeBridge\Transformers\EnumTransformer;
 use GaiaTools\TypeBridge\Writers\GeneratedFileWriter;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 
 class GenerateEnumsCommand extends Command
 {
-    protected $signature = 'type-bridge:enums {--format=} {--check}';
+    protected $signature = 'type-bridge:enums {--format=} {--check} {--dirty}';
 
     protected $description = 'Generate frontend enum files from PHP enums';
 
@@ -43,9 +44,46 @@ class GenerateEnumsCommand extends Command
             return $this->checkEnums($discoverer, $transformer, $format);
         }
 
+        if ($this->option('dirty')) {
+            return $this->generateDirtyEnums($discoverer, $transformer, $generator, $format);
+        }
+
         $this->components->info('Generating enums...');
 
         $files = $generator->generate();
+
+        $this->components->info(sprintf('Generated %d enum file(s)', $files->count()));
+
+        return self::SUCCESS;
+    }
+
+    private function generateDirtyEnums(
+        EnumDiscoverer $discoverer,
+        EnumTransformer $transformer,
+        EnumGenerator $generator,
+        string $format,
+    ): int {
+        $this->components->info('Generating dirty enums...');
+
+        $extension = $this->resolveExtension($format);
+        $backend = $this->buildBackendState($discoverer, $transformer);
+        $diffs = $this->computeDiffs($backend, $extension);
+
+        if ($diffs === []) {
+            $this->components->info('No dirty enums found.');
+
+            return self::SUCCESS;
+        }
+
+        $dirtyNames = array_keys($diffs);
+        $discovered = $discoverer->discover();
+
+        /** @var Collection<int, mixed> $dirtyEnums */
+        $dirtyEnums = $discovered->filter(
+            fn ($reflection) => in_array($reflection->getShortName(), $dirtyNames, true)
+        );
+
+        $files = $generator->generateFor($dirtyEnums);
 
         $this->components->info(sprintf('Generated %d enum file(s)', $files->count()));
 

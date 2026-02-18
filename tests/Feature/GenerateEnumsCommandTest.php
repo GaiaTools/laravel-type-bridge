@@ -56,6 +56,50 @@ final class GenerateEnumsCommandTest extends TestCase
         $this->assertDirectoryExists(resource_path('test-output/enums'));
     }
 
+    #[Test]
+    public function it_generates_only_dirty_enums_via_command(): void
+    {
+        $this->generateTsEnums();
+
+        $statusPath = resource_path('test-output/enums/TestStatus.ts');
+        $numericPath = resource_path('test-output/enums/TestNumeric.ts');
+        $cleanPath = resource_path('test-output/enums/TestRole.ts');
+
+        $this->assertFileExists($statusPath);
+        $this->assertFileExists($numericPath);
+        $this->assertFileExists($cleanPath);
+
+        $cleanMTime = File::lastModified($cleanPath);
+
+        $contents = File::get($statusPath);
+        $modified = preg_replace('/\n\s*INACTIVE:\s*[^,]+,\n/m', "\n", $contents);
+        if ($modified === null) {
+            $modified = $contents;
+        }
+        File::put($statusPath, $modified);
+        File::delete($numericPath);
+
+        sleep(1);
+
+        $this->artisan('type-bridge:enums', ['--dirty' => true, '--format' => 'ts'])
+            ->expectsOutputToContain('Generating dirty enums...')
+            ->expectsOutputToContain('Generated 2 enum file(s)')
+            ->assertExitCode(0);
+
+        $this->assertSame($cleanMTime, File::lastModified($cleanPath));
+    }
+
+    #[Test]
+    public function it_reports_no_dirty_enums_when_frontend_is_in_sync(): void
+    {
+        $this->generateTsEnums();
+
+        $this->artisan('type-bridge:enums', ['--dirty' => true, '--format' => 'ts'])
+            ->expectsOutputToContain('Generating dirty enums...')
+            ->expectsOutputToContain('No dirty enums found.')
+            ->assertExitCode(0);
+    }
+
     // ---- --check path: in-sync tests ----
 
     #[Test]

@@ -52,6 +52,7 @@ The `type-bridge:enums` command generates frontend enum files from discovered PH
 
 - `--format=ts|js`: Override the configured output format.
 - `--check`: (CI Mode) Check for drift between PHP and frontend files without writing. Returns exit code 1 if differences exist.
+- `--dirty`: Generate only enums that are missing or out of sync with frontend files (same drift criteria as `--check`).
 
 ### Generate Translations
 The `type-bridge:translations {locale?}` command generates frontend translation files for specified locale(s). If no locale is provided, it attempts to discover all locales in your project.
