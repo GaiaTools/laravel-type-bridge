@@ -252,6 +252,22 @@ export const Status = {
 };
 ```
 
+### Dirty mode (generate only new/changed enums)
+
+Generate only enums that are missing or out of sync with the frontend output, using the same drift criteria as `--check`. This is useful for incremental builds or large projects.
+
+Run:
+
+```bash
+php artisan type-bridge:enums --dirty [--format=ts|js]
+```
+
+Behavior:
+
+- Computes diffs exactly like `--check` (missing files, added/removed cases, or changed values).
+- Writes only the enums that are dirty.
+- Prints `No dirty enums found.` when everything is already in sync.
+
 ### Opt-in Enum Generation
 
 Use the `#[GenerateEnum]` attribute to explicitly mark enums for generation:
@@ -292,6 +308,9 @@ php artisan type-bridge:enums --format=js
 
 # Generate enums explicitly as TypeScript
 php artisan type-bridge:enums --format=ts
+
+# Generate only new/changed enums (based on --check drift rules)
+php artisan type-bridge:enums --dirty
 ```
 
 ### Generate Translations

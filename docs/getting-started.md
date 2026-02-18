@@ -72,6 +72,12 @@ export const Status = {
 export type Status = typeof Status[keyof typeof Status];
 ```
 
+::: tip
+
+If you only want to regenerate enums that are missing or out of sync, use `php artisan type-bridge:enums --dirty`.
+
+:::
+
 ## First Use: Translations
 
 ### 1. Generate Locale Files
