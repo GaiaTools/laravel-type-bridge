@@ -16,6 +16,8 @@ use GaiaTools\TypeBridge\Transformers\EnumTransformer;
 use GaiaTools\TypeBridge\Writers\GeneratedFileWriter;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
+use ReflectionEnum;
+use UnitEnum;
 
 class GenerateEnumsCommand extends Command
 {
@@ -78,9 +80,9 @@ class GenerateEnumsCommand extends Command
         $dirtyNames = array_keys($diffs);
         $discovered = $discoverer->discover();
 
-        /** @var Collection<int, mixed> $dirtyEnums */
+        /** @var Collection<int, ReflectionEnum<UnitEnum>> $dirtyEnums */
         $dirtyEnums = $discovered->filter(
-            fn ($reflection) => in_array($reflection->getShortName(), $dirtyNames, true)
+            fn (ReflectionEnum $reflection) => in_array($reflection->getShortName(), $dirtyNames, true)
         );
 
         $files = $generator->generateFor($dirtyEnums);

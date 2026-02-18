@@ -98,10 +98,12 @@ class TypeBridgeServiceProviderTest extends TestCase
         // Commands should be registered
         $allCommands = Artisan::all();
 
+        $this->assertArrayHasKey('type-bridge:generate', $allCommands);
         $this->assertArrayHasKey('type-bridge:enums', $allCommands);
         $this->assertArrayHasKey('type-bridge:translations', $allCommands);
         $this->assertArrayHasKey('type-bridge:publish', $allCommands);
 
+        $this->assertInstanceOf(\GaiaTools\TypeBridge\Console\Commands\GenerateAllCommand::class, $allCommands['type-bridge:generate']);
         $this->assertInstanceOf(GenerateEnumsCommand::class, $allCommands['type-bridge:enums']);
         $this->assertInstanceOf(GenerateTranslationsCommand::class, $allCommands['type-bridge:translations']);
         $this->assertInstanceOf(PublishConfigCommand::class, $allCommands['type-bridge:publish']);

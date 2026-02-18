@@ -55,6 +55,12 @@ Run the generator command:
 php artisan type-bridge:enums
 ```
 
+Or generate everything (enums, translations, and translators) in one step:
+
+```bash
+php artisan type-bridge:generate
+```
+
 This generates `resources/js/enums/generated/Status.ts` (assuming TypeScript default):
 
 ```typescript
