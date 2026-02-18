@@ -297,6 +297,22 @@ enum ThemeVisibility: string
 php artisan type-bridge:publish
 ```
 
+### Generate Everything (enums + translations + translators)
+
+```bash
+# Generate all enums, translations, and enum translators
+php artisan type-bridge:generate
+
+# Generate everything for a specific locale
+php artisan type-bridge:generate en
+
+# Limit generation to specific enums (short name or FQCN)
+php artisan type-bridge:generate --enums=Status --enums=App\\Enums\\Role
+
+# Use a separate format for translations (ts|js|json)
+php artisan type-bridge:generate --translations-format=json
+```
+
 ### Generate Enums
 
 ```bash

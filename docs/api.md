@@ -47,6 +47,14 @@ enum Status: string { ... }
 ### Publish Configuration
 The `type-bridge:publish` command publishes the configuration file. It attempts to auto-detect your project's `output_format` and `i18n_library`.
 
+### Generate Everything
+The `type-bridge:generate {locale?}` command generates enums, translations, and enum translators in one step.
+
+- `--format=ts|js`: Output format for enums and enum translators.
+- `--translations-format=ts|js|json`: Output format for translations.
+- `--flat`: Generate flat translation keys (e.g. `"auth.failed": "..."`) instead of nested objects.
+- `--enums=*`: Limit generation to specific enums by short name or FQCN. Repeatable.
+
 ### Generate Enums
 The `type-bridge:enums` command generates frontend enum files from discovered PHP enums.
 
