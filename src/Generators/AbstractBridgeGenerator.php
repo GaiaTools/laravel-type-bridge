@@ -33,6 +33,7 @@ abstract class AbstractBridgeGenerator implements BridgeGenerator
 
     /**
      * @template TDiscovered
+     *
      * @param  Collection<int, TDiscovered>  $discovered
      * @return Collection<int, GeneratedFile>
      */
