@@ -32,7 +32,8 @@ abstract class AbstractBridgeGenerator implements BridgeGenerator
     abstract protected function buildFilePath(mixed $transformed): string;
 
     /**
-     * @param  Collection<int,mixed>  $discovered
+     * @template TDiscovered
+     * @param  Collection<int, TDiscovered>  $discovered
      * @return Collection<int, GeneratedFile>
      */
     protected function generateFrom(Collection $discovered): Collection

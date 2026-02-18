@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace GaiaTools\TypeBridge\Generators;
 
+use GaiaTools\TypeBridge\ValueObjects\GeneratedFile;
 use GaiaTools\TypeBridge\ValueObjects\TransformedEnum;
 use Illuminate\Support\Collection;
+use ReflectionEnum;
+use UnitEnum;
 
 final class EnumGenerator extends AbstractBridgeGenerator
 {
@@ -15,8 +18,8 @@ final class EnumGenerator extends AbstractBridgeGenerator
     }
 
     /**
-     * @param  Collection<int,mixed>  $discovered
-     * @return Collection<int, \GaiaTools\TypeBridge\ValueObjects\GeneratedFile>
+     * @param  Collection<int, ReflectionEnum<UnitEnum>>  $discovered
+     * @return Collection<int, GeneratedFile>
      */
     public function generateFor(Collection $discovered): Collection
     {
