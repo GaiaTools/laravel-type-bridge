@@ -1,8 +1,27 @@
-[![Quality gate](https://sonar.r2websolutions.com/api/project_badges/quality_gate?project=GaiaTools_laravel-type-bridge_65a0cd71-382c-4322-a628-a979f8beb401&token=sqb_320e3b18690817c1a4b370f3ea83f728851fb470)](https://sonar.r2websolutions.com/dashboard?id=GaiaTools_laravel-type-bridge_65a0cd71-382c-4322-a628-a979f8beb401)
-
 # Gaia Tools Laravel Type Bridge
 
 A Laravel package for generating TypeScript/JavaScript enums and frontend translation files from your Laravel app.
+
+
+[![Release][release-shield]][release-url]
+[![Quality Gate][quality-gate-shield]][sonar-url]
+[![License][license-shield]][license-url]
+[![Downloads][downloads-shield]][packagist-url]
+![Coverage][coverage-shield]
+
+<!-- Badge URLs -->
+[release-shield]: https://img.shields.io/packagist/v/GaiaTools/laravel-type-bridge?sort=semver&color=blue
+[quality-gate-shield]: https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fsonar.r2websolutions.com%2Fapi%2Fmeasures%2Fcomponent%3Fcomponent%3DGaiaTools_laravel-type-bridge_65a0cd71-382c-4322-a628-a979f8beb401%26metricKeys%3Dalert_status&query=$.component.measures[0].value&label=Quality%20Gate&labelColor=black&color=%23009900
+[license-shield]: https://img.shields.io/packagist/l/GaiaTools/laravel-type-bridge?label=License&labelColor=black&color=%23009900
+[downloads-shield]: https://img.shields.io/packagist/dt/GaiaTools/laravel-type-bridge.svg?label=Downloads&labelColor=black&color=%23009900
+[coverage-shield]: https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fsonar.r2websolutions.com%2Fapi%2Fmeasures%2Fcomponent%3Fcomponent%3DGaiaTools_laravel-type-bridge_65a0cd71-382c-4322-a628-a979f8beb401%26metricKeys%3Dcoverage&query=$.component.measures[0].value&suffix=%25&label=Coverage&labelColor=black
+
+<!-- Link URLs -->
+[release-url]: https://github.com/GaiaTools/laravel-type-bridge/releases
+[sonar-url]: https://sonar.r2websolutions.com/dashboard?id=GaiaTools_laravel-type-bridge_65a0cd71-382c-4322-a628-a979f8beb401
+[license-url]: https://github.com/GaiaTools/laravel-type-bridge/blob/main/LICENSE
+[packagist-url]: https://packagist.org/packages/GaiaTools/laravel-type-bridge
+
 
 ## Features
 
