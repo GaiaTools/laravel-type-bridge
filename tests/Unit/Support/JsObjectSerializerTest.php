@@ -135,4 +135,81 @@ class JsObjectSerializerTest extends TestCase
         // json fallback uses compact JSON without spaces
         $this->assertStringContainsString('"obj": {"x":1,"y":"z"}', $out);
     }
+
+    #[Test]
+    public function it_can_emit_unquoted_keys_and_custom_quote_styles(): void
+    {
+        config()->set('type-bridge.avoid_quotes', true);
+        config()->set('type-bridge.quote_style', 'single');
+
+        $out = JsObjectSerializer::serializeObject([
+            'simple' => 1,
+            'with-dash' => 2,
+            'with.dot' => 3,
+            'with space' => 4,
+            'with$' => 5,
+            '_private' => 6,
+        ]);
+
+        $this->assertStringContainsString('simple: 1', $out);
+        $this->assertStringContainsString("'with-dash': 2", $out);
+        $this->assertStringContainsString("'with.dot': 3", $out);
+        $this->assertStringContainsString("'with space': 4", $out);
+        $this->assertStringContainsString('with$: 5', $out);
+        $this->assertStringContainsString('_private: 6', $out);
+
+        config()->set('type-bridge.avoid_quotes', false);
+        config()->set('type-bridge.quote_style', 'double');
+    }
+
+    #[Test]
+    public function it_always_quotes_keys_when_avoid_quotes_is_false(): void
+    {
+        config()->set('type-bridge.avoid_quotes', false);
+        config()->set('type-bridge.quote_style', 'single');
+
+        $out = JsObjectSerializer::serializeObject([
+            'simple' => 1,
+            'with-dash' => 2,
+        ]);
+
+        $this->assertStringContainsString("'simple': 1", $out);
+        $this->assertStringContainsString("'with-dash': 2", $out);
+    }
+
+    #[Test]
+    public function it_defaults_to_double_quotes_for_invalid_or_non_string_style(): void
+    {
+        config()->set('type-bridge.avoid_quotes', true);
+        config()->set('type-bridge.quote_style', 'weird');
+
+        $out = JsObjectSerializer::serializeObject([
+            'with.dot' => 1,
+        ]);
+
+        $this->assertStringContainsString('"with.dot": 1', $out);
+
+        config()->set('type-bridge.quote_style', ['double']);
+
+        $out = JsObjectSerializer::serializeObject([
+            'with-dash' => 2,
+        ]);
+
+        $this->assertStringContainsString('"with-dash": 2', $out);
+    }
+
+    #[Test]
+    public function it_emits_numeric_keys_without_quotes(): void
+    {
+        config()->set('type-bridge.avoid_quotes', false);
+        config()->set('type-bridge.quote_style', 'single');
+
+        $out = JsObjectSerializer::serializeObject([
+            1 => 'a',
+            2 => 'b',
+        ]);
+
+        $this->assertStringContainsString("1: 'a'", $out);
+        $this->assertStringContainsString("2: 'b'", $out);
+    }
 }
