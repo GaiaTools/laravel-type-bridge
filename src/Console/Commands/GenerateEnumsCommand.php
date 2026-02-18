@@ -15,6 +15,7 @@ use GaiaTools\TypeBridge\Support\EnumTokenParser;
 use GaiaTools\TypeBridge\Transformers\EnumTransformer;
 use GaiaTools\TypeBridge\Writers\GeneratedFileWriter;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 
 class GenerateEnumsCommand extends Command
 {
@@ -77,6 +78,7 @@ class GenerateEnumsCommand extends Command
         $dirtyNames = array_keys($diffs);
         $discovered = $discoverer->discover();
 
+        /** @var Collection<int, mixed> $dirtyEnums */
         $dirtyEnums = $discovered->filter(
             fn ($reflection) => in_array($reflection->getShortName(), $dirtyNames, true)
         );

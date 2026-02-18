@@ -23,7 +23,7 @@ final class EnumDiscoverer implements Discoverer
     ) {}
 
     /**
-     * @return Collection<int, mixed>
+     * @return Collection<int, ReflectionEnum<UnitEnum>>
      */
     public function discover(): Collection
     {
@@ -67,10 +67,8 @@ final class EnumDiscoverer implements Discoverer
             ->filter(fn (ReflectionEnum $ref): bool => $this->shouldInclude($ref))
             ->values();
 
-        $asArray = $result->all();
-
-        /** @var list<mixed> $asArray */
-        return collect($asArray);
+        /** @var Collection<int, ReflectionEnum<UnitEnum>> $result */
+        return $result->values();
     }
 
     /**
