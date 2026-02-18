@@ -45,7 +45,7 @@ return [
     | When true, valid JS identifiers are emitted without quotes. Keys that are
     | not valid identifiers (dots, dashes, spaces, etc.) are still quoted.
     */
-    'avoid_quotes' => env('TYPE_BRIDGE_AVOID_QUOTES', false),
+    'avoid_quotes' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -54,7 +54,7 @@ return [
     | Quote style for keys that must be quoted.
     | Supported: 'double', 'single'
     */
-    'quote_style' => env('TYPE_BRIDGE_QUOTE_STYLE', 'double'),
+    'quote_style' => 'double',
 
     /*
     |--------------------------------------------------------------------------
