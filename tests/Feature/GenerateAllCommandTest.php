@@ -6,8 +6,8 @@ namespace GaiaTools\TypeBridge\Tests\Feature;
 
 require_once __DIR__.'/../Support/GenerateAllCommandOverrides.php';
 
-use GaiaTools\TypeBridge\Console\Commands\GenerateAllCommand;
 use GaiaTools\TypeBridge\Config\TranslationDiscoveryConfig;
+use GaiaTools\TypeBridge\Console\Commands\GenerateAllCommand;
 use GaiaTools\TypeBridge\OutputFormatters\Translation\JsonTranslationFormatter;
 use GaiaTools\TypeBridge\OutputFormatters\Translation\JsTranslationFormatter;
 use GaiaTools\TypeBridge\OutputFormatters\Translation\TsTranslationFormatter;
@@ -171,7 +171,7 @@ final class GenerateAllCommandTest extends TestCase
     #[Test]
     public function it_parses_enum_filters_and_handles_preg_split_failure(): void
     {
-        $command = new GenerateAllCommand();
+        $command = new GenerateAllCommand;
         $input = $this->createMock(InputInterface::class);
         $input->method('getOption')
             ->with('enums')
@@ -181,7 +181,7 @@ final class GenerateAllCommandTest extends TestCase
         $parsed = $this->invokePrivate($command, 'parseEnumFilter');
         $this->assertSame(['TestStatus', 'TestRole'], $parsed);
 
-        $command = new GenerateAllCommand();
+        $command = new GenerateAllCommand;
         $input = $this->createMock(InputInterface::class);
         $input->method('getOption')
             ->with('enums')
@@ -195,7 +195,7 @@ final class GenerateAllCommandTest extends TestCase
     #[Test]
     public function it_handles_filtering_and_translation_discovery_helpers(): void
     {
-        $command = new GenerateAllCommand();
+        $command = new GenerateAllCommand;
 
         $discovered = collect([
             new ReflectionEnum(TestStatus::class),
