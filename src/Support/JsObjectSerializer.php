@@ -16,9 +16,11 @@ final class JsObjectSerializer
         $indent = str_repeat(self::INDENT, $level);
         $lines = ['{'];
         $lastIndex = count($data) - 1;
+        $keyQuoteStyle = self::resolveQuoteStyle();
+        $allowUnquotedKeys = self::resolveAvoidQuotes();
         $i = 0;
         foreach ($data as $key => $value) {
-            $keyEncoded = json_encode($key, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            $keyEncoded = self::serializeKey($key, $keyQuoteStyle, $allowUnquotedKeys);
             $valueSerialized = self::serializeValue($value, $level + 1, $trailingComma);
             $comma = ($i === $lastIndex && ! $trailingComma) ? '' : ',';
             $lines[] = str_repeat(self::INDENT, $level + 1).$keyEncoded.': '.$valueSerialized.$comma;
@@ -112,6 +114,49 @@ final class JsObjectSerializer
     private static function serializeFallback(mixed $value): string
     {
         return json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: 'null';
+    }
+
+    private static function serializeKey(string|int|float $key, string $quoteStyle, bool $allowUnquotedKeys): string
+    {
+        if (is_int($key) || is_float($key)) {
+            return (string) $key;
+        }
+
+        $keyString = (string) $key;
+
+        if ($allowUnquotedKeys && self::isValidIdentifier($keyString)) {
+            return $keyString;
+        }
+
+        $normalizedStyle = self::normalizeQuoteStyle($quoteStyle);
+
+        return StringQuoter::quoteJsWithStyle($keyString, $normalizedStyle);
+    }
+
+    private static function isValidIdentifier(string $key): bool
+    {
+        return (bool) preg_match('/^[A-Za-z_$][A-Za-z0-9_$]*$/', $key);
+    }
+
+    private static function normalizeQuoteStyle(string $style): string
+    {
+        return $style === 'single' ? 'single' : 'double';
+    }
+
+    private static function resolveQuoteStyle(): string
+    {
+        $style = config('type-bridge.quote_style', 'double');
+
+        if (is_string($style)) {
+            return $style;
+        }
+
+        return 'double';
+    }
+
+    private static function resolveAvoidQuotes(): bool
+    {
+        return config()->boolean('type-bridge.avoid_quotes', false);
     }
 
     private static function indent(int $level): string

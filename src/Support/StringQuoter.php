@@ -37,4 +37,22 @@ final class StringQuoter
 
         return "'{$escaped}'";
     }
+
+    /**
+     * Quote a string using a specific JS quote style (single or double).
+     */
+    public static function quoteJsWithStyle(string $value, string $style): string
+    {
+        $escaped = str_replace('\\', '\\\\', $value);
+
+        if ($style === 'double') {
+            $escaped = str_replace('"', '\\"', $escaped);
+
+            return '"'.$escaped.'"';
+        }
+
+        $escaped = str_replace("'", "\\'", $escaped);
+
+        return "'{$escaped}'";
+    }
 }
