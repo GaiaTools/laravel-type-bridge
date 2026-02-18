@@ -40,6 +40,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Avoid Quotes
+    |--------------------------------------------------------------------------
+    | When true, valid JS identifiers are emitted without quotes. Keys that are
+    | not valid identifiers (dots, dashes, spaces, etc.) are still quoted.
+    */
+    'avoid_quotes' => env('TYPE_BRIDGE_AVOID_QUOTES', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Quote Style
+    |--------------------------------------------------------------------------
+    | Quote style for keys that must be quoted.
+    | Supported: 'double', 'single'
+    */
+    'quote_style' => env('TYPE_BRIDGE_QUOTE_STYLE', 'double'),
+
+    /*
+    |--------------------------------------------------------------------------
     | i18n Library
     |--------------------------------------------------------------------------
     | Target i18n library for all translation-related generation.
