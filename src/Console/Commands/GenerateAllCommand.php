@@ -50,40 +50,37 @@ final class GenerateAllCommand extends Command
         $generatorConfig = GeneratorConfig::fromConfig();
 
         $format = $this->resolveEnumFormat($generatorConfig);
-        if ($format === null) {
-            return self::FAILURE;
-        }
-
         $translationsFormat = $this->resolveTranslationsFormat($generatorConfig);
-        if ($translationsFormat === null) {
-            return self::FAILURE;
+        $status = self::SUCCESS;
+
+        if ($format === null || $translationsFormat === null) {
+            $status = self::FAILURE;
+        } else {
+            $enumFilter = $this->parseEnumFilter();
+            $enumDiscoverer = new EnumDiscoverer(EnumDiscoveryConfig::fromConfig(), new EnumTokenParser);
+            $discoveredEnums = $enumDiscoverer->discover();
+
+            $missing = [];
+            $filteredEnums = $this->filterEnums($discoveredEnums, $enumFilter, $missing);
+
+            if ($enumFilter !== [] && $missing !== []) {
+                $this->components->warn(sprintf(
+                    'Some enums were not found and will be skipped: %s',
+                    implode(', ', $missing)
+                ));
+            }
+
+            if ($enumFilter !== [] && $filteredEnums->isEmpty()) {
+                $this->components->error('No matching enums were found to generate.');
+                $status = self::FAILURE;
+            } else {
+                $this->generateEnums($filteredEnums, $format);
+                $this->generateTranslations($syntaxAdapter, $translationsFormat);
+                $this->generateEnumTranslators($filteredEnums, $format);
+            }
         }
 
-        $enumFilter = $this->parseEnumFilter();
-        $enumDiscoverer = new EnumDiscoverer(EnumDiscoveryConfig::fromConfig(), new EnumTokenParser);
-        $discoveredEnums = $enumDiscoverer->discover();
-
-        $missing = [];
-        $filteredEnums = $this->filterEnums($discoveredEnums, $enumFilter, $missing);
-
-        if ($enumFilter !== [] && $missing !== []) {
-            $this->components->warn(sprintf(
-                'Some enums were not found and will be skipped: %s',
-                implode(', ', $missing)
-            ));
-        }
-
-        if ($enumFilter !== [] && $filteredEnums->isEmpty()) {
-            $this->components->error('No matching enums were found to generate.');
-
-            return self::FAILURE;
-        }
-
-        $this->generateEnums($filteredEnums, $format);
-        $this->generateTranslations($syntaxAdapter, $translationsFormat);
-        $this->generateEnumTranslators($filteredEnums, $format);
-
-        return self::SUCCESS;
+        return $status;
     }
 
     private function resolveEnumFormat(GeneratorConfig $generatorConfig): ?string
