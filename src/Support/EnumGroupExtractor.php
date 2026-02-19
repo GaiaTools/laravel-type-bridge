@@ -9,13 +9,14 @@ use GaiaTools\TypeBridge\ValueObjects\EnumGroupValue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use ReflectionEnum;
-use ReflectionMethod;
 use ReflectionEnumBackedCase;
+use ReflectionMethod;
 use UnitEnum;
 
 final class EnumGroupExtractor
 {
     /**
+     * @param  ReflectionEnum<UnitEnum>  $reflection
      * @param  array<int,string>  $includeMethods
      * @return Collection<int, EnumGroup>
      */
@@ -29,12 +30,14 @@ final class EnumGroupExtractor
     }
 
     /**
+     * @param  ReflectionEnum<UnitEnum>  $reflection
      * @param  array<int,string>  $includeMethods
      * @return Collection<int, EnumGroup>
      */
     private function extractGroups(ReflectionEnum $reflection, array $includeMethods): Collection
     {
         $index = EnumCaseIndex::fromReflection($reflection);
+        /** @var array<int,string> $usedNames */
         $usedNames = [];
         $groups = [];
 
@@ -45,6 +48,9 @@ final class EnumGroupExtractor
         return collect($groups);
     }
 
+    /**
+     * @param  ReflectionEnum<UnitEnum>  $reflection
+     */
     private function resolveMethod(ReflectionEnum $reflection, string $methodName): ReflectionMethod
     {
         if (! $reflection->hasMethod($methodName)) {
@@ -68,6 +74,9 @@ final class EnumGroupExtractor
         }
     }
 
+    /**
+     * @param  array<int,string>  $used
+     */
     private function resolveGroupName(string $methodName, string $enumName, array $used): string
     {
         $groupName = Str::studly($methodName);
@@ -79,6 +88,10 @@ final class EnumGroupExtractor
         return $groupName;
     }
 
+    /**
+     * @param  ReflectionEnum<UnitEnum>  $reflection
+     * @param  array<int,string>  $usedNames
+     */
     private function buildGroup(
         ReflectionEnum $reflection,
         EnumCaseIndex $index,
@@ -94,6 +107,9 @@ final class EnumGroupExtractor
         return new EnumGroup($groupName, $kind, $this->normalizeValues($values, $index, $kind));
     }
 
+    /**
+     * @return array<int,mixed>|array<string,mixed>
+     */
     private function invokeMethod(ReflectionMethod $method): array
     {
         $value = $method->invoke(null);
@@ -105,6 +121,9 @@ final class EnumGroupExtractor
         return $value;
     }
 
+    /**
+     * @param  array<int,mixed>|array<string,mixed>  $values
+     */
     private function resolveKind(array $values): string
     {
         $keys = array_keys($values);
@@ -116,16 +135,26 @@ final class EnumGroupExtractor
     /**
      * @return array<int,EnumGroupValue>|array<string,EnumGroupValue>
      */
+    /**
+     * @param  array<int,mixed>|array<string,mixed>  $values
+     * @return array<int,EnumGroupValue>|array<string,EnumGroupValue>
+     */
     private function normalizeValues(array $values, EnumCaseIndex $index, string $kind): array
     {
         if ($kind === EnumGroup::KIND_ARRAY) {
+            /** @var array<int,mixed> $values */
+            $values = array_values($values);
+
             return $this->normalizeArrayValues($values, $index);
         }
 
         return $this->normalizeRecordValues($values, $index);
     }
 
-    /** @return array<int,EnumGroupValue> */
+    /**
+     * @param  array<int,mixed>  $values
+     * @return array<int,EnumGroupValue>
+     */
     private function normalizeArrayValues(array $values, EnumCaseIndex $index): array
     {
         $result = [];
@@ -137,7 +166,10 @@ final class EnumGroupExtractor
         return $result;
     }
 
-    /** @return array<string,EnumGroupValue> */
+    /**
+     * @param  array<int|string,mixed>  $values
+     * @return array<string,EnumGroupValue>
+     */
     private function normalizeRecordValues(array $values, EnumCaseIndex $index): array
     {
         $result = [];
@@ -170,6 +202,9 @@ final class EnumGroupExtractor
         return $index->matchCase($value);
     }
 
+    /**
+     * @phpstan-assert bool|float|int|string|null $value
+     */
     private function guardLiteral(mixed $value): void
     {
         if (! is_scalar($value) && $value !== null) {
@@ -186,12 +221,19 @@ final class EnumCaseIndex
     /** @var array<string,string> */
     private array $byValue;
 
+    /**
+     * @param  array<string,bool>  $byName
+     * @param  array<string,string>  $byValue
+     */
     private function __construct(array $byName, array $byValue)
     {
         $this->byName = $byName;
         $this->byValue = $byValue;
     }
 
+    /**
+     * @param  ReflectionEnum<UnitEnum>  $reflection
+     */
     public static function fromReflection(ReflectionEnum $reflection): self
     {
         $byName = [];

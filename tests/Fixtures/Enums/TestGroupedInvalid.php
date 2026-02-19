@@ -20,7 +20,7 @@ enum TestGroupedInvalid: string
 
     public static function methodWithInvalidValue(): array
     {
-        return [new \stdClass()];
+        return [new \stdClass];
     }
 
     protected static function hiddenGroup(): array
