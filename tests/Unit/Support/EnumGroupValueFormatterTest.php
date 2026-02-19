@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace GaiaTools\TypeBridge\Tests\Unit\Support;
 
 use GaiaTools\TypeBridge\Support\EnumGroupValueFormatter;
-use GaiaTools\TypeBridge\ValueObjects\EnumGroupValue;
 use GaiaTools\TypeBridge\Tests\TestCase;
+use GaiaTools\TypeBridge\ValueObjects\EnumGroupValue;
 use PHPUnit\Framework\Attributes\Test;
 
 final class EnumGroupValueFormatterTest extends TestCase

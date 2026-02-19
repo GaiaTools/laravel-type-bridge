@@ -67,6 +67,8 @@ class EnumGeneratorUnitTest extends TestCase
             cases: collect(),
             namespace: 'App\\Enums',
             outputPath: $outputPath,
+
+            groups: collect(),
         );
 
         $discoverer = new class implements Discoverer
@@ -153,6 +155,8 @@ class EnumGeneratorUnitTest extends TestCase
                     cases: collect(),
                     namespace: 'App',
                     outputPath: $this->path,
+
+                    groups: collect(),
                 );
             }
         };

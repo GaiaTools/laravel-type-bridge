@@ -7,6 +7,7 @@ namespace GaiaTools\TypeBridge\ValueObjects;
 final readonly class EnumGroup
 {
     public const KIND_ARRAY = 'array';
+
     public const KIND_RECORD = 'record';
 
     /**

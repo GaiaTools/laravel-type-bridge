@@ -7,6 +7,7 @@ namespace GaiaTools\TypeBridge\ValueObjects;
 final readonly class EnumGroupValue
 {
     public const KIND_ENUM = 'enum';
+
     public const KIND_LITERAL = 'literal';
 
     public function __construct(

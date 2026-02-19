@@ -19,9 +19,16 @@ final class EnumGroupValueFormatter
 
     private static function formatLiteral(string|int|float|bool|null $value): string
     {
-        if (is_string($value)) { return StringQuoter::quoteJs($value); }
-        if (is_bool($value)) { return $value ? 'true' : 'false'; }
-        if ($value === null) { return 'null'; }
+        if (is_string($value)) {
+            return StringQuoter::quoteJs($value);
+        }
+        if (is_bool($value)) {
+            return $value ? 'true' : 'false';
+        }
+        if ($value === null) {
+            return 'null';
+        }
+
         return (string) $value;
     }
 }
