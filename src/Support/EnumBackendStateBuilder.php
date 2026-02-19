@@ -8,11 +8,13 @@ use GaiaTools\TypeBridge\Transformers\EnumTransformer;
 use GaiaTools\TypeBridge\ValueObjects\EnumGroup;
 use GaiaTools\TypeBridge\ValueObjects\TransformedEnum;
 use Illuminate\Support\Collection;
+use ReflectionEnum;
+use UnitEnum;
 
 final class EnumBackendStateBuilder
 {
     /**
-     * @param  iterable<\ReflectionEnum>  $reflections
+     * @param  iterable<ReflectionEnum<UnitEnum>>  $reflections
      * @return array<string,array{path:string,cases:array<string,string>,groups:array<string,array{kind:string,entries:array<string,string>}>}>
      */
     public function build(iterable $reflections, EnumTransformer $transformer): array

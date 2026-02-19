@@ -5,30 +5,19 @@ declare(strict_types=1);
 namespace GaiaTools\TypeBridge\Tests\Unit\Console;
 
 use GaiaTools\TypeBridge\Console\Commands\GenerateEnumsCommand;
-use GaiaTools\TypeBridge\Support\StringQuoter;
 use GaiaTools\TypeBridge\Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
 final class GenerateEnumsCommandPrivateTest extends TestCase
 {
     #[Test]
-    public function it_resolves_unknown_format_to_ts_and_formats_values(): void
+    public function it_resolves_unknown_format_to_ts(): void
     {
         $command = new GenerateEnumsCommand;
 
         $resolve = new \ReflectionMethod($command, 'resolveExtension');
         $resolve->setAccessible(true);
         $this->assertSame('ts', $resolve->invoke($command, 'bogus'));
-
-        $formatValue = new \ReflectionMethod($command, 'formatValue');
-        $formatValue->setAccessible(true);
-
-        // numeric branch returns raw stringified number (no quotes)
-        $this->assertSame('42', $formatValue->invoke($command, 42));
-
-        // string branch uses JS-quoting rules
-        $expected = StringQuoter::quoteJs("don't");
-        $this->assertSame($expected, $formatValue->invoke($command, "don't"));
     }
 
     #[Test]

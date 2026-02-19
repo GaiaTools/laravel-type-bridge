@@ -9,6 +9,8 @@ use GaiaTools\TypeBridge\ValueObjects\EnumGroup;
 final class EnumDiffing
 {
     /**
+     * @param  array<string,string>  $backendMap
+     * @param  array<string,string>  $frontendMap
      * @return array{added:array<int,string>,removed:array<int,string>}
      */
     public static function diffEntries(array $backendMap, array $frontendMap, string $prefix): array
@@ -27,6 +29,8 @@ final class EnumDiffing
     }
 
     /**
+     * @param  array<string,array{kind:string,entries:array<string,string>}>  $backendGroups
+     * @param  array<string,array{kind:string,entries:array<string,string>}>  $frontendGroups
      * @return array{added:array<int,string>,removed:array<int,string>}
      */
     public static function diffGroups(array $backendGroups, array $frontendGroups): array
@@ -45,12 +49,20 @@ final class EnumDiffing
     }
 
     /**
+     * @param  array{kind:string,entries:array<string,string>}|null  $backend
+     * @param  array{kind:string,entries:array<string,string>}|null  $frontend
      * @return array{added:array<int,string>,removed:array<int,string>}
      */
     private static function diffGroup(string $name, ?array $backend, ?array $frontend): array
     {
-        if ($backend === null || $frontend === null) {
-            return self::diffMissingGroup($name, $backend, $frontend);
+        if ($backend === null) {
+            assert($frontend !== null);
+
+            return ['added' => [], 'removed' => self::formatGroupLines($name, $frontend)];
+        }
+
+        if ($frontend === null) {
+            return ['added' => self::formatGroupLines($name, $backend), 'removed' => []];
         }
 
         $kindDiff = self::diffGroupKind($name, $backend['kind'], $frontend['kind']);
@@ -75,6 +87,8 @@ final class EnumDiffing
     }
 
     /**
+     * @param  array<string,string>  $backend
+     * @param  array<string,string>  $frontend
      * @return array{added:array<int,string>,removed:array<int,string>}
      */
     private static function diffGroupEntries(string $name, string $kind, array $backend, array $frontend): array
@@ -85,6 +99,7 @@ final class EnumDiffing
     }
 
     /**
+     * @param  array{kind:string,entries:array<string,string>}  $group
      * @return array<int,string>
      */
     private static function formatGroupLines(string $name, array $group): array
@@ -110,6 +125,9 @@ final class EnumDiffing
     }
 
     /**
+     * @param  array<int,string>  $backendKeys
+     * @param  array<int,string>  $frontendKeys
+     * @param  array<string,string>  $source
      * @return array<int,string>
      */
     private static function diffAdded(array $backendKeys, array $frontendKeys, array $source, string $prefix): array
@@ -123,6 +141,10 @@ final class EnumDiffing
     }
 
     /**
+     * @param  array<int,string>  $backendKeys
+     * @param  array<int,string>  $frontendKeys
+     * @param  array<string,string>  $backendMap
+     * @param  array<string,string>  $frontendMap
      * @return array{added:array<int,string>,removed:array<int,string>}
      */
     private static function diffChanged(
@@ -134,24 +156,18 @@ final class EnumDiffing
     ): array {
         $acc = ['added' => [], 'removed' => []];
         foreach (array_intersect($backendKeys, $frontendKeys) as $key) {
-            if ($backendMap[$key] !== $frontendMap[$key]) { $acc['added'][] = self::formatDiffLine($prefix, $key, $backendMap[$key]); $acc['removed'][] = self::formatDiffLine($prefix, $key, $frontendMap[$key]); }
+            if ($backendMap[$key] !== $frontendMap[$key]) {
+                $acc['added'][] = self::formatDiffLine($prefix, $key, $backendMap[$key]);
+                $acc['removed'][] = self::formatDiffLine($prefix, $key, $frontendMap[$key]);
+            }
         }
+
         return $acc;
     }
 
     /**
-     * @return array{added:array<int,string>,removed:array<int,string>}
-     */
-    private static function diffMissingGroup(string $name, ?array $backend, ?array $frontend): array
-    {
-        if ($backend === null) {
-            return ['added' => [], 'removed' => self::formatGroupLines($name, $frontend)];
-        }
-
-        return ['added' => self::formatGroupLines($name, $backend), 'removed' => []];
-    }
-
-    /**
+     * @param  array{added:array<int,string>,removed:array<int,string>}  $left
+     * @param  array{added:array<int,string>,removed:array<int,string>}  $right
      * @return array{added:array<int,string>,removed:array<int,string>}
      */
     private static function mergeDiffs(array $left, array $right): array
