@@ -230,6 +230,78 @@ enum ThemeVisibility: string
 }
 ```
 
+### Enum Groups (derived exports)
+
+Enum groups let you export curated subsets or mappings alongside the base enum. Groups are defined by public static methods and are only included when you opt-in via `#[GenerateEnum(includeMethods: [...])]`.
+
+Rules:
+
+- Each listed method must be `public static` with zero parameters.
+- The method must return an array. A sequential array becomes a group array; an associative array becomes a group record.
+- Values may be enum cases, backed values that match a case, or scalar/null literals.
+- The group name is the method name converted to StudlyCase and must not collide with the enum name or other groups.
+
+Example:
+
+```php
+<?php
+
+namespace App\Enums;
+
+use GaiaTools\TypeBridge\Attributes\GenerateEnum;
+
+#[GenerateEnum(includeMethods: ['staffRoles', 'memberRoles'])]
+enum UserRole: string
+{
+    case Admin = 'admin';
+    case Manager = 'manager';
+    case Support = 'support';
+    case Member = 'member';
+    case Guest = 'guest';
+
+    /** @return array<int, self> */
+    public static function staffRoles(): array
+    {
+        return [self::Admin, self::Manager, self::Support];
+    }
+
+    /** @return array<int, self> */
+    public static function memberRoles(): array
+    {
+        return [self::Member, self::Guest];
+    }
+}
+```
+
+Generated output (TypeScript):
+
+```ts
+export const UserRole = {
+    Admin: 'admin',
+    Manager: 'manager',
+    Support: 'support',
+    Member: 'member',
+    Guest: 'guest',
+} as const;
+
+export type UserRole = typeof UserRole[keyof typeof UserRole];
+
+export const StaffRoles = [
+    UserRole.Admin,
+    UserRole.Manager,
+    UserRole.Support,
+] as const;
+
+export type StaffRoles = typeof StaffRoles[number];
+
+export const MemberRoles = [
+    UserRole.Member,
+    UserRole.Guest,
+] as const;
+
+export type MemberRoles = typeof MemberRoles[number];
+```
+
 
 ## Available Commands
 

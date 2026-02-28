@@ -31,6 +31,7 @@ This package is especially useful for Inertia.js projects or any decoupled front
 
 - [Getting Started](./getting-started)
 - [Enum Examples](examples/enums)
+- [Enum Groups](examples/enums#enum-groups)
 - [Translation Examples](examples/translations)
 - [Helper Examples](examples/helpers)
 - [Configuration](./configuration)
