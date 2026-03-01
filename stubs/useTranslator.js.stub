@@ -126,6 +126,13 @@ function resolveOptionsMap(translations, subset, warnOnMissing) {
         return filterTranslations(translations, subset, warnOnMissing);
     }
 
+    const values = Object.values(subset);
+    const hasTranslationValues = values.some((value) => value in translations);
+
+    if (hasTranslationValues) {
+        return filterTranslations(translations, values, warnOnMissing);
+    }
+
     return subset;
 }
 
