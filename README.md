@@ -237,7 +237,9 @@ Enum groups let you export curated subsets or mappings alongside the base enum. 
 Rules:
 
 - Each listed method must be `public static` with zero parameters.
-- The method must return an array. A sequential array becomes a group array; an associative array becomes a group record.
+- The method must return an array.
+- A sequential array becomes a group array **unless** it contains only enum cases; arrays of enum cases become a group record keyed by case name.
+- An associative array becomes a group record.
 - Values may be enum cases, backed values that match a case, or scalar/null literals.
 - The group name is the method name converted to StudlyCase and must not collide with the enum name or other groups.
 
@@ -265,10 +267,10 @@ enum UserRole: string
         return [self::Admin, self::Manager, self::Support];
     }
 
-    /** @return array<int, self> */
+    /** @return array<int, string> */
     public static function memberRoles(): array
     {
-        return [self::Member, self::Guest];
+        return [self::Member->value, self::Guest->value];
     }
 }
 ```
@@ -286,13 +288,13 @@ export const UserRole = {
 
 export type UserRole = typeof UserRole[keyof typeof UserRole];
 
-export const StaffRoles = [
-    UserRole.Admin,
-    UserRole.Manager,
-    UserRole.Support,
-] as const;
+export const StaffRoles = {
+    Admin: UserRole.Admin,
+    Manager: UserRole.Manager,
+    Support: UserRole.Support,
+} as const;
 
-export type StaffRoles = typeof StaffRoles[number];
+export type StaffRoles = typeof StaffRoles[keyof typeof StaffRoles];
 
 export const MemberRoles = [
     UserRole.Member,

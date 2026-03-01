@@ -10,7 +10,7 @@ This page demonstrates how to set up PHP backed enums for generation and what th
 
 Define a PHP backed enum in your Laravel application. You can use the `#[GenerateEnum]` attribute to mark it for generation or customize its behavior.
 
-See the [GenerateEnum Attribute](../api#generateenum) documentation for more details on available options.
+See the [GenerateEnum Attribute](../api#generate-enum-attribute) documentation for more details on available options.
 
 ```php
 <?php
@@ -56,7 +56,9 @@ Enum groups let you export curated subsets or mappings alongside the base enum. 
 Rules:
 
 - Each listed method must be `public static` with zero parameters.
-- Methods must return an array. Sequential arrays become group arrays; associative arrays become group records.
+- Methods must return an array.
+- Sequential arrays become group arrays **unless** they contain only enum cases; arrays of enum cases become group records keyed by case name.
+- Associative arrays become group records.
 - Values may be enum cases, backed values that match a case, or scalar/null literals.
 - Group names are the method names converted to StudlyCase and must not collide with the enum name or other groups.
 
@@ -82,13 +84,15 @@ enum UserRole: string
         return [self::Admin, self::Manager, self::Support];
     }
 
-    /** @return array<int, self> */
+    /** @return array<int, string> */
     public static function memberRoles(): array
     {
-        return [self::Member, self::Guest];
+        return [self::Member->value, self::Guest->value];
     }
 }
 ```
+
+The `staffRoles()` group above returns only enum cases, so it generates an object (record) keyed by case name. The `memberRoles()` group uses backed values, so it stays an array.
 
 ```ts
 export const UserRole = {
@@ -101,13 +105,13 @@ export const UserRole = {
 
 export type UserRole = typeof UserRole[keyof typeof UserRole];
 
-export const StaffRoles = [
-    UserRole.Admin,
-    UserRole.Manager,
-    UserRole.Support,
-] as const;
+export const StaffRoles = {
+    Admin: UserRole.Admin,
+    Manager: UserRole.Manager,
+    Support: UserRole.Support,
+} as const;
 
-export type StaffRoles = typeof StaffRoles[number];
+export type StaffRoles = typeof StaffRoles[keyof typeof StaffRoles];
 
 export const MemberRoles = [
     UserRole.Member,
@@ -116,3 +120,4 @@ export const MemberRoles = [
 
 export type MemberRoles = typeof MemberRoles[number];
 ```
+
