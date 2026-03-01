@@ -103,7 +103,7 @@ class EnumTransformerTest extends TestCase
         $result = $this->transformer->transform($reflection);
 
         $this->assertInstanceOf(TransformedEnum::class, $result);
-        $this->assertCount(2, $result->groups);
+        $this->assertCount(3, $result->groups);
 
         /** @var EnumGroup $arrayGroup */
         $arrayGroup = $result->groups->firstWhere('name', 'ArrayGroup');
@@ -124,5 +124,12 @@ class EnumTransformerTest extends TestCase
         $this->assertSame('ALPHA', $recordGroup->values['ALPHA']->value);
         $this->assertSame('literal', $recordGroup->values['custom']->kind);
         $this->assertSame('custom-value', $recordGroup->values['custom']->value);
+
+        /** @var EnumGroup $enumCaseGroup */
+        $enumCaseGroup = $result->groups->firstWhere('name', 'EnumCaseGroup');
+        $this->assertSame('record', $enumCaseGroup->kind);
+        $this->assertSame('enum', $enumCaseGroup->values['ALPHA']->kind);
+        $this->assertSame('ALPHA', $enumCaseGroup->values['ALPHA']->value);
+        $this->assertSame('BETA', $enumCaseGroup->values['BETA']->value);
     }
 }

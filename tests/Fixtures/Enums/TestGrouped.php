@@ -6,7 +6,7 @@ namespace GaiaTools\TypeBridge\Tests\Fixtures\Enums;
 
 use GaiaTools\TypeBridge\Attributes\GenerateEnum;
 
-#[GenerateEnum(includeMethods: ['arrayGroup', 'recordGroup'])]
+#[GenerateEnum(includeMethods: ['arrayGroup', 'recordGroup', 'enumCaseGroup'])]
 enum TestGrouped: string
 {
     case ALPHA = 'alpha';
@@ -31,6 +31,15 @@ enum TestGrouped: string
             'ALPHA' => self::ALPHA,
             'custom' => 'custom-value',
             'BETA' => self::BETA->value,
+        ];
+    }
+
+    /** @return array<int, self> */
+    public static function enumCaseGroup(): array
+    {
+        return [
+            self::ALPHA,
+            self::BETA,
         ];
     }
 }

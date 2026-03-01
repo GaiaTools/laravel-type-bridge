@@ -126,10 +126,11 @@ final class EnumGroupExtractor
      */
     private function resolveKind(array $values): string
     {
-        $keys = array_keys($values);
-        $isSequential = $keys === range(0, count($values) - 1);
+        if ($this->isAssociative($values) || $this->allEnumCases($values)) {
+            return EnumGroup::KIND_RECORD;
+        }
 
-        return $isSequential ? EnumGroup::KIND_ARRAY : EnumGroup::KIND_RECORD;
+        return EnumGroup::KIND_ARRAY;
     }
 
     /**
@@ -148,7 +149,7 @@ final class EnumGroupExtractor
             return $this->normalizeArrayValues($values, $index);
         }
 
-        return $this->normalizeRecordValues($values, $index);
+        return $this->normalizeRecordValues($values, $index, $this->allEnumCases($values) && ! $this->isAssociative($values));
     }
 
     /**
@@ -170,15 +171,63 @@ final class EnumGroupExtractor
      * @param  array<int|string,mixed>  $values
      * @return array<string,EnumGroupValue>
      */
-    private function normalizeRecordValues(array $values, EnumCaseIndex $index): array
+    private function normalizeRecordValues(array $values, EnumCaseIndex $index, bool $useEnumKeys): array
+    {
+        if ($useEnumKeys) {
+            return $this->normalizeEnumCaseRecord($values, $index);
+        }
+
+        return $this->normalizeAssocRecord($values, $index);
+    }
+
+    /**
+     * @param  array<int|string,mixed>  $values
+     * @return array<string,EnumGroupValue>
+     */
+    private function normalizeEnumCaseRecord(array $values, EnumCaseIndex $index): array
     {
         $result = [];
+        foreach (array_values($values) as $value) {
+            $caseName = $this->matchEnumValue($value, $index);
+            if ($caseName === null) {
+                throw new \RuntimeException('Enum group values must be enum cases to build object.');
+            }
+            $result[$caseName] = new EnumGroupValue(EnumGroupValue::KIND_ENUM, $caseName);
+        }
 
+        return $result;
+    }
+
+    /**
+     * @param  array<int|string,mixed>  $values
+     * @return array<string,EnumGroupValue>
+     */
+    private function normalizeAssocRecord(array $values, EnumCaseIndex $index): array
+    {
+        $result = [];
         foreach ($values as $key => $value) {
             $result[(string) $key] = $this->normalizeValue($value, $index);
         }
 
         return $result;
+    }
+
+    /** @param  array<int|string,mixed>  $values */
+    private function isAssociative(array $values): bool
+    {
+        return array_keys($values) !== range(0, count($values) - 1);
+    }
+
+    /** @param  array<int|string,mixed>  $values */
+    private function allEnumCases(array $values): bool
+    {
+        foreach ($values as $value) {
+            if (! $value instanceof UnitEnum) {
+                return false;
+            }
+        }
+
+        return $values !== [];
     }
 
     private function normalizeValue(mixed $value, EnumCaseIndex $index): EnumGroupValue
