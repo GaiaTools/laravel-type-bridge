@@ -104,13 +104,10 @@ export function useTranslator(translations, engine, options = {}) {
         return t(translationKey);
     };
 
-    translate.options = () => {
-        return Object.entries(translations).map(
-            ([value, translationKey]) => ({
-                value,
-                label: t(translationKey),
-            })
-        );
+    translate.options = (subset) => {
+        const map = resolveOptionsMap(translations, subset, warnOnMissing);
+
+        return buildOptions(map, t);
     };
 
     translate.has = (key) => {
@@ -118,4 +115,42 @@ export function useTranslator(translations, engine, options = {}) {
     };
 
     return translate;
+}
+
+function resolveOptionsMap(translations, subset, warnOnMissing) {
+    if (!subset) {
+        return translations;
+    }
+
+    if (Array.isArray(subset)) {
+        return filterTranslations(translations, subset, warnOnMissing);
+    }
+
+    return subset;
+}
+
+function filterTranslations(translations, subset, warnOnMissing) {
+    const result = {};
+    subset.forEach((value) =>
+        addTranslation(result, translations, value, warnOnMissing)
+    );
+    return result;
+}
+
+function addTranslation(result, translations, value, warnOnMissing) {
+    const key = translations[value];
+    if (key) {
+        result[value] = key;
+        return;
+    }
+    if (warnOnMissing) {
+        console.warn(`Missing translation mapping for: ${String(value)}`);
+    }
+}
+
+function buildOptions(map, t) {
+    return Object.entries(map).map(([value, translationKey]) => ({
+        value,
+        label: t(translationKey),
+    }));
 }

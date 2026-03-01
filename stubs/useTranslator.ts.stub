@@ -13,7 +13,9 @@ export interface TranslationEngine {
  */
 export type TranslatorFunction<TValue extends BackedEnumValue> =
     ((key: TValue) => string) & {
-        options(): Array<{ value: TValue; label: string }>;
+        options(
+            subset?: Array<TValue> | Record<TValue, string>
+        ): Array<{ value: TValue; label: string }>;
         has(key: TValue): boolean;
     };
 
@@ -137,13 +139,10 @@ export function useTranslator<TValue extends BackedEnumValue>(
         return t(translationKey);
     }) as TranslatorFunction<TValue>;
 
-    translate.options = () => {
-        return (Object.entries(translations) as Array<[TValue, string]>).map(
-            ([value, translationKey]) => ({
-                value,
-                label: t(translationKey),
-            })
-        );
+    translate.options = (subset?: Array<TValue> | Record<TValue, string>) => {
+        const map = resolveOptionsMap(translations, subset, warnOnMissing);
+
+        return buildOptions(map, t);
     };
 
     translate.has = (key: TValue): boolean => {
@@ -151,4 +150,60 @@ export function useTranslator<TValue extends BackedEnumValue>(
     };
 
     return translate;
+}
+
+function resolveOptionsMap<TValue extends BackedEnumValue>(
+    translations: Record<TValue, string>,
+    subset: Array<TValue> | Record<TValue, string> | undefined,
+    warnOnMissing: boolean
+): Record<TValue, string> {
+    if (!subset) {
+        return translations;
+    }
+
+    if (Array.isArray(subset)) {
+        return filterTranslations(translations, subset, warnOnMissing);
+    }
+
+    return subset;
+}
+
+function filterTranslations<TValue extends BackedEnumValue>(
+    translations: Record<TValue, string>,
+    subset: Array<TValue>,
+    warnOnMissing: boolean
+): Record<TValue, string> {
+    const result = {} as Record<TValue, string>;
+    subset.forEach((value) =>
+        addTranslation(result, translations, value, warnOnMissing)
+    );
+    return result;
+}
+
+function addTranslation<TValue extends BackedEnumValue>(
+    result: Record<TValue, string>,
+    translations: Record<TValue, string>,
+    value: TValue,
+    warnOnMissing: boolean
+): void {
+    const key = translations[value];
+    if (key) {
+        result[value] = key;
+        return;
+    }
+    if (warnOnMissing) {
+        console.warn(`Missing translation mapping for: ${String(value)}`);
+    }
+}
+
+function buildOptions<TValue extends BackedEnumValue>(
+    map: Record<TValue, string>,
+    t: (key: string) => string
+): Array<{ value: TValue; label: string }> {
+    return (Object.entries(map) as Array<[TValue, string]>).map(
+        ([value, translationKey]) => ({
+            value,
+            label: t(translationKey),
+        })
+    );
 }
