@@ -1,12 +1,19 @@
 {
     "name": "gaiatools/laravel-type-bridge",
     "description": "A Laravel package for generating TypeScript/JavaScript enums and frontend translation files from your Laravel app.",
-    "keywords": ["laravel", "typescript", "javascript", "enums", "translations", "code generation"],
+    "keywords": [
+        "laravel",
+        "typescript",
+        "javascript",
+        "enums",
+        "translations",
+        "code generation"
+    ],
     "type": "library",
     "license": "MIT",
     "support": {
-      "issues": "https://github.com/GaiaTools/laravel-type-bridge/issues",
-      "source": "https://github.com/GaiaTools/laravel-type-bridge"
+        "issues": "https://github.com/GaiaTools/laravel-type-bridge/issues",
+        "source": "https://github.com/GaiaTools/laravel-type-bridge"
     },
     "authors": [
         {
@@ -39,12 +46,12 @@
         }
     },
     "scripts": {
-      "lint": "@php vendor/bin/pint --test",
-      "lint:fix": "@php vendor/bin/pint",
-      "test": "vendor/bin/phpunit",
-      "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
-      "analyze": "phpstan analyse",
-      "phpstan": "php -d memory_limit=1G vendor/bin/phpstan analyse -c phpstan.neon"
+        "lint": "@php vendor/bin/pint --test",
+        "lint:fix": "@php vendor/bin/pint",
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
+        "analyze": "phpstan analyse",
+        "phpstan": "php -d memory_limit=1G vendor/bin/phpstan analyse -c phpstan.neon"
     },
     "extra": {
         "laravel": {
