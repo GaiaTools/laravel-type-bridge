@@ -36,9 +36,95 @@ final class EnumGroupFileParser
     {
         $contents = str_replace(["\r\n", "\r"], "\n", $contents);
         $contents = preg_replace('#/\*[\s\S]*?\*/#', '', $contents) ?? $contents;
-        $contents = preg_replace('#(^|\n)\s*//.*#', '$1', $contents) ?? $contents;
+        $contents = self::stripLineComments($contents);
 
         return $contents;
+    }
+
+    private static function stripLineComments(string $contents): string
+    {
+        $lines = explode("\n", $contents);
+        foreach ($lines as $index => $line) {
+            $lines[$index] = self::stripInlineCommentFromLine($line);
+        }
+
+        return implode("\n", $lines);
+    }
+
+    private static function stripInlineCommentFromLine(string $line): string
+    {
+        $commentPos = self::findLineCommentStart($line);
+
+        if ($commentPos === null) {
+            return $line;
+        }
+
+        return rtrim(substr($line, 0, $commentPos));
+    }
+
+    private static function findLineCommentStart(string $line): ?int
+    {
+        $length = strlen($line);
+        $inSingle = false;
+        $inDouble = false;
+        $escaped = false;
+
+        for ($i = 0; $i < $length; $i++) {
+            $char = $line[$i];
+
+            if (self::consumeEscapeState($char, $inSingle, $inDouble, $escaped)) {
+                continue;
+            }
+
+            if (self::toggleQuoteState($char, $inSingle, $inDouble)) {
+                continue;
+            }
+
+            if (self::isLineCommentStart($line, $i, $length, $inSingle, $inDouble)) {
+                return $i;
+            }
+        }
+
+        return null;
+    }
+
+    private static function consumeEscapeState(string $char, bool $inSingle, bool $inDouble, bool &$escaped): bool
+    {
+        if ($escaped) {
+            $escaped = false;
+            return true;
+        }
+
+        if ($char === '\\' && ($inSingle || $inDouble)) {
+            $escaped = true;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static function toggleQuoteState(string $char, bool &$inSingle, bool &$inDouble): bool
+    {
+        if (! $inDouble && $char === "'") {
+            $inSingle = ! $inSingle;
+            return true;
+        }
+
+        if (! $inSingle && $char === '"') {
+            $inDouble = ! $inDouble;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static function isLineCommentStart(string $line, int $index, int $length, bool $inSingle, bool $inDouble): bool
+    {
+        if ($inSingle || $inDouble) {
+            return false;
+        }
+
+        return $line[$index] === '/' && ($index + 1) < $length && $line[$index + 1] === '/';
     }
 
     /**
