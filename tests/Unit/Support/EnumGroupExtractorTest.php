@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace GaiaTools\TypeBridge\Tests\Unit\Support;
 
-use GaiaTools\TypeBridge\Support\EnumGroupExtractor;
 use GaiaTools\TypeBridge\Support\EnumCaseIndex;
+use GaiaTools\TypeBridge\Support\EnumGroupExtractor;
 use GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestGrouped;
-use GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestGroupedInvalid;
 use GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestGroupedInt;
+use GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestGroupedInvalid;
 use GaiaTools\TypeBridge\Tests\TestCase;
 use GaiaTools\TypeBridge\ValueObjects\EnumGroup;
 use GaiaTools\TypeBridge\ValueObjects\EnumGroupValue;
@@ -80,6 +80,7 @@ final class EnumGroupExtractorTest extends TestCase
         $this->assertSame(EnumGroupValue::KIND_LITERAL, $groups[0]->values[3]->kind);
         $this->assertSame(1.5, $groups[0]->values[3]->value);
     }
+
     #[Test]
     public function it_throws_when_method_is_missing(): void
     {

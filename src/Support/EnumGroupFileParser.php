@@ -92,11 +92,13 @@ final class EnumGroupFileParser
     {
         if ($escaped) {
             $escaped = false;
+
             return true;
         }
 
         if ($char === '\\' && ($inSingle || $inDouble)) {
             $escaped = true;
+
             return true;
         }
 
@@ -107,11 +109,13 @@ final class EnumGroupFileParser
     {
         if (! $inDouble && $char === "'") {
             $inSingle = ! $inSingle;
+
             return true;
         }
 
         if (! $inSingle && $char === '"') {
             $inDouble = ! $inDouble;
+
             return true;
         }
 

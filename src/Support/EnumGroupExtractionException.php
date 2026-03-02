@@ -6,6 +6,4 @@ namespace GaiaTools\TypeBridge\Support;
 
 use RuntimeException;
 
-final class EnumGroupExtractionException extends RuntimeException
-{
-}
+final class EnumGroupExtractionException extends RuntimeException {}
