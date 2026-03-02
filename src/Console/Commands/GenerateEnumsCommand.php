@@ -10,7 +10,10 @@ use GaiaTools\TypeBridge\Discoverers\EnumDiscoverer;
 use GaiaTools\TypeBridge\Generators\EnumGenerator;
 use GaiaTools\TypeBridge\OutputFormatters\Enum\JsEnumFormatter;
 use GaiaTools\TypeBridge\OutputFormatters\Enum\TsEnumFormatter;
+use GaiaTools\TypeBridge\Support\EnumBackendStateBuilder;
+use GaiaTools\TypeBridge\Support\EnumDiffing;
 use GaiaTools\TypeBridge\Support\EnumFileParser;
+use GaiaTools\TypeBridge\Support\EnumGroupFileParser;
 use GaiaTools\TypeBridge\Support\EnumTokenParser;
 use GaiaTools\TypeBridge\Transformers\EnumTransformer;
 use GaiaTools\TypeBridge\Writers\GeneratedFileWriter;
@@ -29,31 +32,18 @@ class GenerateEnumsCommand extends Command
     {
         $enumConfig = EnumDiscoveryConfig::fromConfig();
         $generatorConfig = GeneratorConfig::fromConfig();
-
-        $optFormat = $this->option('format');
-        $format = is_string($optFormat) && $optFormat !== ''
-            ? $optFormat
-            : (string) $generatorConfig->outputFormat;
-
-        $discoverer = new EnumDiscoverer($enumConfig, new EnumTokenParser);
-        $transformer = new EnumTransformer($generatorConfig);
-        $formatter = $format === 'js' ? new JsEnumFormatter : new TsEnumFormatter;
-        $writer = new GeneratedFileWriter;
-
-        $generator = new EnumGenerator($discoverer, $transformer, $formatter, $writer);
-
+        $format = $this->resolveFormat($generatorConfig);
+        $discoverer = $this->buildDiscoverer($enumConfig);
+        $transformer = $this->buildTransformer($generatorConfig);
+        $generator = $this->buildGenerator($discoverer, $transformer, $format);
         if ($this->option('check')) {
             return $this->checkEnums($discoverer, $transformer, $format);
         }
-
         if ($this->option('dirty')) {
             return $this->generateDirtyEnums($discoverer, $transformer, $generator, $format);
         }
-
         $this->components->info('Generating enums...');
-
         $files = $generator->generate();
-
         $this->components->info(sprintf('Generated %d enum file(s)', $files->count()));
 
         return self::SUCCESS;
@@ -66,27 +56,16 @@ class GenerateEnumsCommand extends Command
         string $format,
     ): int {
         $this->components->info('Generating dirty enums...');
-
         $extension = $this->resolveExtension($format);
-        $backend = $this->buildBackendState($discoverer, $transformer);
+        $backend = $this->buildBackend($discoverer, $transformer);
         $diffs = $this->computeDiffs($backend, $extension);
-
         if ($diffs === []) {
             $this->components->info('No dirty enums found.');
 
             return self::SUCCESS;
         }
-
-        $dirtyNames = array_keys($diffs);
-        $discovered = $discoverer->discover();
-
-        /** @var Collection<int, ReflectionEnum<UnitEnum>> $dirtyEnums */
-        $dirtyEnums = $discovered->filter(
-            fn (ReflectionEnum $reflection) => in_array($reflection->getShortName(), $dirtyNames, true)
-        );
-
+        $dirtyEnums = $this->resolveDirtyEnums($discoverer->discover(), array_keys($diffs));
         $files = $generator->generateFor($dirtyEnums);
-
         $this->components->info(sprintf('Generated %d enum file(s)', $files->count()));
 
         return self::SUCCESS;
@@ -95,17 +74,14 @@ class GenerateEnumsCommand extends Command
     private function checkEnums(EnumDiscoverer $discoverer, EnumTransformer $transformer, string $format): int
     {
         $this->components->info('Checking enums against previously generated frontend files...');
-
         $extension = $this->resolveExtension($format);
-        $backend = $this->buildBackendState($discoverer, $transformer);
+        $backend = $this->buildBackend($discoverer, $transformer);
         $diffs = $this->computeDiffs($backend, $extension);
-
         if ($diffs === []) {
             $this->components->info('✅ Enums are in sync with generated frontend files.');
 
             return self::SUCCESS;
         }
-
         $this->reportDiffs($diffs, $format);
 
         return self::FAILURE;
@@ -116,83 +92,72 @@ class GenerateEnumsCommand extends Command
         return $format === 'js' ? 'js' : 'ts';
     }
 
-    /**
-     * Build the current backend snapshot of enums: [ name => { path, cases{key=>value} } ]
-     *
-     * @return array<string,array{path:string,cases:array<string,string>}>
-     */
-    private function buildBackendState(EnumDiscoverer $discoverer, EnumTransformer $transformer): array
+    private function resolveFormat(GeneratorConfig $generatorConfig): string
     {
-        $result = [];
+        $optFormat = $this->option('format');
 
-        foreach ($discoverer->discover() as $reflection) {
-            $transformed = $transformer->transform($reflection);
+        return is_string($optFormat) && $optFormat !== '' ? $optFormat : (string) $generatorConfig->outputFormat;
+    }
 
-            // Build associative map of case => formatted value as emitted in generated files
-            $cases = [];
-            foreach ($transformed->cases as $c) {
-                $cases[$c->name] = $this->formatValue($c->value);
-            }
+    private function buildDiscoverer(EnumDiscoveryConfig $enumConfig): EnumDiscoverer
+    {
+        return new EnumDiscoverer($enumConfig, new EnumTokenParser);
+    }
 
-            /** @var array<string,string> $cases */
-            $result[$transformed->name] = [
-                'path' => $transformed->outputPath,
-                'cases' => $cases,
-            ];
-        }
+    private function buildTransformer(GeneratorConfig $generatorConfig): EnumTransformer
+    {
+        return new EnumTransformer($generatorConfig);
+    }
 
-        /** @var array<string,array{path:string,cases:array<string,string>}> $result */
-        return $result;
+    private function buildGenerator(
+        EnumDiscoverer $discoverer,
+        EnumTransformer $transformer,
+        string $format
+    ): EnumGenerator {
+        $formatter = $format === 'js' ? new JsEnumFormatter : new TsEnumFormatter;
+
+        return new EnumGenerator($discoverer, $transformer, $formatter, new GeneratedFileWriter);
     }
 
     /**
-     * Compute added/removed diffs for each enum based on keys and values.
+     * @return array<string,array{path:string,cases:array<string,string>,groups:array<string,array{kind:string,entries:array<string,string>}>}>
+     */
+    private function buildBackend(EnumDiscoverer $discoverer, EnumTransformer $transformer): array
+    {
+        return (new EnumBackendStateBuilder)->build($discoverer->discover(), $transformer);
+    }
+
+    /**
+     * @param  Collection<int, ReflectionEnum<UnitEnum>>  $discovered
+     * @param  array<int,string>  $dirtyNames
+     * @return Collection<int, ReflectionEnum<UnitEnum>>
+     */
+    private function resolveDirtyEnums(Collection $discovered, array $dirtyNames): Collection
+    {
+        return $discovered->filter(
+            fn (ReflectionEnum $reflection) => in_array($reflection->getShortName(), $dirtyNames, true)
+        );
+    }
+
+    /**
+     * Compute added/removed diffs for each enum based on keys, values, and groups.
      *
-     * @param  array<string,array{path:string,cases:array<string,string>}>  $backend
+     * @param  array<string,array{path:string,cases:array<string,string>,groups:array<string,array{kind:string,entries:array<string,string>}>}>  $backend
      * @return array<string,array{file:string,added:array<int,string>,removed:array<int,string>}>
      */
     private function computeDiffs(array $backend, string $extension): array
     {
         $diffs = [];
-
         foreach ($backend as $enumName => $info) {
             $filePath = rtrim($info['path'], '/').'/'.$enumName.'.'.$extension;
-            $frontendEntries = $this->loadFrontendCases($filePath, (string) $enumName);
-
-            /** @var array<string,string> $backendMap */
-            $backendMap = $info['cases'];
-
-            $backendKeys = array_keys($backendMap);
-            $frontendKeys = array_keys($frontendEntries);
-
-            $added = [];
-            $removed = [];
-
-            // New keys
-            foreach (array_diff($backendKeys, $frontendKeys) as $k) {
-                $added[] = $k.': '.$backendMap[$k];
-            }
-            // Removed keys
-            foreach (array_diff($frontendKeys, $backendKeys) as $k) {
-                $removed[] = $k.': '.$frontendEntries[$k];
-            }
-            // Changed values for existing keys
-            foreach (array_intersect($backendKeys, $frontendKeys) as $k) {
-                $bVal = $backendMap[$k];
-                $fVal = $frontendEntries[$k];
-                if ($bVal !== $fVal) {
-                    // Treat as addition of new value and removal of old value
-                    $added[] = $k.': '.$bVal;
-                    $removed[] = $k.': '.$fVal;
-                }
-            }
-
+            $frontendCases = $this->loadFrontendCases($filePath, (string) $enumName);
+            $frontendGroups = $this->loadFrontendGroups($filePath, (string) $enumName);
+            $caseDiff = EnumDiffing::diffEntries($info['cases'], $frontendCases, '');
+            $groupDiff = EnumDiffing::diffGroups($info['groups'], $frontendGroups);
+            $added = array_merge($caseDiff['added'], $groupDiff['added']);
+            $removed = array_merge($caseDiff['removed'], $groupDiff['removed']);
             if ($added !== [] || $removed !== []) {
-                $diffs[$enumName] = [
-                    'file' => $filePath,
-                    'added' => $added,
-                    'removed' => $removed,
-                ];
+                $diffs[$enumName] = ['file' => $filePath, 'added' => $added, 'removed' => $removed];
             }
         }
 
@@ -221,6 +186,18 @@ class GenerateEnumsCommand extends Command
     }
 
     /**
+     * @return array<string,array{kind:string,entries:array<string,string>}>
+     */
+    private function loadFrontendGroups(string $filePath, string $enumName): array
+    {
+        if (! is_file($filePath)) {
+            return [];
+        }
+
+        return EnumGroupFileParser::parseFile($filePath, $enumName);
+    }
+
+    /**
      * Print diffs and the hint to regenerate.
      *
      * @param  array<string,array{file:string,added:array<int,string>,removed:array<int,string>}>  $diffs
@@ -228,16 +205,12 @@ class GenerateEnumsCommand extends Command
     private function reportDiffs(array $diffs, string $format): void
     {
         $this->components->error('❌ Enums differ from generated frontend files:');
-
         foreach ($diffs as $name => $d) {
             $this->line('');
-            // Keep header line unstyled for predictable CI/test output
             $this->line(sprintf('%s (%s)', $name, $d['file']));
-
             $this->reportAddedLines($d['added']);
             $this->reportRemovedLines($d['removed']);
         }
-
         $this->line('');
         $this->components->info('Run `php artisan type-bridge:enums'.($format ? ' --format='.$format : '').'` to regenerate.');
     }
@@ -291,14 +264,5 @@ class GenerateEnumsCommand extends Command
 
         /** @phpstan-ignore-next-line method_exists on OutputStyle is always true per phpdoc */
         return is_object($out) && method_exists($out, 'isDecorated') ? (bool) $out->isDecorated() : false;
-    }
-
-    private function formatValue(string|int $value): string
-    {
-        if (is_string($value)) {
-            return \GaiaTools\TypeBridge\Support\StringQuoter::quoteJs($value);
-        }
-
-        return (string) $value;
     }
 }

@@ -7,6 +7,7 @@ namespace GaiaTools\TypeBridge\Transformers;
 use GaiaTools\TypeBridge\Attributes\GenerateEnum;
 use GaiaTools\TypeBridge\Config\GeneratorConfig;
 use GaiaTools\TypeBridge\Contracts\Transformer;
+use GaiaTools\TypeBridge\Support\EnumGroupExtractor;
 use GaiaTools\TypeBridge\ValueObjects\EnumCase;
 use GaiaTools\TypeBridge\ValueObjects\TransformedEnum;
 use Illuminate\Support\Collection;
@@ -18,9 +19,14 @@ use UnitEnum;
 
 final class EnumTransformer implements Transformer
 {
+    private readonly EnumGroupExtractor $groupExtractor;
+
     public function __construct(
         private readonly GeneratorConfig $config,
-    ) {}
+        ?EnumGroupExtractor $groupExtractor = null,
+    ) {
+        $this->groupExtractor = $groupExtractor ?? new EnumGroupExtractor;
+    }
 
     public function transform(mixed $source): TransformedEnum
     {
@@ -30,6 +36,7 @@ final class EnumTransformer implements Transformer
         $requiresComments = ($attribute && $attribute->requiresComments);
 
         $cases = $this->extractCases($source, $requiresComments);
+        $groups = $this->groupExtractor->extract($source, $attribute ? $attribute->includeMethods : []);
 
         $outputPath = resource_path($this->config->enumOutputPath);
 
@@ -38,6 +45,7 @@ final class EnumTransformer implements Transformer
             cases: $cases,
             namespace: $source->getNamespaceName(),
             outputPath: $outputPath,
+            groups: $groups,
         );
     }
 
@@ -48,20 +56,52 @@ final class EnumTransformer implements Transformer
     private function extractCases(ReflectionEnum $reflection, bool $requiresComments): Collection
     {
         return collect($reflection->getCases())
-            ->filter(fn (ReflectionEnumBackedCase|ReflectionEnumUnitCase $case) => $case instanceof ReflectionEnumBackedCase)
-            ->map(function (ReflectionEnumBackedCase $case) use ($requiresComments, $reflection) {
-                if ($requiresComments && ! $case->getDocComment()) {
-                    throw new \RuntimeException(
-                        "Enum {$reflection->getName()} case {$case->getName()} is missing a doc comment."
-                    );
-                }
+            ->filter($this->isBackedCase())
+            ->map(function (ReflectionEnumUnitCase $case) use ($reflection, $requiresComments): EnumCase {
+                assert($case instanceof ReflectionEnumBackedCase);
 
-                return new EnumCase(
-                    name: $case->getName(),
-                    value: $case->getBackingValue(),
-                    docComment: $case->getDocComment() ?: null,
-                );
+                return $this->buildCase($case, $reflection, $requiresComments);
             });
+    }
+
+    /**
+     * @return callable(ReflectionEnumBackedCase|ReflectionEnumUnitCase): bool
+     */
+    private function isBackedCase(): callable
+    {
+        return static fn (ReflectionEnumBackedCase|ReflectionEnumUnitCase $case) => $case instanceof ReflectionEnumBackedCase;
+    }
+
+    /**
+     * @param  ReflectionEnum<UnitEnum>  $reflection
+     */
+    private function buildCase(
+        ReflectionEnumBackedCase $case,
+        ReflectionEnum $reflection,
+        bool $requiresComments
+    ): EnumCase {
+        $this->guardCaseComment($case, $reflection, $requiresComments);
+
+        return new EnumCase(
+            name: $case->getName(),
+            value: $case->getBackingValue(),
+            docComment: $case->getDocComment() ?: null,
+        );
+    }
+
+    /**
+     * @param  ReflectionEnum<UnitEnum>  $reflection
+     */
+    private function guardCaseComment(
+        ReflectionEnumBackedCase $case,
+        ReflectionEnum $reflection,
+        bool $requiresComments
+    ): void {
+        if ($requiresComments && ! $case->getDocComment()) {
+            throw new \RuntimeException(
+                "Enum {$reflection->getName()} case {$case->getName()} is missing a doc comment."
+            );
+        }
     }
 
     /**

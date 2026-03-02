@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace GaiaTools\TypeBridge\Tests\Unit\Transformers;
 
+use GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestGrouped;
 use GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestPriority;
 use GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestStatus;
 use GaiaTools\TypeBridge\Tests\TestCase;
 use GaiaTools\TypeBridge\Transformers\EnumTransformer;
 use GaiaTools\TypeBridge\ValueObjects\EnumCase;
+use GaiaTools\TypeBridge\ValueObjects\EnumGroup;
+use GaiaTools\TypeBridge\ValueObjects\EnumGroupValue;
 use GaiaTools\TypeBridge\ValueObjects\TransformedEnum;
 use PHPUnit\Framework\Attributes\Test;
 use ReflectionEnum;
@@ -90,5 +93,43 @@ class EnumTransformerTest extends TestCase
 
         // This should throw because requiresComments=true and cases lack doc comments
         $this->transformer->transform($reflection);
+    }
+
+    #[Test]
+    public function it_extracts_group_definitions_from_static_methods(): void
+    {
+        $reflection = new ReflectionEnum(TestGrouped::class);
+
+        $result = $this->transformer->transform($reflection);
+
+        $this->assertInstanceOf(TransformedEnum::class, $result);
+        $this->assertCount(3, $result->groups);
+
+        /** @var EnumGroup $arrayGroup */
+        $arrayGroup = $result->groups->firstWhere('name', 'ArrayGroup');
+        $this->assertSame('array', $arrayGroup->kind);
+        $this->assertCount(4, $arrayGroup->values);
+        $this->assertInstanceOf(EnumGroupValue::class, $arrayGroup->values[0]);
+
+        $this->assertSame('enum', $arrayGroup->values[0]->kind);
+        $this->assertSame('ALPHA', $arrayGroup->values[0]->value);
+        $this->assertSame('literal', $arrayGroup->values[3]->kind);
+        $this->assertSame('extra', $arrayGroup->values[3]->value);
+
+        /** @var EnumGroup $recordGroup */
+        $recordGroup = $result->groups->firstWhere('name', 'RecordGroup');
+        $this->assertSame('record', $recordGroup->kind);
+        $this->assertArrayHasKey('ALPHA', $recordGroup->values);
+        $this->assertSame('enum', $recordGroup->values['ALPHA']->kind);
+        $this->assertSame('ALPHA', $recordGroup->values['ALPHA']->value);
+        $this->assertSame('literal', $recordGroup->values['custom']->kind);
+        $this->assertSame('custom-value', $recordGroup->values['custom']->value);
+
+        /** @var EnumGroup $enumCaseGroup */
+        $enumCaseGroup = $result->groups->firstWhere('name', 'EnumCaseGroup');
+        $this->assertSame('record', $enumCaseGroup->kind);
+        $this->assertSame('enum', $enumCaseGroup->values['ALPHA']->kind);
+        $this->assertSame('ALPHA', $enumCaseGroup->values['ALPHA']->value);
+        $this->assertSame('BETA', $enumCaseGroup->values['BETA']->value);
     }
 }

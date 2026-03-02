@@ -22,6 +22,7 @@ enum Status: string { ... }
 | Parameter | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `requiresComments` | `bool` | `false` | Include PHPDoc comments in the generated output. |
+| `includeMethods` | `array<int,string>` | `[]` | Public static method names that return group arrays/records to export alongside the enum. |
 
 ### Generate Translator Attribute
 
@@ -96,6 +97,10 @@ type Engine = {
 
 ### Translator Hook
 The `useTranslator(map, options?)` hook (or function) creates a translator for a specific enum map.
+
+The returned translator exposes `options(subset?)`, where `subset` can be:
+- An array of enum values to filter options (in the same order).
+- A record of `{ value: translationKey }` to use directly.
 
 ### Create Enum Translation Map
 The `createEnumTranslationMap(enum, prefix)` function creates a mapping between enum values and translation keys.

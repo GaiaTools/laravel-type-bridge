@@ -13,5 +13,7 @@ class GenerateEnum
         public bool $requiresComments = false,
         public bool $hasTranslator = false,
         public ?string $outputFormat = null,
+        /** @var array<int,string> */
+        public array $includeMethods = [],
     ) {}
 }

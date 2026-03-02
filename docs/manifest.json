@@ -40,7 +40,7 @@
             "items": [
                 {
                     "text": "GenerateEnum Attribute",
-                    "link": "generate-enum"
+                    "link": "api#generate-enum-attribute"
                 },
                 {
                     "text": "Configuration",

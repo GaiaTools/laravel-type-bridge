@@ -225,6 +225,25 @@ final class GenerateEnumsCommandTest extends TestCase
     }
 
     #[Test]
+    public function it_reports_group_differences_when_frontend_is_out_of_sync(): void
+    {
+        $this->generateTsEnums();
+
+        $path = resource_path('test-output/enums/TestGrouped.ts');
+        $this->assertFileExists($path);
+        $contents = File::get($path);
+        $modified = str_replace("'extra'", "'changed'", (string) $contents);
+        File::put($path, $modified);
+
+        $this->artisan('type-bridge:enums', ['--check' => true, '--format' => 'ts'])
+            ->expectsOutputToContain('❌ Enums differ from generated frontend files:')
+            ->expectsOutputToContain('TestGrouped ('.$path.')')
+            ->expectsOutputToContain("  + ArrayGroup[3]: 'extra'")
+            ->expectsOutputToContain("  - ArrayGroup[3]: 'changed'")
+            ->assertExitCode(1);
+    }
+
+    #[Test]
     public function it_ignores_frontend_file_with_mismatched_export_name(): void
     {
         $this->generateTsEnums();

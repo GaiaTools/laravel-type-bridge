@@ -230,6 +230,80 @@ enum ThemeVisibility: string
 }
 ```
 
+### Enum Groups (derived exports)
+
+Enum groups let you export curated subsets or mappings alongside the base enum. Groups are defined by public static methods and are only included when you opt-in via `#[GenerateEnum(includeMethods: [...])]`.
+
+Rules:
+
+- Each listed method must be `public static` with zero parameters.
+- The method must return an array.
+- A sequential array becomes a group array **unless** it contains only enum cases; arrays of enum cases become a group record keyed by case name.
+- An associative array becomes a group record.
+- Values may be enum cases, backed values that match a case, or scalar/null literals.
+- The group name is the method name converted to StudlyCase and must not collide with the enum name or other groups.
+
+Example:
+
+```php
+<?php
+
+namespace App\Enums;
+
+use GaiaTools\TypeBridge\Attributes\GenerateEnum;
+
+#[GenerateEnum(includeMethods: ['staffRoles', 'memberRoles'])]
+enum UserRole: string
+{
+    case Admin = 'admin';
+    case Manager = 'manager';
+    case Support = 'support';
+    case Member = 'member';
+    case Guest = 'guest';
+
+    /** @return array<int, self> */
+    public static function staffRoles(): array
+    {
+        return [self::Admin, self::Manager, self::Support];
+    }
+
+    /** @return array<int, string> */
+    public static function memberRoles(): array
+    {
+        return [self::Member->value, self::Guest->value];
+    }
+}
+```
+
+Generated output (TypeScript):
+
+```ts
+export const UserRole = {
+    Admin: 'admin',
+    Manager: 'manager',
+    Support: 'support',
+    Member: 'member',
+    Guest: 'guest',
+} as const;
+
+export type UserRole = typeof UserRole[keyof typeof UserRole];
+
+export const StaffRoles = {
+    Admin: UserRole.Admin,
+    Manager: UserRole.Manager,
+    Support: UserRole.Support,
+} as const;
+
+export type StaffRoles = typeof StaffRoles[keyof typeof StaffRoles];
+
+export const MemberRoles = [
+    UserRole.Member,
+    UserRole.Guest,
+] as const;
+
+export type MemberRoles = typeof MemberRoles[number];
+```
+
 
 ## Available Commands
 

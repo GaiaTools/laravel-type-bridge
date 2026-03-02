@@ -52,6 +52,11 @@ console.log(roleTranslator(UserRole.Admin)); // "Administrator"
 
 // Get all options for a select input
 const options = roleTranslator.options();
+// Filter options to a subset of enum values
+const memberOptions = roleTranslator.options([
+    UserRole.Admin,
+    UserRole.Editor,
+]);
 // [
 //   { value: 'admin', label: 'Administrator' },
 //   { value: 'editor', label: 'Content Editor' },

@@ -1,0 +1,320 @@
+<?php
+
+declare(strict_types=1);
+
+namespace GaiaTools\TypeBridge\Support;
+
+use GaiaTools\TypeBridge\ValueObjects\EnumGroup;
+use GaiaTools\TypeBridge\ValueObjects\EnumGroupValue;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+use ReflectionEnum;
+use ReflectionEnumBackedCase;
+use ReflectionMethod;
+use UnitEnum;
+
+final class EnumGroupExtractor
+{
+    /**
+     * @param  ReflectionEnum<UnitEnum>  $reflection
+     * @param  array<int,string>  $includeMethods
+     * @return Collection<int, EnumGroup>
+     */
+    public function extract(ReflectionEnum $reflection, array $includeMethods): Collection
+    {
+        if ($includeMethods === []) {
+            return collect();
+        }
+
+        return $this->extractGroups($reflection, $includeMethods);
+    }
+
+    /**
+     * @param  ReflectionEnum<UnitEnum>  $reflection
+     * @param  array<int,string>  $includeMethods
+     * @return Collection<int, EnumGroup>
+     */
+    private function extractGroups(ReflectionEnum $reflection, array $includeMethods): Collection
+    {
+        $index = EnumCaseIndex::fromReflection($reflection);
+        /** @var array<int,string> $usedNames */
+        $usedNames = [];
+        $groups = [];
+
+        foreach ($includeMethods as $methodName) {
+            $groups[] = $this->buildGroup($reflection, $index, $methodName, $usedNames);
+        }
+
+        return collect($groups);
+    }
+
+    /**
+     * @param  ReflectionEnum<UnitEnum>  $reflection
+     */
+    private function resolveMethod(ReflectionEnum $reflection, string $methodName): ReflectionMethod
+    {
+        if (! $reflection->hasMethod($methodName)) {
+            throw new \RuntimeException("Enum {$reflection->getName()} missing method {$methodName}.");
+        }
+
+        $method = $reflection->getMethod($methodName);
+        $this->guardMethod($method, $reflection->getName());
+
+        return $method;
+    }
+
+    private function guardMethod(ReflectionMethod $method, string $enumName): void
+    {
+        if (! $method->isPublic() || ! $method->isStatic()) {
+            throw new \RuntimeException("Enum {$enumName} method {$method->getName()} must be public static.");
+        }
+
+        if ($method->getNumberOfParameters() > 0) {
+            throw new \RuntimeException("Enum {$enumName} method {$method->getName()} must have no parameters.");
+        }
+    }
+
+    /**
+     * @param  array<int,string>  $used
+     */
+    private function resolveGroupName(string $methodName, string $enumName, array $used): string
+    {
+        $groupName = Str::studly($methodName);
+
+        if ($groupName === $enumName || in_array($groupName, $used, true)) {
+            throw new \RuntimeException("Enum {$enumName} method {$methodName} creates a duplicate group name.");
+        }
+
+        return $groupName;
+    }
+
+    /**
+     * @param  ReflectionEnum<UnitEnum>  $reflection
+     * @param  array<int,string>  $usedNames
+     */
+    private function buildGroup(
+        ReflectionEnum $reflection,
+        EnumCaseIndex $index,
+        string $methodName,
+        array &$usedNames
+    ): EnumGroup {
+        $method = $this->resolveMethod($reflection, $methodName);
+        $groupName = $this->resolveGroupName($methodName, $reflection->getShortName(), $usedNames);
+        $values = $this->invokeMethod($method);
+        $kind = $this->resolveKind($values);
+        $usedNames[] = $groupName;
+
+        return new EnumGroup($groupName, $kind, $this->normalizeValues($values, $index, $kind));
+    }
+
+    /**
+     * @return array<int,mixed>|array<string,mixed>
+     */
+    private function invokeMethod(ReflectionMethod $method): array
+    {
+        $value = $method->invoke(null);
+
+        if (! is_array($value)) {
+            throw new \RuntimeException("Enum method {$method->getName()} must return an array.");
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param  array<int,mixed>|array<string,mixed>  $values
+     */
+    private function resolveKind(array $values): string
+    {
+        if ($this->isAssociative($values) || $this->allEnumCases($values)) {
+            return EnumGroup::KIND_RECORD;
+        }
+
+        return EnumGroup::KIND_ARRAY;
+    }
+
+    /**
+     * @return array<int,EnumGroupValue>|array<string,EnumGroupValue>
+     */
+    /**
+     * @param  array<int,mixed>|array<string,mixed>  $values
+     * @return array<int,EnumGroupValue>|array<string,EnumGroupValue>
+     */
+    private function normalizeValues(array $values, EnumCaseIndex $index, string $kind): array
+    {
+        if ($kind === EnumGroup::KIND_ARRAY) {
+            /** @var array<int,mixed> $values */
+            $values = array_values($values);
+
+            return $this->normalizeArrayValues($values, $index);
+        }
+
+        return $this->normalizeRecordValues($values, $index, $this->allEnumCases($values) && ! $this->isAssociative($values));
+    }
+
+    /**
+     * @param  array<int,mixed>  $values
+     * @return array<int,EnumGroupValue>
+     */
+    private function normalizeArrayValues(array $values, EnumCaseIndex $index): array
+    {
+        $result = [];
+
+        foreach ($values as $value) {
+            $result[] = $this->normalizeValue($value, $index);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param  array<int|string,mixed>  $values
+     * @return array<string,EnumGroupValue>
+     */
+    private function normalizeRecordValues(array $values, EnumCaseIndex $index, bool $useEnumKeys): array
+    {
+        if ($useEnumKeys) {
+            return $this->normalizeEnumCaseRecord($values, $index);
+        }
+
+        return $this->normalizeAssocRecord($values, $index);
+    }
+
+    /**
+     * @param  array<int|string,mixed>  $values
+     * @return array<string,EnumGroupValue>
+     */
+    private function normalizeEnumCaseRecord(array $values, EnumCaseIndex $index): array
+    {
+        $result = [];
+        foreach (array_values($values) as $value) {
+            $caseName = $this->matchEnumValue($value, $index);
+            if ($caseName === null) {
+                throw new \RuntimeException('Enum group values must be enum cases to build object.');
+            }
+            $result[$caseName] = new EnumGroupValue(EnumGroupValue::KIND_ENUM, $caseName);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param  array<int|string,mixed>  $values
+     * @return array<string,EnumGroupValue>
+     */
+    private function normalizeAssocRecord(array $values, EnumCaseIndex $index): array
+    {
+        $result = [];
+        foreach ($values as $key => $value) {
+            $result[(string) $key] = $this->normalizeValue($value, $index);
+        }
+
+        return $result;
+    }
+
+    /** @param  array<int|string,mixed>  $values */
+    private function isAssociative(array $values): bool
+    {
+        return array_keys($values) !== range(0, count($values) - 1);
+    }
+
+    /** @param  array<int|string,mixed>  $values */
+    private function allEnumCases(array $values): bool
+    {
+        foreach ($values as $value) {
+            if (! $value instanceof UnitEnum) {
+                return false;
+            }
+        }
+
+        return $values !== [];
+    }
+
+    private function normalizeValue(mixed $value, EnumCaseIndex $index): EnumGroupValue
+    {
+        $caseName = $this->matchEnumValue($value, $index);
+        if ($caseName !== null) {
+            return new EnumGroupValue(EnumGroupValue::KIND_ENUM, $caseName);
+        }
+
+        $this->guardLiteral($value);
+
+        return new EnumGroupValue(EnumGroupValue::KIND_LITERAL, $value);
+    }
+
+    private function matchEnumValue(mixed $value, EnumCaseIndex $index): ?string
+    {
+        if ($value instanceof UnitEnum) {
+            return $value->name;
+        }
+
+        return $index->matchCase($value);
+    }
+
+    /**
+     * @phpstan-assert bool|float|int|string|null $value
+     */
+    private function guardLiteral(mixed $value): void
+    {
+        if (! is_scalar($value) && $value !== null) {
+            throw new \RuntimeException('Enum group values must be scalar, null, or enum cases.');
+        }
+    }
+}
+
+final class EnumCaseIndex
+{
+    /** @var array<string,bool> */
+    private array $byName;
+
+    /** @var array<string,string> */
+    private array $byValue;
+
+    /**
+     * @param  array<string,bool>  $byName
+     * @param  array<string,string>  $byValue
+     */
+    private function __construct(array $byName, array $byValue)
+    {
+        $this->byName = $byName;
+        $this->byValue = $byValue;
+    }
+
+    /**
+     * @param  ReflectionEnum<UnitEnum>  $reflection
+     */
+    public static function fromReflection(ReflectionEnum $reflection): self
+    {
+        $byName = [];
+        $byValue = [];
+
+        foreach ($reflection->getCases() as $case) {
+            if ($case instanceof ReflectionEnumBackedCase) {
+                $byValue[self::valueKey($case->getBackingValue())] = $case->getName();
+            }
+            $byName[$case->getName()] = true;
+        }
+
+        return new self($byName, $byValue);
+    }
+
+    public function matchCase(mixed $value): ?string
+    {
+        if (is_string($value) && isset($this->byName[$value])) {
+            return $value;
+        }
+
+        if (is_string($value) || is_int($value)) {
+            $key = self::valueKey($value);
+
+            return $this->byValue[$key] ?? null;
+        }
+
+        return null;
+    }
+
+    private static function valueKey(string|int $value): string
+    {
+        return (is_int($value) ? 'i:' : 's:').$value;
+    }
+}
