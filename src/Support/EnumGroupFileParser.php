@@ -46,7 +46,7 @@ final class EnumGroupFileParser
      */
     private static function matchExports(string $contents): array
     {
-        $pattern = '#export\s+const\s+(\w+)\s*=\s*(\{|\[)([\s\S]*?)(\}|\])\s*(?:as\s+const)?\s*;#m';
+        $pattern = '#export\s+const\s+(\w+)\s*=\s*([\\[{])([\s\S]*?)([]}])\s*(?:as\s+const)?\s*;#m';
         if (! preg_match_all($pattern, $contents, $matches, PREG_SET_ORDER)) {
             return [];
         }
