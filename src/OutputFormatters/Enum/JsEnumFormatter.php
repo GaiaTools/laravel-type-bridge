@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace GaiaTools\TypeBridge\OutputFormatters\Enum;
 
+use GaiaTools\TypeBridge\ValueObjects\EnumGroup;
+
 final class JsEnumFormatter extends AbstractEnumFormatter
 {
     /**
@@ -13,6 +15,11 @@ final class JsEnumFormatter extends AbstractEnumFormatter
     {
         $lines[] = '};';
         $lines[] = '';
+    }
+
+    protected function groupClosing(EnumGroup $group): string
+    {
+        return $group->kind === EnumGroup::KIND_ARRAY ? '];' : '};';
     }
 
     public function getExtension(): string

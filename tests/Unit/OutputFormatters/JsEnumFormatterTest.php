@@ -7,6 +7,8 @@ namespace GaiaTools\TypeBridge\Tests\Unit\OutputFormatters;
 use GaiaTools\TypeBridge\OutputFormatters\Enum\JsEnumFormatter;
 use GaiaTools\TypeBridge\Tests\TestCase;
 use GaiaTools\TypeBridge\ValueObjects\EnumCase;
+use GaiaTools\TypeBridge\ValueObjects\EnumGroup;
+use GaiaTools\TypeBridge\ValueObjects\EnumGroupValue;
 use GaiaTools\TypeBridge\ValueObjects\TransformedEnum;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -31,6 +33,8 @@ class JsEnumFormatterTest extends TestCase
             ]),
             namespace: 'App\\Enums',
             outputPath: resource_path('test-output/enums'),
+
+            groups: collect(),
         );
 
         $result = $this->formatter->format($transformed);
@@ -52,6 +56,33 @@ class JsEnumFormatterTest extends TestCase
     }
 
     #[Test]
+    public function it_formats_group_exports_without_types(): void
+    {
+        $transformed = new TransformedEnum(
+            name: 'Sample',
+            cases: collect([
+                new EnumCase('ALPHA', 'alpha'),
+                new EnumCase('BETA', 'beta'),
+            ]),
+            namespace: 'App\\Enums',
+            outputPath: resource_path('test-output/enums'),
+            groups: collect([
+                new EnumGroup('CustomerValues', EnumGroup::KIND_ARRAY, [
+                    new EnumGroupValue(EnumGroupValue::KIND_ENUM, 'ALPHA'),
+                    new EnumGroupValue(EnumGroupValue::KIND_LITERAL, 'extra'),
+                ]),
+            ]),
+        );
+
+        $result = $this->formatter->format($transformed);
+
+        $this->assertStringContainsString('export const CustomerValues = [', $result);
+        $this->assertStringContainsString('Sample.ALPHA,', $result);
+        $this->assertStringContainsString("'extra',", $result);
+        $this->assertStringNotContainsString('export type CustomerValues', $result);
+    }
+
+    #[Test]
     public function it_uses_double_quotes_when_value_contains_apostrophe(): void
     {
         $transformed = new TransformedEnum(
@@ -61,6 +92,8 @@ class JsEnumFormatterTest extends TestCase
             ]),
             namespace: 'App\\Enums',
             outputPath: resource_path('test-output/enums'),
+
+            groups: collect(),
         );
 
         $result = $this->formatter->format($transformed);
@@ -81,6 +114,8 @@ class JsEnumFormatterTest extends TestCase
             ]),
             namespace: 'App\\Enums',
             outputPath: resource_path('test-output/enums'),
+
+            groups: collect(),
         );
 
         $result = $this->formatter->format($transformed);
@@ -101,6 +136,8 @@ class JsEnumFormatterTest extends TestCase
             ]),
             namespace: 'App\\Enums',
             outputPath: resource_path('test-output/enums'),
+
+            groups: collect(),
         );
 
         $result = $this->formatter->format($transformed);
@@ -119,6 +156,8 @@ class JsEnumFormatterTest extends TestCase
             ]),
             namespace: 'App\\Enums',
             outputPath: resource_path('test-output/enums'),
+
+            groups: collect(),
         );
 
         $result = $this->formatter->format($transformed);
@@ -140,6 +179,8 @@ class JsEnumFormatterTest extends TestCase
             ]),
             namespace: 'App\\Enums',
             outputPath: resource_path('test-output/enums'),
+
+            groups: collect(),
         );
 
         $result = $this->formatter->format($transformed);
@@ -161,6 +202,8 @@ class JsEnumFormatterTest extends TestCase
             ]),
             namespace: 'App\\Enums',
             outputPath: resource_path('test-output/enums'),
+
+            groups: collect(),
         );
 
         $result = $this->formatter->format($transformed);
