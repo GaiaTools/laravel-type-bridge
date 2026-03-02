@@ -1,0 +1,10 @@
+{
+  "include-v-in-tag": true,
+  "packages": {
+    ".": {
+      "release-type": "php",
+      "package-name": "gaiatools/laravel-type-bridge",
+      "changelog-path": "CHANGELOG.md"
+    }
+  }
+}
