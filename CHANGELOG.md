@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/GaiaTools/laravel-type-bridge/compare/v1.2.0...v1.2.1) (2026-03-02)
+
+
+### Bug Fixes
+
+* trigger release for SKILL.md agent files ([#34](https://github.com/GaiaTools/laravel-type-bridge/issues/34)) ([42629fb](https://github.com/GaiaTools/laravel-type-bridge/commit/42629fb7ba2badf38660f2bdfb341e8ff166365c))
+
 ## [1.2.0](https://github.com/GaiaTools/laravel-type-bridge/compare/gaiatools/laravel-type-bridge-v1.1.4...gaiatools/laravel-type-bridge-v1.2.0) (2026-03-02)
 
 
