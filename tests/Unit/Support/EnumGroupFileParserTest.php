@@ -69,4 +69,75 @@ TS;
 
         $this->assertSame([], $groups);
     }
+
+    #[Test]
+    public function it_parses_files_and_skips_self_named_exports(): void
+    {
+        $ts = <<<'TS'
+export const Sample = {
+    ALPHA: 'alpha',
+};
+
+export const Sample = [
+    Sample.ALPHA,
+];
+
+export const Allowed = {
+    ALPHA: Sample.ALPHA,
+};
+TS;
+
+        $path = tempnam(sys_get_temp_dir(), 'enum-group');
+        file_put_contents($path, $ts);
+
+        $groups = EnumGroupFileParser::parseFile($path, 'Sample');
+
+        $this->assertArrayNotHasKey('Sample', $groups);
+        $this->assertArrayHasKey('Allowed', $groups);
+        $this->assertSame('record', $groups['Allowed']['kind']);
+        $this->assertSame(['ALPHA' => 'Sample.ALPHA'], $groups['Allowed']['entries']);
+    }
+
+    #[Test]
+    public function it_strips_comments_and_normalizes_entries(): void
+    {
+        $ts = <<<'TS'
+/* block comment */
+export const Sample = {
+    ALPHA: 'alpha',
+};
+
+// line comment
+export const CustomerValues = [
+    Sample.ALPHA, // inline comment
+    'extra',
+];
+
+export const LoadValues = {
+    "custom-key": 'custom',
+    'escaped\'': "value",
+};
+TS;
+
+        $groups = EnumGroupFileParser::parseString($ts, 'Sample');
+
+        $this->assertSame('Sample.ALPHA', $groups['CustomerValues']['entries']['0']);
+        $this->assertSame("'extra'", $groups['CustomerValues']['entries']['1']);
+        $this->assertSame("'custom'", $groups['LoadValues']['entries']['custom-key']);
+        $this->assertSame('"value"', $groups['LoadValues']['entries']["escaped'"]);
+    }
+
+    #[Test]
+    public function it_returns_empty_when_no_exports_match(): void
+    {
+        $ts = <<<'TS'
+const Sample = {
+    ALPHA: 'alpha',
+};
+TS;
+
+        $groups = EnumGroupFileParser::parseString($ts, 'Sample');
+
+        $this->assertSame([], $groups);
+    }
 }
