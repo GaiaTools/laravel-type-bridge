@@ -54,7 +54,7 @@ final class EnumGroupExtractor
     private function resolveMethod(ReflectionEnum $reflection, string $methodName): ReflectionMethod
     {
         if (! $reflection->hasMethod($methodName)) {
-            throw new \RuntimeException("Enum {$reflection->getName()} missing method {$methodName}.");
+            throw new EnumGroupExtractionException("Enum {$reflection->getName()} missing method {$methodName}.");
         }
 
         $method = $reflection->getMethod($methodName);
@@ -66,11 +66,11 @@ final class EnumGroupExtractor
     private function guardMethod(ReflectionMethod $method, string $enumName): void
     {
         if (! $method->isPublic() || ! $method->isStatic()) {
-            throw new \RuntimeException("Enum {$enumName} method {$method->getName()} must be public static.");
+            throw new EnumGroupExtractionException("Enum {$enumName} method {$method->getName()} must be public static.");
         }
 
         if ($method->getNumberOfParameters() > 0) {
-            throw new \RuntimeException("Enum {$enumName} method {$method->getName()} must have no parameters.");
+            throw new EnumGroupExtractionException("Enum {$enumName} method {$method->getName()} must have no parameters.");
         }
     }
 
@@ -82,7 +82,7 @@ final class EnumGroupExtractor
         $groupName = Str::studly($methodName);
 
         if ($groupName === $enumName || in_array($groupName, $used, true)) {
-            throw new \RuntimeException("Enum {$enumName} method {$methodName} creates a duplicate group name.");
+            throw new EnumGroupExtractionException("Enum {$enumName} method {$methodName} creates a duplicate group name.");
         }
 
         return $groupName;
@@ -115,7 +115,7 @@ final class EnumGroupExtractor
         $value = $method->invoke(null);
 
         if (! is_array($value)) {
-            throw new \RuntimeException("Enum method {$method->getName()} must return an array.");
+            throw new EnumGroupExtractionException("Enum method {$method->getName()} must return an array.");
         }
 
         return $value;
@@ -190,7 +190,7 @@ final class EnumGroupExtractor
         foreach (array_values($values) as $value) {
             $caseName = $this->matchEnumValue($value, $index);
             if ($caseName === null) {
-                throw new \RuntimeException('Enum group values must be enum cases to build object.');
+                throw new EnumGroupExtractionException('Enum group values must be enum cases to build object.');
             }
             $result[$caseName] = new EnumGroupValue(EnumGroupValue::KIND_ENUM, $caseName);
         }
@@ -257,7 +257,7 @@ final class EnumGroupExtractor
     private function guardLiteral(mixed $value): void
     {
         if (! is_scalar($value) && $value !== null) {
-            throw new \RuntimeException('Enum group values must be scalar, null, or enum cases.');
+            throw new EnumGroupExtractionException('Enum group values must be scalar, null, or enum cases.');
         }
     }
 }
