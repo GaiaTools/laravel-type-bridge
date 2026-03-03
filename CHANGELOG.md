@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.2](https://github.com/GaiaTools/laravel-type-bridge/compare/v1.2.1...v1.2.2) (2026-03-03)
+
+
+### Miscellaneous Chores
+
+* **deps:** bump actions/download-artifact from 7 to 8 ([#36](https://github.com/GaiaTools/laravel-type-bridge/issues/36)) ([8d9f111](https://github.com/GaiaTools/laravel-type-bridge/commit/8d9f1116210021f51d1095378ae1d081e22d19c0))
+* **deps:** bump actions/upload-artifact from 6 to 7 ([#37](https://github.com/GaiaTools/laravel-type-bridge/issues/37)) ([31795b4](https://github.com/GaiaTools/laravel-type-bridge/commit/31795b40a0c0e5542dcca3e84634e4562ca0d7b7))
+
 ## [1.2.1](https://github.com/GaiaTools/laravel-type-bridge/compare/v1.2.0...v1.2.1) (2026-03-02)
 
 
