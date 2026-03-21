@@ -6,6 +6,7 @@ namespace GaiaTools\TypeBridge\Tests\Unit\Config;
 
 use GaiaTools\TypeBridge\Config\TranslationDiscoveryConfig;
 use GaiaTools\TypeBridge\Tests\TestCase;
+use Illuminate\Support\Facades\File;
 use PHPUnit\Framework\Attributes\Test;
 
 class TranslationDiscoveryConfigTest extends TestCase
@@ -55,10 +56,10 @@ class TranslationDiscoveryConfigTest extends TestCase
         $dupDir = $root.'/dup/lang';
 
         // Clean up then create structure
-        \Illuminate\Support\Facades\File::deleteDirectory($root);
-        \Illuminate\Support\Facades\File::makeDirectory($moduleA, 0755, true);
-        \Illuminate\Support\Facades\File::makeDirectory($moduleB, 0755, true);
-        \Illuminate\Support\Facades\File::makeDirectory($dupDir, 0755, true);
+        File::deleteDirectory($root);
+        File::makeDirectory($moduleA, 0755, true);
+        File::makeDirectory($moduleB, 0755, true);
+        File::makeDirectory($dupDir, 0755, true);
 
         // Configure with various entries: empty string, non-existent, duplicate, glob
         config(['type-bridge.translations.discovery.include_paths' => [
@@ -79,7 +80,7 @@ class TranslationDiscoveryConfigTest extends TestCase
         ], $cfg->langPaths);
 
         // Cleanup
-        \Illuminate\Support\Facades\File::deleteDirectory($root);
+        File::deleteDirectory($root);
     }
 
     #[Test]

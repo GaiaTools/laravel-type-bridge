@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GaiaTools\TypeBridge\Support;
 
 use GaiaTools\TypeBridge\Transformers\EnumTransformer;
+use GaiaTools\TypeBridge\ValueObjects\EnumCase;
 use GaiaTools\TypeBridge\ValueObjects\EnumGroup;
 use GaiaTools\TypeBridge\ValueObjects\TransformedEnum;
 use Illuminate\Support\Collection;
@@ -41,7 +42,7 @@ final class EnumBackendStateBuilder
     }
 
     /**
-     * @param  Collection<int, \GaiaTools\TypeBridge\ValueObjects\EnumCase>  $cases
+     * @param  Collection<int, EnumCase>  $cases
      * @return array<string,string>
      */
     private function buildCaseEntries(Collection $cases): array

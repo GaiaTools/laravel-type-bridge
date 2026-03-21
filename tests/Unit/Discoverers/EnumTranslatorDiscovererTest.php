@@ -8,6 +8,7 @@ use GaiaTools\TypeBridge\Config\EnumTranslatorDiscoveryConfig;
 use GaiaTools\TypeBridge\Discoverers\EnumTranslatorDiscoverer;
 use GaiaTools\TypeBridge\Support\EnumTokenParser;
 use GaiaTools\TypeBridge\Tests\TestCase;
+use Illuminate\Support\Facades\File;
 use PHPUnit\Framework\Attributes\Test;
 
 class EnumTranslatorDiscovererTest extends TestCase
@@ -103,11 +104,11 @@ class EnumTranslatorDiscovererTest extends TestCase
     {
         // Create a temporary directory with a non-enum PHP file
         $tempDir = resource_path('test-output/temp-translator-test');
-        \Illuminate\Support\Facades\File::ensureDirectoryExists($tempDir);
+        File::ensureDirectoryExists($tempDir);
 
         try {
             $testFile = $tempDir.'/NotAnEnum.php';
-            \Illuminate\Support\Facades\File::put($testFile, <<<'PHP'
+            File::put($testFile, <<<'PHP'
 <?php
 namespace Test;
 
@@ -131,7 +132,7 @@ PHP
             // Should not discover non-enum classes
             $this->assertSame(0, $discovered->count());
         } finally {
-            \Illuminate\Support\Facades\File::deleteDirectory($tempDir);
+            File::deleteDirectory($tempDir);
         }
     }
 
@@ -140,11 +141,11 @@ PHP
     {
         // Create a temporary directory with an enum in a complex namespace
         $tempDir = resource_path('test-output/complex-namespace-enum');
-        \Illuminate\Support\Facades\File::ensureDirectoryExists($tempDir);
+        File::ensureDirectoryExists($tempDir);
 
         try {
             $testFile = $tempDir.'/ComplexEnum.php';
-            \Illuminate\Support\Facades\File::put($testFile, <<<'PHP'
+            File::put($testFile, <<<'PHP'
 <?php
 namespace Very\Deep\Nested\Namespace\Structure;
 
@@ -183,7 +184,7 @@ PHP
             $this->assertNotNull($found);
             $this->assertSame('complex.enum', $found['translationKey']);
         } finally {
-            \Illuminate\Support\Facades\File::deleteDirectory($tempDir);
+            File::deleteDirectory($tempDir);
         }
     }
 
@@ -192,11 +193,11 @@ PHP
     {
         // Create a temporary directory with multiple enums in one file
         $tempDir = resource_path('test-output/multiple-enums');
-        \Illuminate\Support\Facades\File::ensureDirectoryExists($tempDir);
+        File::ensureDirectoryExists($tempDir);
 
         try {
             $testFile = $tempDir.'/MultipleEnums.php';
-            \Illuminate\Support\Facades\File::put($testFile, <<<'PHP'
+            File::put($testFile, <<<'PHP'
 <?php
 namespace Test\Multiple;
 
@@ -237,7 +238,7 @@ PHP
             $this->assertContains('FirstEnum', $names);
             $this->assertContains('SecondEnum', $names);
         } finally {
-            \Illuminate\Support\Facades\File::deleteDirectory($tempDir);
+            File::deleteDirectory($tempDir);
         }
     }
 
@@ -246,11 +247,11 @@ PHP
     {
         // Create a temporary directory with an enum without namespace
         $tempDir = resource_path('test-output/no-namespace-enum');
-        \Illuminate\Support\Facades\File::ensureDirectoryExists($tempDir);
+        File::ensureDirectoryExists($tempDir);
 
         try {
             $testFile = $tempDir.'/NoNamespaceEnum.php';
-            \Illuminate\Support\Facades\File::put($testFile, <<<'PHP'
+            File::put($testFile, <<<'PHP'
 <?php
 
 use GaiaTools\TypeBridge\Attributes\GenerateTranslator;
@@ -284,7 +285,7 @@ PHP
 
             $this->assertNotNull($found);
         } finally {
-            \Illuminate\Support\Facades\File::deleteDirectory($tempDir);
+            File::deleteDirectory($tempDir);
         }
     }
 
@@ -293,11 +294,11 @@ PHP
     {
         // Create a temporary directory with backed enum
         $tempDir = resource_path('test-output/backed-enum');
-        \Illuminate\Support\Facades\File::ensureDirectoryExists($tempDir);
+        File::ensureDirectoryExists($tempDir);
 
         try {
             $testFile = $tempDir.'/BackedEnum.php';
-            \Illuminate\Support\Facades\File::put($testFile, <<<'PHP'
+            File::put($testFile, <<<'PHP'
 <?php
 namespace Test\Backed;
 
@@ -334,7 +335,7 @@ PHP
             $this->assertNotNull($found);
             $this->assertTrue($found['reflection']->isBacked());
         } finally {
-            \Illuminate\Support\Facades\File::deleteDirectory($tempDir);
+            File::deleteDirectory($tempDir);
         }
     }
 
@@ -343,7 +344,7 @@ PHP
     {
         // Create an empty directory with no PHP files
         $tempDir = resource_path('test-output/empty-dir');
-        \Illuminate\Support\Facades\File::ensureDirectoryExists($tempDir);
+        File::ensureDirectoryExists($tempDir);
 
         try {
             $config = new EnumTranslatorDiscoveryConfig(
@@ -361,7 +362,7 @@ PHP
 
             $this->assertSame(0, $discovered->count());
         } finally {
-            \Illuminate\Support\Facades\File::deleteDirectory($tempDir);
+            File::deleteDirectory($tempDir);
         }
     }
 }
