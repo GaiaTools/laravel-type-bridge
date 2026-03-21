@@ -6,6 +6,7 @@ namespace GaiaTools\TypeBridge\Tests\Unit;
 
 use GaiaTools\TypeBridge\Adapters\I18nextSyntaxAdapter;
 use GaiaTools\TypeBridge\Adapters\VueI18nSyntaxAdapter;
+use GaiaTools\TypeBridge\Console\Commands\GenerateAllCommand;
 use GaiaTools\TypeBridge\Console\Commands\GenerateEnumsCommand;
 use GaiaTools\TypeBridge\Console\Commands\GenerateTranslationsCommand;
 use GaiaTools\TypeBridge\Console\Commands\PublishConfigCommand;
@@ -103,7 +104,7 @@ class TypeBridgeServiceProviderTest extends TestCase
         $this->assertArrayHasKey('type-bridge:translations', $allCommands);
         $this->assertArrayHasKey('type-bridge:publish', $allCommands);
 
-        $this->assertInstanceOf(\GaiaTools\TypeBridge\Console\Commands\GenerateAllCommand::class, $allCommands['type-bridge:generate']);
+        $this->assertInstanceOf(GenerateAllCommand::class, $allCommands['type-bridge:generate']);
         $this->assertInstanceOf(GenerateEnumsCommand::class, $allCommands['type-bridge:enums']);
         $this->assertInstanceOf(GenerateTranslationsCommand::class, $allCommands['type-bridge:translations']);
         $this->assertInstanceOf(PublishConfigCommand::class, $allCommands['type-bridge:publish']);

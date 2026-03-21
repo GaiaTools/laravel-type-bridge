@@ -7,6 +7,11 @@ namespace GaiaTools\TypeBridge\Tests\Unit\Support;
 use GaiaTools\TypeBridge\Support\EnumFileParser;
 use GaiaTools\TypeBridge\Tests\TestCase;
 use Illuminate\Support\Facades\File;
+use Peast\Peast;
+use Peast\Syntax\Node\Literal;
+use Peast\Syntax\Node\ObjectExpression;
+use Peast\Syntax\Node\Property;
+use Peast\Syntax\Node\VariableDeclarator;
 use PHPUnit\Framework\Attributes\Test;
 
 final class EnumFileParserTest extends TestCase
@@ -234,7 +239,7 @@ TS;
     public function it_parses_with_ast_when_peast_available(): void
     {
         // Verify Peast is available for AST parsing
-        $this->assertTrue(class_exists(\Peast\Peast::class), 'Peast should be available');
+        $this->assertTrue(class_exists(Peast::class), 'Peast should be available');
 
         // This test ensures AST parsing path is executed
         $ts = <<<'TS'
@@ -979,7 +984,7 @@ TS;
         $method->setAccessible(true);
 
         // Mock a Literal node where getRaw() returns empty string
-        $literalMock = $this->createMock(\Peast\Syntax\Node\Literal::class);
+        $literalMock = $this->createMock(Literal::class);
         $literalMock->method('getRaw')->willReturn('');
         $literalMock->method('getValue')->willReturn('test string');
 
@@ -987,7 +992,7 @@ TS;
         $this->assertSame("'test string'", $result);
 
         // Mock a Literal node where getRaw() is empty and getValue() is non-string
-        $literalMock2 = $this->createMock(\Peast\Syntax\Node\Literal::class);
+        $literalMock2 = $this->createMock(Literal::class);
         $literalMock2->method('getRaw')->willReturn('');
         $literalMock2->method('getValue')->willReturn(42);
 
@@ -1045,7 +1050,7 @@ TS;
         // Mock a Property with a key node that has no getName or getValue
         $keyNodeMock = new class {};
 
-        $propertyMock = $this->createMock(\Peast\Syntax\Node\Property::class);
+        $propertyMock = $this->createMock(Property::class);
         $propertyMock->method('getKey')->willReturn($keyNodeMock);
 
         $result = $method->invoke(null, $propertyMock);
@@ -1089,9 +1094,9 @@ TS;
         $method->setAccessible(true);
 
         // Mock a VariableDeclarator with ObjectExpression init but non-Identifier id
-        $declaratorMock = $this->createMock(\Peast\Syntax\Node\VariableDeclarator::class);
+        $declaratorMock = $this->createMock(VariableDeclarator::class);
 
-        $objectExpressionMock = $this->createMock(\Peast\Syntax\Node\ObjectExpression::class);
+        $objectExpressionMock = $this->createMock(ObjectExpression::class);
         $objectExpressionMock->method('getProperties')->willReturn([]);
 
         // Mock id that is NOT an Identifier (e.g., ArrayPattern for destructuring)
@@ -1114,18 +1119,18 @@ TS;
         $method->setAccessible(true);
 
         // Create a mock ObjectExpression with a property that has no valid key
-        $propertyMock = $this->createMock(\Peast\Syntax\Node\Property::class);
+        $propertyMock = $this->createMock(Property::class);
 
         // Mock key node with no getName or getValue methods
         $keyNodeMock = new class {};
         $propertyMock->method('getKey')->willReturn($keyNodeMock);
 
         // Mock value
-        $valueMock = $this->createMock(\Peast\Syntax\Node\Literal::class);
+        $valueMock = $this->createMock(Literal::class);
         $valueMock->method('getRaw')->willReturn("'test'");
         $propertyMock->method('getValue')->willReturn($valueMock);
 
-        $objectExpressionMock = $this->createMock(\Peast\Syntax\Node\ObjectExpression::class);
+        $objectExpressionMock = $this->createMock(ObjectExpression::class);
         $objectExpressionMock->method('getProperties')->willReturn([$propertyMock]);
 
         $result = $method->invoke(null, $objectExpressionMock);

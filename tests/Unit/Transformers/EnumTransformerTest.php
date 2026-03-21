@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GaiaTools\TypeBridge\Tests\Unit\Transformers;
 
 use GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestGrouped;
+use GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestNoComments;
 use GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestPriority;
 use GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestStatus;
 use GaiaTools\TypeBridge\Tests\TestCase;
@@ -89,7 +90,7 @@ class EnumTransformerTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessageMatches('/missing a doc comment/');
 
-        $reflection = new \ReflectionEnum(\GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestNoComments::class);
+        $reflection = new ReflectionEnum(TestNoComments::class);
 
         // This should throw because requiresComments=true and cases lack doc comments
         $this->transformer->transform($reflection);

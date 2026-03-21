@@ -8,6 +8,7 @@ use GaiaTools\TypeBridge\Contracts\OutputFormatter;
 use GaiaTools\TypeBridge\Support\EnumGroupKeyFormatter;
 use GaiaTools\TypeBridge\Support\EnumGroupValueFormatter;
 use GaiaTools\TypeBridge\Support\StringQuoter;
+use GaiaTools\TypeBridge\ValueObjects\EnumCase;
 use GaiaTools\TypeBridge\ValueObjects\EnumGroup;
 use GaiaTools\TypeBridge\ValueObjects\TransformedEnum;
 use Illuminate\Support\Collection;
@@ -55,7 +56,7 @@ abstract class AbstractEnumFormatter implements OutputFormatter
 
     /**
      * @param  string[]  $lines
-     * @param  Collection<int, \GaiaTools\TypeBridge\ValueObjects\EnumCase>  $cases
+     * @param  Collection<int, EnumCase>  $cases
      */
     private function appendCases(array &$lines, Collection $cases): void
     {
