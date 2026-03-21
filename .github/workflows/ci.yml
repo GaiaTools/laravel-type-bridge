@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        php: ['8.2', '8.3', '8.4']
+        php: ['8.2', '8.3', '8.4', '8.5']
         stability: ["--prefer-lowest", "--prefer-stable"]
 
     steps:
@@ -28,7 +28,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          coverage: ${{ matrix.php == '8.4' && matrix.stability == '--prefer-stable' && 'xdebug' || 'none' }}
+          coverage: ${{ matrix.php == '8.5' && matrix.stability == '--prefer-stable' && 'xdebug' || 'none' }}
           tools: composer:v2
           ini-values: memory_limit=-1
           extensions: mbstring, intl, bcmath, pcntl
@@ -57,7 +57,7 @@ jobs:
 
       - name: Run Tests (PHPUnit)
         run: |
-          if [[ "${{ matrix.php }}" == "8.4" && "${{ matrix.stability }}" == "--prefer-stable" ]]; then
+          if [[ "${{ matrix.php }}" == "8.5" && "${{ matrix.stability }}" == "--prefer-stable" ]]; then
             composer test -- \
             --testdox \
             --coverage-clover coverage.xml
@@ -68,7 +68,7 @@ jobs:
           fi
 
       - name: Upload coverage to artifacts
-        if: matrix.php == '8.4' && matrix.stability == '--prefer-stable'
+        if: matrix.php == '8.5' && matrix.stability == '--prefer-stable'
         uses: actions/upload-artifact@v7
         with:
           name: coverage-report
