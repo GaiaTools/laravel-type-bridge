@@ -1,6 +1,6 @@
 ---
 name: type-bridge-enum-generation
-description: Generate TypeScript/JavaScript enums from PHP backed enums in Laravel applications.
+description: Generates TypeScript/JavaScript enums from PHP backed enums using the type-bridge:enums Artisan command. Use when user says "generate TS enums", "sync enums to frontend", "type-bridge enums", or needs PHP enum values available in JavaScript/TypeScript.
 ---
 
 # Laravel Type Bridge - Enum Generation
