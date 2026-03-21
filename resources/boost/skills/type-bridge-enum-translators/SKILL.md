@@ -1,6 +1,6 @@
 ---
 name: type-bridge-enum-translators
-description: Generate TypeScript/JavaScript translator composables for enum-to-translation mapping.
+description: Generates TypeScript/JavaScript translator composables that map PHP enums to their i18n translation keys. Use when user says "generate enum translators", "enum translations for frontend", or needs to display translated enum labels in Vue components.
 ---
 
 # Laravel Type Bridge - Enum Translators

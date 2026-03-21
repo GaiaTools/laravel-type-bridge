@@ -1,6 +1,6 @@
 ---
 name: type-bridge-translation-generation
-description: Generate TypeScript/JavaScript/JSON translation files from Laravel translation files.
+description: Generates TypeScript/JavaScript/JSON translation files from Laravel lang files using the type-bridge:translations command. Use when user says "sync translations to frontend", "generate JS translations", or needs Laravel translation strings available in Vue/JavaScript.
 ---
 
 # Laravel Type Bridge - Translation Generation
