@@ -181,8 +181,8 @@ final class GenerateEnumsCommandTest extends TestCase
 
         $this->artisan('type-bridge:enums', ['--check' => true, '--format' => 'ts'])
             ->expectsOutputToContain('❌ Enums differ from generated frontend files:')
-            ->expectsOutputToContain('TestStatus ('.$path.')')
-            ->expectsOutputToContain('  + INACTIVE')
+            ->expectsOutputToContain('GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestStatus')
+            ->expectsOutputToContain('INACTIVE')
             ->assertExitCode(1);
     }
 
@@ -194,14 +194,14 @@ final class GenerateEnumsCommandTest extends TestCase
 
         $this->artisan('type-bridge:enums', ['--check' => true, '--format' => 'ts'])
             ->expectsOutputToContain('❌ Enums differ from generated frontend files:')
-            ->expectsOutputToContain('TestStatus ('.$path.')')
-            ->expectsOutputToContain("  + ACTIVE: 'active'")
-            ->expectsOutputToContain("  + INACTIVE: 'inactive'")
-            ->expectsOutputToContain("  + PENDING: 'pending'")
-            ->expectsOutputToContain('TestNumeric ('.$numPath.')')
-            ->expectsOutputToContain('  + ZERO: 0')
-            ->expectsOutputToContain('  + ONE: 1')
-            ->expectsOutputToContain('  + TWO: 2')
+            ->expectsOutputToContain('GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestStatus')
+            ->expectsOutputToContain("ACTIVE: 'active'")
+            ->expectsOutputToContain("INACTIVE: 'inactive'")
+            ->expectsOutputToContain("PENDING: 'pending'")
+            ->expectsOutputToContain('GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestNumeric')
+            ->expectsOutputToContain('ZERO: 0')
+            ->expectsOutputToContain('ONE: 1')
+            ->expectsOutputToContain('TWO: 2')
             ->assertExitCode(1);
     }
 
@@ -218,9 +218,8 @@ final class GenerateEnumsCommandTest extends TestCase
 
         $this->artisan('type-bridge:enums', ['--check' => true, '--format' => 'ts'])
             ->expectsOutputToContain('❌ Enums differ from generated frontend files:')
-            ->expectsOutputToContain('TestStatus ('.$path.')')
-            ->expectsOutputToContain("  + PENDING: 'pending'")
-            ->expectsOutputToContain("  - PENDING: 'awaiting'")
+            ->expectsOutputToContain('GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestStatus')
+            ->expectsTable(['Removed', 'Added'], [["PENDING: 'awaiting'", "PENDING: 'pending'"]])
             ->assertExitCode(1);
     }
 
@@ -237,9 +236,8 @@ final class GenerateEnumsCommandTest extends TestCase
 
         $this->artisan('type-bridge:enums', ['--check' => true, '--format' => 'ts'])
             ->expectsOutputToContain('❌ Enums differ from generated frontend files:')
-            ->expectsOutputToContain('TestGrouped ('.$path.')')
-            ->expectsOutputToContain("  + ArrayGroup[3]: 'extra'")
-            ->expectsOutputToContain("  - ArrayGroup[3]: 'changed'")
+            ->expectsOutputToContain('GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestGrouped')
+            ->expectsTable(['Removed', 'Added'], [["ArrayGroup[3]: 'changed'", "ArrayGroup[3]: 'extra'"]])
             ->assertExitCode(1);
     }
 
@@ -261,10 +259,10 @@ TS;
         File::put($path, $wrong);
 
         $this->artisan('type-bridge:enums', ['--check' => true, '--format' => 'ts'])
-            ->expectsOutputToContain('TestStatus ('.$path.')')
-            ->expectsOutputToContain("  + ACTIVE: 'active'")
-            ->expectsOutputToContain("  + INACTIVE: 'inactive'")
-            ->expectsOutputToContain("  + PENDING: 'pending'")
+            ->expectsOutputToContain('GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestStatus')
+            ->expectsOutputToContain("ACTIVE: 'active'")
+            ->expectsOutputToContain("INACTIVE: 'inactive'")
+            ->expectsOutputToContain("PENDING: 'pending'")
             ->assertExitCode(1);
     }
 
@@ -275,8 +273,8 @@ TS;
 
         $this->artisan('type-bridge:enums', ['--check' => true, '--format' => 'js'])
             ->expectsOutputToContain('❌ Enums differ from generated frontend files:')
-            ->expectsOutputToContain('TestStatus ('.$path.')')
-            ->expectsOutputToContain("  + ACTIVE: 'active'")
+            ->expectsOutputToContain('GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestStatus')
+            ->expectsOutputToContain("ACTIVE: 'active'")
             ->assertExitCode(1);
     }
 
@@ -286,8 +284,8 @@ TS;
         $path = resource_path('test-output/enums/TestStatus.ts');
 
         $this->artisan('type-bridge:enums', ['--check' => true, '--format' => 'ts', '--ansi' => true])
-            ->expectsOutputToContain('TestStatus ('.$path.')')
-            ->expectsOutputToContain('+ ACTIVE')
+            ->expectsOutputToContain('GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestStatus')
+            ->expectsOutputToContain('ACTIVE')
             ->assertExitCode(1);
     }
 
@@ -304,8 +302,8 @@ TS;
 
         $this->artisan('type-bridge:enums', ['--check' => true, '--format' => 'ts'])
             ->expectsOutputToContain('❌ Enums differ from generated frontend files:')
-            ->expectsOutputToContain('TestStatus ('.$path.')')
-            ->expectsOutputToContain("  - LEGACY: 'legacy'")
+            ->expectsOutputToContain('GaiaTools\TypeBridge\Tests\Fixtures\Enums\TestStatus')
+            ->expectsOutputToContain("LEGACY: 'legacy'")
             ->assertExitCode(1);
     }
 
@@ -315,7 +313,7 @@ TS;
         config()->set('type-bridge.output_format', '');
 
         $this->artisan('type-bridge:enums', ['--check' => true])
-            ->expectsOutputToContain('Run `php artisan type-bridge:enums` to regenerate.')
+            ->expectsOutputToContain('Run `php artisan type-bridge:enums --dirty` to regenerate.')
             ->assertExitCode(1);
     }
 }
