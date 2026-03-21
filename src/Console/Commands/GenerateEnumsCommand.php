@@ -120,7 +120,7 @@ class GenerateEnumsCommand extends Command
     }
 
     /**
-     * @return array<string,array{path:string,cases:array<string,string>,groups:array<string,array{kind:string,entries:array<string,string>}>}>
+     * @return array<string,array{fqcn:string,path:string,cases:array<string,string>,groups:array<string,array{kind:string,entries:array<string,string>}>}>
      */
     private function buildBackend(EnumDiscoverer $discoverer, EnumTransformer $transformer): array
     {
@@ -142,8 +142,8 @@ class GenerateEnumsCommand extends Command
     /**
      * Compute added/removed diffs for each enum based on keys, values, and groups.
      *
-     * @param  array<string,array{path:string,cases:array<string,string>,groups:array<string,array{kind:string,entries:array<string,string>}>}>  $backend
-     * @return array<string,array{file:string,added:array<int,string>,removed:array<int,string>}>
+     * @param  array<string,array{fqcn:string,path:string,cases:array<string,string>,groups:array<string,array{kind:string,entries:array<string,string>}>}>  $backend
+     * @return array<string,array{fqcn:string,file:string,added:array<int,string>,removed:array<int,string>}>
      */
     private function computeDiffs(array $backend, string $extension): array
     {
@@ -157,7 +157,7 @@ class GenerateEnumsCommand extends Command
             $added = array_merge($caseDiff['added'], $groupDiff['added']);
             $removed = array_merge($caseDiff['removed'], $groupDiff['removed']);
             if ($added !== [] || $removed !== []) {
-                $diffs[$enumName] = ['file' => $filePath, 'added' => $added, 'removed' => $removed];
+                $diffs[$enumName] = ['fqcn' => $info['fqcn'], 'file' => $filePath, 'added' => $added, 'removed' => $removed];
             }
         }
 
@@ -198,71 +198,61 @@ class GenerateEnumsCommand extends Command
     }
 
     /**
-     * Print diffs and the hint to regenerate.
+     * Print diffs as a table and the hint to regenerate.
      *
-     * @param  array<string,array{file:string,added:array<int,string>,removed:array<int,string>}>  $diffs
+     * @param  array<string,array{fqcn:string,file:string,added:array<int,string>,removed:array<int,string>}>  $diffs
      */
     private function reportDiffs(array $diffs, string $format): void
     {
         $this->components->error('❌ Enums differ from generated frontend files:');
-        foreach ($diffs as $name => $d) {
+        $decorated = $this->isDecorated();
+        foreach ($diffs as $d) {
             $this->line('');
-            $this->line(sprintf('%s (%s)', $name, $d['file']));
-            $this->reportAddedLines($d['added']);
-            $this->reportRemovedLines($d['removed']);
+            $this->line($d['fqcn']);
+            $removed = $this->keyedByCaseName($d['removed']);
+            $added = $this->keyedByCaseName($d['added']);
+            $rows = [];
+            foreach (array_unique(array_merge(array_keys($removed), array_keys($added))) as $key) {
+                $rows[] = [
+                    isset($removed[$key]) ? $this->formatDiffCell($removed[$key], 'red', $decorated) : '-',
+                    isset($added[$key]) ? $this->formatDiffCell($added[$key], 'green', $decorated) : '-',
+                ];
+            }
+            $this->table(['Removed', 'Added'], $rows);
         }
-        $this->line('');
-        $this->components->info('Run `php artisan type-bridge:enums'.($format ? ' --format='.$format : '').'` to regenerate.');
+        $this->components->info('Run `php artisan type-bridge:enums --dirty'.($format ? ' --format='.$format : '').'` to regenerate.');
     }
 
     /**
-     * Print all added lines (green + ... when decorated; plain otherwise).
-     *
-     * @param  array<int,string>  $lines
+     * @param  array<int,string>  $entries
+     * @return array<string,string>
      */
-    private function reportAddedLines(array $lines): void
+    private function keyedByCaseName(array $entries): array
     {
-        foreach ($lines as $text) {
-            $this->writeDiffLine('+', $text, 'green');
+        $result = [];
+        foreach ($entries as $entry) {
+            $key = trim(explode(':', $entry, 2)[0]);
+            $result[$key] = $entry;
         }
+
+        return $result;
     }
 
-    /**
-     * Print all removed lines (red - ... when decorated; plain otherwise).
-     *
-     * @param  array<int,string>  $lines
-     */
-    private function reportRemovedLines(array $lines): void
+    private function formatDiffCell(string $value, string $color, bool $decorated): string
     {
-        foreach ($lines as $text) {
-            $this->writeDiffLine('-', $text, 'red');
-        }
-    }
-
-    /**
-     * Shared line writer for diffs with optional color based on console decoration.
-     */
-    private function writeDiffLine(string $sign, string $text, ?string $color = null): void
-    {
-        $prefix = sprintf('  %s %%s', $sign);
-        if ($this->isDecorated() && $color !== null) {
-            $this->line(sprintf('  <fg=%s>%s %s</>', $color, $sign, $text));
-
-            return;
+        if ($value === '') {
+            return '-';
         }
 
-        $this->line(sprintf($prefix, $text));
+        return $decorated ? "<fg=$color>$value</>" : $value;
     }
 
-    /**
-     * Determine whether console output supports decoration (colors/styles).
-     */
     private function isDecorated(): bool
     {
         /** @var mixed $out */
         $out = $this->output;
 
         /** @phpstan-ignore-next-line method_exists on OutputStyle is always true per phpdoc */
-        return is_object($out) && method_exists($out, 'isDecorated') ? (bool) $out->isDecorated() : false;
+        return is_object($out) && method_exists($out, 'isDecorated') && $out->isDecorated();
     }
 }
