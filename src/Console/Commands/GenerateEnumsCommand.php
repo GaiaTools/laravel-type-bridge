@@ -245,10 +245,6 @@ class GenerateEnumsCommand extends Command
 
     private function formatDiffCell(string $value, string $color, bool $decorated): string
     {
-        if ($value === '') {
-            return '-';
-        }
-
         return $decorated ? "<fg=$color>$value</>" : $value;
     }
 
