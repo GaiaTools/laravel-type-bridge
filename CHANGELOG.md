@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.3.0](https://github.com/GaiaTools/laravel-type-bridge/compare/v1.2.1...v1.3.0) (2026-03-22)
+
+
+### Features
+
+* **commands:** improve command output ([#45](https://github.com/GaiaTools/laravel-type-bridge/issues/45)) ([9a8f17b](https://github.com/GaiaTools/laravel-type-bridge/commit/9a8f17bb256f05b4c138df4fbe8c415bf40507d5))
+
+
+### Miscellaneous Chores
+
+* **deps:** bump actions/download-artifact from 7 to 8 ([#36](https://github.com/GaiaTools/laravel-type-bridge/issues/36)) ([8d9f111](https://github.com/GaiaTools/laravel-type-bridge/commit/8d9f1116210021f51d1095378ae1d081e22d19c0))
+* **deps:** bump actions/upload-artifact from 6 to 7 ([#37](https://github.com/GaiaTools/laravel-type-bridge/issues/37)) ([31795b4](https://github.com/GaiaTools/laravel-type-bridge/commit/31795b40a0c0e5542dcca3e84634e4562ca0d7b7))
+* **deps:** Update dependencies to support Illuminate v13.0 ([#43](https://github.com/GaiaTools/laravel-type-bridge/issues/43)) ([dc7d086](https://github.com/GaiaTools/laravel-type-bridge/commit/dc7d08641cd668d7109c858cb538890744672863))
+* **deps:** update orchestra/testbench for laravel 13 ([#44](https://github.com/GaiaTools/laravel-type-bridge/issues/44)) ([79173ef](https://github.com/GaiaTools/laravel-type-bridge/commit/79173ef65c0a4f46caa20d252e9c389df4df8506))
+* php 8.5 support ([#42](https://github.com/GaiaTools/laravel-type-bridge/issues/42)) ([4090756](https://github.com/GaiaTools/laravel-type-bridge/commit/4090756972ab70362aedc845e24d85b6d6ce20e8))
+
 ## [1.2.1](https://github.com/GaiaTools/laravel-type-bridge/compare/v1.2.0...v1.2.1) (2026-03-02)
 
 
