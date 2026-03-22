@@ -219,6 +219,11 @@ class GenerateEnumsCommand extends Command
                 ];
             }
             $this->table(['Removed', 'Added'], $rows);
+            $unmatchedRemoved = array_diff_key($removed, $added);
+            $unmatchedAdded = array_diff_key($added, $removed);
+            if ($unmatchedRemoved !== [] && $unmatchedAdded !== []) {
+                $this->components->warn('⚠ Unmatched removals and additions detected — if any are renames, update references manually before regenerating.');
+            }
         }
         $this->components->info('Run `php artisan type-bridge:enums --dirty'.($format ? ' --format='.$format : '').'` to regenerate.');
     }
