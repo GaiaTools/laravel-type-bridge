@@ -308,6 +308,25 @@ TS;
     }
 
     #[Test]
+    public function it_warns_when_unmatched_removals_and_additions_suggest_a_possible_rename(): void
+    {
+        $this->generateTsEnums();
+
+        $path = resource_path('test-output/enums/TestStatus.ts');
+        $this->assertFileExists($path);
+        $contents = File::get($path);
+
+        // Replace ACTIVE with a completely different key, creating an unmatched removal (ACTIVE)
+        // and an unmatched addition (ACTIVE is gone from backend's perspective, LEGACY appears in frontend)
+        $modified = str_replace("ACTIVE: 'active'", "LEGACY: 'legacy'", (string) $contents);
+        File::put($path, $modified);
+
+        $this->artisan('type-bridge:enums', ['--check' => true, '--format' => 'ts'])
+            ->expectsOutputToContain('⚠ Unmatched removals and additions detected')
+            ->assertExitCode(1);
+    }
+
+    #[Test]
     public function it_prints_regeneration_hint_without_format_when_not_provided(): void
     {
         config()->set('type-bridge.output_format', '');
