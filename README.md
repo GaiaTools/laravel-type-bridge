@@ -134,9 +134,9 @@ Behavior:
 - Discovers current PHP enums and computes the expected frontend entries.
 - Loads the previously generated frontend files from your configured output path.
 - Compares both keys and values.
-  - New case → reported as added: `+ KEY: VALUE`
-  - Removed case → reported as removed: `- KEY: VALUE`
-  - Changed value → reported as both add and remove: `+ KEY: NEW_VALUE` and `- KEY: OLD_VALUE`
+  - New case → reported as added (green in decorated terminals)
+  - Removed case → reported as removed (red in decorated terminals)
+  - Changed value → reported as both remove (old) and add (new) on the same row
 - Exit codes:
   - 0 when everything is in sync
   - 1 when any difference is detected (suitable for failing CI)
@@ -144,7 +144,9 @@ Behavior:
 Notes:
 
 - `--format` controls which frontend files to compare against by extension (`ts` or `js`). If omitted, the command uses your configured `type-bridge.output_format`.
-- Output lines are plain text by default for stable logs. In decorated terminals (e.g., running with `--ansi`), added lines render in green and removed lines in red. The enum header line intentionally remains unstyled.
+- Each drifted enum is shown as its own table with the fully-qualified class name as the header, to avoid ambiguity when multiple enums share a short name.
+- Cases with the same key are matched onto the same row so value changes are immediately readable side-by-side. Pure additions or removals appear on their own row with `-` in the empty column.
+- When an enum has both unmatched removals and unmatched additions, a warning is shown — this may indicate a rename where frontend references need to be updated manually.
 
 Examples
 
@@ -155,16 +157,19 @@ Checking enums against previously generated frontend files...
 ✅ Enums are in sync with generated frontend files.
 ```
 
-Differences found:
+Differences found (new case added to the PHP enum):
 
 ```text
 ❌ Enums differ from generated frontend files:
 
-OrderStatus (resources/js/enums/generated/OrderStatus.ts)
-  + SHIPPED: 'shipped'
-  - CANCELLED: 'cancelled'
+App\Enums\Status
++----------+---------------------+
+| Removed  | Added               |
++----------+---------------------+
+| -        | ARCHIVED: 'archive' |
++----------+---------------------+
 
-Run `php artisan type-bridge:enums --format=ts` to regenerate.
+Run `php artisan type-bridge:enums --dirty --format=ts` to regenerate.
 ```
 
 Value change:
@@ -172,11 +177,31 @@ Value change:
 ```text
 ❌ Enums differ from generated frontend files:
 
-Status (resources/js/enums/generated/Status.ts)
-  + PENDING: 'awaiting'
-  - PENDING: 'pending'
+App\Enums\Status
++---------------------+-------------------+
+| Removed             | Added             |
++---------------------+-------------------+
+| PENDING: 'awaiting' | PENDING: 'pending'|
++---------------------+-------------------+
 
-Run `php artisan type-bridge:enums --format=ts` to regenerate.
+Run `php artisan type-bridge:enums --dirty --format=ts` to regenerate.
+```
+
+Possible rename (unmatched removal and addition):
+
+```text
+❌ Enums differ from generated frontend files:
+
+App\Enums\Status
++--------------------+---------------------+
+| Removed            | Added               |
++--------------------+---------------------+
+| DRAFT: 'draft'     | -                   |
+| -                  | ARCHIVED: 'archive' |
++--------------------+---------------------+
+⚠ Unmatched removals and additions detected — if any are renames, update references manually before regenerating.
+
+Run `php artisan type-bridge:enums --dirty --format=ts` to regenerate.
 ```
 
 Output (`resources/js/enums/generated/Status.js`):
