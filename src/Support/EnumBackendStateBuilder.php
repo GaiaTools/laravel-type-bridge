@@ -16,7 +16,7 @@ final class EnumBackendStateBuilder
 {
     /**
      * @param  iterable<ReflectionEnum<UnitEnum>>  $reflections
-     * @return array<string,array{path:string,cases:array<string,string>,groups:array<string,array{kind:string,entries:array<string,string>}>}>
+     * @return array<string,array{fqcn:string,path:string,cases:array<string,string>,groups:array<string,array{kind:string,entries:array<string,string>}>}>
      */
     public function build(iterable $reflections, EnumTransformer $transformer): array
     {
