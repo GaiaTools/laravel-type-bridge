@@ -219,8 +219,8 @@ class GenerateEnumTranslatorsCommand extends Command
         $this->newLine();
         $this->components->info(sprintf('Checked %d enum(s).', $stats['checked']));
         $this->components->info(sprintf('Eligible translations: %d', $stats['eligible']));
-        $this->components->info(sprintf('Not in FE generation set: %d', $stats['notFrontendGeneratedEnum']));
-        $this->components->info(sprintf('Ineligible translations: %d', $stats['noTrans']));
+        $this->components->warn(sprintf('Not in FE generation set: %d', $stats['notFrontendGeneratedEnum']));
+        $this->components->warn(sprintf('Ineligible translations: %d', $stats['noTrans']));
     }
 
     private function buildFormatter(string $format, string $i18nLibrary): JsEnumTranslatorFormatter|TsEnumTranslatorFormatter
