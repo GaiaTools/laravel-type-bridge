@@ -16,7 +16,7 @@ final class EnumBackendStateBuilder
 {
     /**
      * @param  iterable<ReflectionEnum<UnitEnum>>  $reflections
-     * @return array<string,array{path:string,cases:array<string,string>,groups:array<string,array{kind:string,entries:array<string,string>}>}>
+     * @return array<string,array{fqcn:string,path:string,cases:array<string,string>,groups:array<string,array{kind:string,entries:array<string,string>}>}>
      */
     public function build(iterable $reflections, EnumTransformer $transformer): array
     {
@@ -30,11 +30,12 @@ final class EnumBackendStateBuilder
     }
 
     /**
-     * @return array{path:string,cases:array<string,string>,groups:array<string,array{kind:string,entries:array<string,string>}>}
+     * @return array{fqcn:string,path:string,cases:array<string,string>,groups:array<string,array{kind:string,entries:array<string,string>}>}
      */
     private function buildEntry(TransformedEnum $transformed): array
     {
         return [
+            'fqcn' => $transformed->namespace.'\\'.$transformed->name,
             'path' => $transformed->outputPath,
             'cases' => $this->buildCaseEntries($transformed->cases),
             'groups' => $this->buildGroupEntries($transformed->groups, $transformed->name),
