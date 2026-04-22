@@ -6,14 +6,13 @@ namespace GaiaTools\TypeBridge\Support;
 
 final class JsObjectSerializer
 {
-    private const INDENT = '  ';
-
     /**
      * @param  array<string, mixed>  $data
      */
     public static function serializeObject(array $data, int $level = 0, bool $trailingComma = false): string
     {
-        $indent = str_repeat(self::INDENT, $level);
+        $indent = IndentResolver::repeat($level);
+        $childIndent = IndentResolver::repeat($level + 1);
         $lines = ['{'];
         $lastIndex = count($data) - 1;
         $keyQuoteStyle = self::resolveQuoteStyle();
@@ -23,7 +22,7 @@ final class JsObjectSerializer
             $keyEncoded = self::serializeKey($key, $keyQuoteStyle, $allowUnquotedKeys);
             $valueSerialized = self::serializeValue($value, $level + 1, $trailingComma);
             $comma = ($i === $lastIndex && ! $trailingComma) ? '' : ',';
-            $lines[] = str_repeat(self::INDENT, $level + 1).$keyEncoded.': '.$valueSerialized.$comma;
+            $lines[] = $childIndent.$keyEncoded.': '.$valueSerialized.$comma;
             $i++;
         }
         $lines[] = $indent.'}';
@@ -161,7 +160,7 @@ final class JsObjectSerializer
 
     private static function indent(int $level): string
     {
-        return str_repeat(self::INDENT, $level);
+        return IndentResolver::repeat($level);
     }
 
     /**

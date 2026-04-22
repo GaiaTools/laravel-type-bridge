@@ -58,6 +58,16 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Indent Spaces
+    |--------------------------------------------------------------------------
+    | Number of spaces used for each indentation level in generated JS/TS
+    | output. Non-integer values fall back to the default; negative values
+    | are treated as zero.
+    */
+    'indent_spaces' => env('TYPE_BRIDGE_INDENT_SPACES', 4),
+
+    /*
+    |--------------------------------------------------------------------------
     | i18n Library
     |--------------------------------------------------------------------------
     | Target i18n library for all translation-related generation.
