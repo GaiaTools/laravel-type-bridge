@@ -7,6 +7,7 @@ namespace GaiaTools\TypeBridge\OutputFormatters\Enum;
 use GaiaTools\TypeBridge\Contracts\OutputFormatter;
 use GaiaTools\TypeBridge\Support\EnumGroupKeyFormatter;
 use GaiaTools\TypeBridge\Support\EnumGroupValueFormatter;
+use GaiaTools\TypeBridge\Support\IndentResolver;
 use GaiaTools\TypeBridge\Support\StringQuoter;
 use GaiaTools\TypeBridge\ValueObjects\EnumCase;
 use GaiaTools\TypeBridge\ValueObjects\EnumGroup;
@@ -15,8 +16,6 @@ use Illuminate\Support\Collection;
 
 abstract class AbstractEnumFormatter implements OutputFormatter
 {
-    private const INDENT = '    ';
-
     public function format(mixed $transformed): string
     {
         assert($transformed instanceof TransformedEnum);
@@ -75,7 +74,7 @@ abstract class AbstractEnumFormatter implements OutputFormatter
     private function appendDocComment(array &$lines, ?string $docComment): void
     {
         if ($docComment !== null) {
-            $lines[] = self::INDENT.$docComment;
+            $lines[] = IndentResolver::unit().$docComment;
         }
     }
 
@@ -84,7 +83,7 @@ abstract class AbstractEnumFormatter implements OutputFormatter
         $formatted = is_string($value) ? StringQuoter::quoteJs($value) : $value;
         $comma = $noComma ? '' : ',';
 
-        return sprintf(self::INDENT.'%s: %s%s', $name, $formatted, $comma);
+        return sprintf(IndentResolver::unit().'%s: %s%s', $name, $formatted, $comma);
     }
 
     /**
@@ -144,7 +143,7 @@ abstract class AbstractEnumFormatter implements OutputFormatter
 
         foreach ($group->values as $i => $value) {
             $formatted = EnumGroupValueFormatter::format($value, $enumName);
-            $lines[] = self::INDENT.$formatted.$this->commaFor($i === $lastIndex && ! $trailingComma);
+            $lines[] = IndentResolver::unit().$formatted.$this->commaFor($i === $lastIndex && ! $trailingComma);
         }
     }
 
@@ -160,7 +159,7 @@ abstract class AbstractEnumFormatter implements OutputFormatter
         foreach ($keys as $i => $key) {
             $formattedKey = EnumGroupKeyFormatter::format($key);
             $formattedValue = EnumGroupValueFormatter::format($group->values[$key], $enumName);
-            $lines[] = self::INDENT.$formattedKey.': '.$formattedValue.$this->commaFor($i === $lastIndex && ! $trailingComma);
+            $lines[] = IndentResolver::unit().$formattedKey.': '.$formattedValue.$this->commaFor($i === $lastIndex && ! $trailingComma);
         }
     }
 

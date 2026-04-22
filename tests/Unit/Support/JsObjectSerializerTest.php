@@ -10,6 +10,13 @@ use PHPUnit\Framework\Attributes\Test;
 
 class JsObjectSerializerTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config()->set('type-bridge.indent_spaces', 2);
+    }
+
     #[Test]
     public function it_serializes_primitives_correctly(): void
     {
