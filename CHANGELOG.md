@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.4.0](https://github.com/GaiaTools/laravel-type-bridge/compare/v1.3.0...v1.4.0) (2026-04-22)
+
+
+### Features
+
+* configurable space formating ([#52](https://github.com/GaiaTools/laravel-type-bridge/issues/52)) ([1be2e86](https://github.com/GaiaTools/laravel-type-bridge/commit/1be2e86e0c1f4747b31c8184d88abd8d4590d838))
+
+
+### Miscellaneous Chores
+
+* **ci:** add composer to dependabot and automerge workflow ([#50](https://github.com/GaiaTools/laravel-type-bridge/issues/50)) ([781d318](https://github.com/GaiaTools/laravel-type-bridge/commit/781d318c5874f8a57a3d10b85355a8ef6a3b5f9f))
+* **ci:** bump dependabot/fetch-metadata from 2 to 3 ([#51](https://github.com/GaiaTools/laravel-type-bridge/issues/51)) ([4324df2](https://github.com/GaiaTools/laravel-type-bridge/commit/4324df28d98d95d7744c75c0b67df42e0f9922ce))
+* **ci:** update CI workflow to use vars for SonarQube host URL ([#48](https://github.com/GaiaTools/laravel-type-bridge/issues/48)) ([70f53cc](https://github.com/GaiaTools/laravel-type-bridge/commit/70f53cc82f84922e3179d33e84f72ebf47a6f5ff))
+
 ## [1.3.0](https://github.com/GaiaTools/laravel-type-bridge/compare/v1.2.1...v1.3.0) (2026-03-22)
 
 
