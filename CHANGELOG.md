@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/GaiaTools/laravel-type-bridge/compare/v1.4.0...v1.4.1) (2026-06-19)
+
+
+### Miscellaneous Chores
+
+* **ci:** bump googleapis/release-please-action from 4 to 5 ([#53](https://github.com/GaiaTools/laravel-type-bridge/issues/53)) ([9399a9e](https://github.com/GaiaTools/laravel-type-bridge/commit/9399a9e3fad640e2da26a1521b94f6048ee753fd))
+
 ## [1.4.0](https://github.com/GaiaTools/laravel-type-bridge/compare/v1.3.0...v1.4.0) (2026-04-22)
 
 
