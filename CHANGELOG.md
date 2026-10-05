@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.4.1](https://github.com/GaiaTools/laravel-type-bridge/compare/v1.4.0...v1.4.1) (2026-07-17)
+
+
+### Miscellaneous Chores
+
+* **ci:** bump actions/cache from 5 to 6 ([#56](https://github.com/GaiaTools/laravel-type-bridge/issues/56)) ([a2aa6a0](https://github.com/GaiaTools/laravel-type-bridge/commit/a2aa6a056a85bf7de797b9a78dcc3b11bf5c7384))
+* **ci:** bump actions/checkout from 6 to 7 ([#55](https://github.com/GaiaTools/laravel-type-bridge/issues/55)) ([8356b49](https://github.com/GaiaTools/laravel-type-bridge/commit/8356b4979f236bdea4d4928bd48bc77441aea12c))
+* **ci:** bump googleapis/release-please-action from 4 to 5 ([#53](https://github.com/GaiaTools/laravel-type-bridge/issues/53)) ([9399a9e](https://github.com/GaiaTools/laravel-type-bridge/commit/9399a9e3fad640e2da26a1521b94f6048ee753fd))
+
 ## [1.4.0](https://github.com/GaiaTools/laravel-type-bridge/compare/v1.3.0...v1.4.0) (2026-04-22)
 
 
